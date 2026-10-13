@@ -1,0 +1,24 @@
+extends: hardstyle
+name: Happy Hardcore
+summary: 165-180 bpm; bouncy kick, off-beat bass, piano and supersaw chords in major or bright minor, sing-along melody
+bpm: [160, 180, 170]
+keys: [C major, G major, A minor, F major, D minor]
+about: |
+  Rhythm: punchy (less distorted) kick on every beat, off-beat bass stab, clap on 2 and 4, sometimes a breakbeat layer.
+  Harmony: bright, simple: I V vi IV, vi IV I V; piano stabs and supersaw chords.
+  Melody: fast, cheerful, nursery-rhyme simple, often pitched-up vocals.
+  Arrangement: piano intro, kick drop, breakdown with vocal and piano, climax.
+  Mix: bright and loud, bass tight on the off-beat.
+profile:
+  master: {lufs: -8.5}
+  roles: {kick: {level: -3}}
+song:
+  ending: hit
+  chords:
+    main: "I | V | vi | IV"
+    alt: "vi | IV | I | V"
+  tracks:
+    kick: {inst: kick_trance}
+    rbass: {inst: bass_offbeat}
+    stab: {inst: keys_piano, role: keys}
+    hoover: {inst: lead_supersaw, octave: 4, parts: {riff: {line: "3:.5 3:.5 5:.5 3:.5 1':1 5:1 | 2:.5 2:.5 5:.5 2:.5 7:1 5:1 | 1:.5 1:.5 3:.5 1:.5 6:1 3:1 | 4:.5 4:.5 6:.5 4:.5 1':1 6:1"}}}

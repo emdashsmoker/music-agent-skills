@@ -1,0 +1,65 @@
+name: House
+family: house
+summary: four-on-the-floor groove, off-beat hats, syncopated bass and chord stabs
+bpm: [118, 128, 124]
+keys: [A minor, C minor, F minor, G minor, D minor]
+about: |
+  Rhythm: kick on every beat, clap or snare on 2 and 4, open hat on every off-beat, closed hats in sixteenths with
+  ghost notes. A little swing (0.05-0.12) makes it roll.
+  Bass: short, syncopated, leaves the kick's beat free; often root and octave with a fifth passing.
+  Harmony: seventh and ninth chords as short stabs or organ/piano riffs, 2 or 4 bar loops (i7 VImaj7 III VII, ii7 V7 Imaj7).
+  Arrangement: 8 or 16 bar blocks. Elements enter one at a time; the break removes kick and bass, a riser and a
+  snare roll lead back in. DJs need 16 bars of drums at both ends.
+  Mix: kick and bass own the low end, bass ducked 6-8 dB by the kick; stabs and pads ducked 3-5 dB for the pump.
+profile:
+  master: {lufs: -9.5}
+  roles:
+    bass: {duck: -7}
+    pad: {duck: -5}
+    chord: {duck: -4}
+  returns:
+    reverb: {decay: 1.8}
+song:
+  ending: hit
+  seed: 11
+  swing: 0.06
+  chords:
+    main: "i7 | VImaj7 | IIImaj7 | VII"
+    lift: "VImaj7 | VII | i7 | v7"
+  tracks:
+    kick: {inst: kick_house, role: kick, parts: {four: {hits: "x...x...x...x..."}}}
+    clap: {inst: clap_909, role: snare, parts: {two: {hits: "....x.......x..."}}}
+    hat:
+      inst: hat_closed_909
+      role: hat
+      parts:
+        off: {hits: "..x...x...x...x."}
+        sixteen: {hits: "x.oxx.oxx.oxx.ox", vel: 0.8}
+    ohat: {inst: hat_open_909, role: hat, parts: {off: {hits: "..x...x...x...x."}}, mix: {gain_db: -2}}
+    shaker: {inst: shaker, role: perc, parts: {run: {hits: "o.x.o.x.o.x.o.x.", vel: 0.7}}}
+    bass:
+      inst: bass_pluck
+      role: bass
+      parts:
+        groove: {grid: ". . 1 . . 1 . 1 . . 1 . . 5 1' ."}
+        simple: {grid: ". . 1 . . . 1 . . . 1 . . . 1 ."}
+    chord:
+      inst: chord_stab
+      role: chord
+      parts:
+        stab: {grid: ". . c . . c . . . . c . . c . ."}
+        sparse: {grid: ". . c . . . . . . . . . . c . ."}
+    pad: {inst: pad_warm, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+    lead:
+      inst: pluck_saw
+      role: pluck
+      parts:
+        hook: {line: "5:.75 5:.75 3:.5 r:1 1':1 | 7:.75 7:.75 5:.5 r:2 | 5:.75 5:.75 3:.5 r:1 5:1 | 2:.75 3:.75 5:.5 r:2"}
+  sections:
+    - {name: intro, type: intro, bars: 16, chords: main, play: {kick: four, hat: off, shaker: run}, auto: {master: {hpf: [150, 20]}}}
+    - {name: groove, type: verse, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, bass: simple, chord: sparse}}
+    - {name: full, type: chorus, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, shaker: run, bass: groove, chord: stab, pad: hold}}
+    - {name: break, type: break, bars: 8, chords: main, hit: [downlifter], play: {pad: hold, chord: sparse, lead: hook}}
+    - {name: build, type: build, bars: 8, chords: main, rise: {riser: 8, snare_roll: 4}, play: {hat: off, pad: hold, chord: stab, lead: hook}, auto: {chord: {lpf: [600, 14000]}}}
+    - {name: drop, type: drop, bars: 32, chords: main, hit: [impact, crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, shaker: run, bass: groove, chord: stab, pad: hold, lead: hook}}
+    - {name: outro, type: outro, bars: 16, chords: main, hit: [crash], play: {kick: four, hat: off, shaker: run, bass: simple}, auto: {master: {lpf: [20000, 3000]}}}

@@ -1,0 +1,51 @@
+name: Gabber
+family: hardcore
+summary: 170-190 bpm hardcore; a hugely distorted kick on every beat, hoover stabs and screeching leads
+bpm: [160, 200, 180]
+keys: [F minor, E minor, G minor, A minor]
+about: |
+  Rhythm: the distorted kick is everything: on every beat, long enough to carry pitch, sometimes re-pitched to
+  play a bass line or doubled into rolls before a change. Off-beat open hat, clap or snare on 2 and 4, ride
+  in the peak. Fills are kick rolls (eighths to sixteenths to thirty-seconds).
+  Bass: none beside the kick's tail.
+  Harmony: minor rave stabs (the hoover), simple scary riffs of 3-5 notes, sirens; often a single root with a
+  flat second or tritone. Melodic hardcore uses supersaw anthems over the same kick.
+  Arrangement: intro with stabs or a spoken sample, kick drop, 16-bar blocks with a new lead each time, short
+  breaks without kick, kick roll back in.
+  Mix: the kick takes most of the headroom on purpose and is clipped, not limited; leads are loud, harsh and
+  mid-heavy; no sidechain subtlety, everything else simply stops when the kick hits.
+profile:
+  master: {lufs: -7, clip: true}
+  roles:
+    kick: {level: -1}
+    hat: {level: -13}
+    lead: {duck: -8, duck_release: 0.25, hpf: 250, reverb: 0.15}
+    chord: {duck: -8, duck_release: 0.25, hpf: 250}
+    pad: {duck: -8, hpf: 250}
+  qa:
+    crest_db: [4.5, 14]
+    limiter_p95_db: [0, 7]
+    drums_vs_rest_db: [-2, 12]
+    low_share_db: [-9, -0.8]
+song:
+  ending: hit
+  seed: 141
+  chords:
+    main: "i | i | bVI | bVII"
+    alt: "i | bII | i | bV"
+  tracks:
+    kick: {inst: kick_gabber, role: kick, parts: {four: {hits: "x...x...x...x..."}, roll: {hits: "x...x...x...x...|x...x...x.x.xxxx"}}}
+    ohat: {inst: hat_open_909, role: hat, parts: {off: {hits: "..x...x...x...x."}}}
+    clap: {inst: clap_909, role: snare, parts: {two: {hits: "....x.......x..."}}, mix: {gain_db: -3}}
+    ride: {inst: ride_909, role: hat, parts: {eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.7}}, mix: {gain_db: -3}}
+    stab: {inst: chord_rave, role: chord, parts: {riff: {grid: "c . . c . . c . . . c . c . . ."}}}
+    hoover: {inst: lead_hoover, role: lead, octave: 4, parts: {riff: {line: "1:.75 1:.75 b3:.5 1:.75 b7,:.75 1:.5 | 1:.75 1:.75 b3:.5 4:.75 b3:.75 1:.5"}}}
+    screech: {inst: {base: lead_psy, drive: 0.8, filter: {cutoff: 1500, res: 0.6}}, role: lead, octave: 5, parts: {a: {grid: "1 . 1 . b3 . 1 . 5 . b3 . 1 . b2 ."}}}
+    pad: {inst: pad_dark, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+  sections:
+    - {name: intro, type: intro, bars: 8, chords: main, play: {pad: hold, stab: riff}, auto: {stab: {lpf: [400, 6000]}}, rise: {riser: 4}}
+    - {name: kick_in, type: verse, bars: 16, chords: main, hit: [impact], play: {kick: four, ohat: off, stab: riff}, energy: 0.8}
+    - {name: lead_a, type: drop, bars: 16, chords: main, hit: [crash], play: {kick: roll, ohat: off, clap: two, hoover: riff, stab: riff}}
+    - {name: break, type: break, bars: 8, chords: alt, hit: [downlifter], play: {pad: hold, screech: a}, auto: {screech: {lpf: [500, 9000]}}, rise: {riser: 4, snare_roll: 2}}
+    - {name: lead_b, type: drop, bars: 32, chords: alt, hit: [impact, crash], play: {kick: roll, ohat: off, clap: two, ride: eight, screech: a, hoover: riff}}
+    - {name: outro, type: outro, bars: 8, chords: main, play: {kick: four, ohat: off, stab: riff}, energy: 0.6}

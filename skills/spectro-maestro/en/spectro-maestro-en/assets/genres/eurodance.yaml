@@ -1,0 +1,25 @@
+extends: trance
+name: Eurodance
+summary: 1990s dance pop; four-on-the-floor, off-beat organ or pluck bass, piano or synth riff, big chorus
+bpm: [125, 150, 138]
+keys: [A minor, D minor, E minor, C minor, G minor]
+about: |
+  Rhythm: 909 kick on every beat, clap on 2 and 4, off-beat open hat, sixteenth hats.
+  Bass: off-beat bass (organ or plucked synth) on the root, sometimes octave-jumping.
+  Harmony: simple minor four-chord loops (i VI III VII, i VII VI VII), piano stabs or rave chords in a syncopated riff.
+  Melody: a catchy synth riff is the hook; sung chorus with a rap or spoken verse is the classic form.
+  Arrangement: riff intro, verse (thinner), chorus (riff plus vocal), break, final chorus.
+  Mix: bright, punchy, loud; less reverb than trance.
+profile:
+  master: {lufs: -9}
+  returns: {reverb: {decay: 1.8}}
+song:
+  ending: hit
+  tracks:
+    kick: {inst: kick_909}
+    bass: {inst: bass_organ}
+    pluck: {inst: keys_piano, role: keys, parts: {gate: {grid: "c . . c . . c . . c . . c . c .", gate: 0.8}}}
+    lead:
+      inst: lead_square
+      parts:
+        theme: {line: "1':.5 1':.5 7:.5 1':.5 5:1 3:1 | 6:.5 6:.5 5:.5 6:.5 3:1 1:1 | 3:.5 3:.5 2:.5 3:.5 5:1 3:1 | 2:1 2:.5 3:.5 2:2 | 1':.5 1':.5 7:.5 1':.5 5:1 3:1 | 6:.5 6:.5 5:.5 6:.5 1':1 6:1 | 5:.5 5:.5 3:.5 5:.5 1':1 5:1 | 7:1 7:.5 1':.5 2':2"}

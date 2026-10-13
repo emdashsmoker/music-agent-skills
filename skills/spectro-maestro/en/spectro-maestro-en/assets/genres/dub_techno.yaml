@@ -1,0 +1,24 @@
+extends: techno
+name: Dub Techno
+summary: soft kick, deep sub, minor chord stabs dissolving in long delay and reverb
+bpm: [116, 126, 122]
+keys: [C minor, F minor, A minor, D minor]
+about: |
+  Rhythm: soft, round kick on every beat; quiet off-beat hats; rim clicks; everything understated.
+  Bass: a sub pulse or a two-note dub line.
+  Harmony: one minor seventh or ninth chord stab, filtered and sent into a long feedback delay and a large reverb;
+  the echoes are the music. The filter cutoff of the stab moves slowly.
+  Arrangement: very gradual; 8-10 minutes with tiny changes is normal.
+  Mix: quiet master, lots of space, highs rolled off, tape hiss or noise bed welcome.
+profile:
+  master: {lufs: -13}
+  roles: {chord: {delay: 0.6, reverb: 0.5, level: -5}, kick: {level: -5}}
+  returns: {reverb: {decay: 5.0, damp: 3500}, delay: {time: 1/8d, feedback: 0.65, damp: 2500}}
+song:
+  ending: fade
+  chords: {main: "im7 | im7 | im7 | im7", alt: "im7 | im7 | ivm7 | ivm7"}
+  tracks:
+    kick: {inst: kick_lofi}
+    stab: {inst: {base: chord_stab, filter: {cutoff: 500, env: 2.0}}, parts: {pulse: {grid: ". . . c . . . . . . . . . . . ."}, busy: {grid: ". . . c . . . . . . c . . . . ."}}}
+    seq: {inst: pluck_fm, parts: {loop: {grid: ". . . . . . 5 . . . . . . . 1' ."}}}
+    pad: {inst: drone}

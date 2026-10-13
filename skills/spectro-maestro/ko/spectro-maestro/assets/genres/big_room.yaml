@@ -1,0 +1,22 @@
+extends: electro_house
+name: Big Room
+summary: festival EDM, huge kick, minimal drop built on one short lead motif, long snare-roll builds
+bpm: [126, 130, 128]
+keys: [F minor, G minor, E minor]
+about: |
+  Rhythm: the kick is the bass in the drop; clap on 2 and 4, few hats.
+  Bass: in the drop the kick's long tail carries the low end; off-beat bass only supports.
+  Harmony: breakdown plays a big supersaw progression and melody; the drop reduces to a 1-2 bar lead motif on few notes.
+  Arrangement: break, 8-16 bar build with accelerating snare roll, a bar of silence or a vocal shout, drop.
+  Mix: very loud; reverb on the drop lead, everything else out of the kick's way.
+profile:
+  master: {lufs: -8}
+song:
+  ending: hit
+  tracks:
+    kick: {inst: kick_hardstyle}
+    lead:
+      inst: lead_supersaw
+      role: lead
+      parts:
+        hook: {line: "1:.75 1:.75 1:.5 b3:.75 b3:.75 b3:.5 | 1:.75 1:.75 1:.5 b7,:.75 b7,:.75 5,:.5 | 1:.75 1:.75 1:.5 b3:.75 b3:.75 4:.5 | 5:.75 4:.75 b3:.5 1:2"}

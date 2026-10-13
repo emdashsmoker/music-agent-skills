@@ -1,0 +1,27 @@
+extends: house
+name: UK Garage / 2-step
+summary: shuffled, skipping two-step drums, warm sub or organ bass, chopped chords
+bpm: [128, 136, 132]
+keys: [F minor, G minor, C minor, A minor]
+about: |
+  Rhythm: the kick skips the four-on-the-floor: beat 1 and a syncopated hit late in the bar; snare or clap on 2 and 4;
+  heavily swung sixteenth hats with ghost notes. Swing 0.15-0.25 on sixteenths is the style.
+  Bass: round sub or organ bass playing a syncopated, melodic line with rests.
+  Harmony: seventh and ninth chords as short chopped stabs, often pitched vocal chops.
+  Arrangement: 8-bar blocks, bass drop-outs, drum fills at the turnarounds.
+  Mix: punchy but not hard; sub clean and mono.
+profile:
+  master: {lufs: -10}
+  roles: {bass: {duck: -5}}
+song:
+  ending: hit
+  swing: 0.2
+  chords:
+    main: "im9 | ivm9 | bVIImaj7 | IIImaj7"
+    lift: "VImaj7 | bVII | im9 | v7"
+  tracks:
+    kick: {inst: kick_dnb, parts: {four: {hits: "x.........x..x.."}}}
+    clap: {inst: snare_dnb}
+    hat: {parts: {off: {hits: "..x...x...x...x."}, sixteen: {hits: "x.ox..oxx.ox..ox", vel: 0.8}}}
+    bass: {inst: bass_organ, parts: {groove: {grid: "1 - . . . 1 . 5 - . 1' . . b7 - ."}, simple: {grid: "1 - . . . . . 5 - . . . . 1 - ."}}}
+    chord: {inst: keys_ep, role: keys, parts: {stab: {grid: ". . c . . . c . . c . . . . c ."}, sparse: {grid: ". . c . . . . . . c . . . . . ."}}}

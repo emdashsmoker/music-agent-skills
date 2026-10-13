@@ -1,0 +1,51 @@
+name: Psytrance
+family: trance
+summary: fast, hypnotic; a short kick and a rolling sixteenth bass on one note, squelchy leads and effects
+bpm: [138, 148, 145]
+keys: [E phrygian, F phrygian, G phrygian, D phrygian, E minor]
+about: |
+  Rhythm: short, clicky kick on every beat; closed hat on the off-beats and sixteenths; snare or clap on 2 and 4 is optional.
+  Bass: the signature. Three sixteenths after every kick on the root (K b b b), very short, tight, low-passed,
+  never overlapping the kick. Root stays for long stretches; changes of a semitone or minor third mark sections.
+  Harmony: static. Phrygian and harmonic minor colours (flat second, major third over the root for the eastern sound).
+  Leads: short resonant sequences in sixteenths and triplets, acid lines, FM zaps, risers, atmospheres, vocal samples.
+  Arrangement: 16-bar blocks, a new sound every block; breaks of 8-16 bars with atmosphere, then the bass returns.
+  Mix: kick and bass must interlock perfectly (bass ducked completely on the kick); everything else above 200 Hz.
+profile:
+  master: {lufs: -8.5}
+  roles:
+    bass: {duck: -14, duck_release: 0.2, level: -2.5}
+    lead: {delay: 0.3, reverb: 0.2, hpf: 250}
+    arp: {delay: 0.35, hpf: 300}
+    pad: {hpf: 250}
+  returns: {delay: {time: 1/8d, feedback: 0.5}, reverb: {decay: 2.5}}
+song:
+  ending: hit
+  seed: 41
+  chords:
+    main: "i5 | i5 | i5 | i5"
+    alt: "i5 | i5 | bII5 | i5"
+  tracks:
+    kick: {inst: kick_psy, role: kick, parts: {four: {hits: "x...x...x...x..."}}}
+    bass: {inst: bass_rolling, role: bass, parts: {roll: {grid: ". 1 1 1 . 1 1 1 . 1 1 1 . 1 1 1", gate: 0.7}}}
+    hat: {inst: hat_closed_909, role: hat, parts: {off: {hits: "..x...x...x...x."}, sixteen: {hits: "o.xoo.xoo.xoo.xo", vel: 0.8}}}
+    ohat: {inst: hat_open_909, role: hat, parts: {off: {hits: "..x...x...x...x."}}, mix: {gain_db: -3}}
+    clap: {inst: snare_909, role: snare, parts: {two: {hits: "....x.......x..."}}, mix: {gain_db: -3}}
+    perc: {inst: conga, role: perc, parts: {riff: {hits: "...x..x...x..x.x", vel: 0.7}}, mix: {pan: 0.35}}
+    squelch:
+      inst: lead_psy
+      role: lead
+      octave: 4
+      parts:
+        a: {grid: "1 . 1' 1 b2 . 1 5 . 1 1' . b3 1 . b7,"}
+        b: {grid: "1' 1' . 5 . 4 b3 . 1 . b2 1 . 5, . 1"}
+    zap: {inst: {base: pluck_fm, ops: [{ratio: 1, mod_ratio: 7, index: 4.0, index_env: [0.001, 0.05, 0.0, 0.04]}]}, role: arp, octave: 5, parts: {trip: {grid: "1 . . 5 . . 1' . . 5 . . b2' . 1' .", step: 0.25}}}
+    pad: {inst: pad_dark, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+  sections:
+    - {name: intro, type: intro, bars: 16, chords: main, play: {pad: hold, hat: off, perc: riff}, auto: {pad: {lpf: [300, 3000]}}, rise: {riser: 4}}
+    - {name: drive, type: verse, bars: 16, chords: main, hit: [impact], play: {kick: four, bass: roll, hat: off}}
+    - {name: lead_a, type: chorus, bars: 16, chords: main, hit: [crash], play: {kick: four, bass: roll, hat: sixteen, ohat: off, perc: riff, squelch: a}, auto: {squelch: {lpf: [500, 8000]}}, energy: 0.8}
+    - {name: break, type: break, bars: 8, chords: alt, hit: [downlifter], play: {pad: hold, zap: trip, perc: riff}, rise: {riser: 4, snare_roll: 2}}
+    - {name: peak, type: drop, bars: 32, chords: alt, hit: [impact, crash], play: {kick: four, bass: roll, hat: sixteen, ohat: off, clap: two, perc: riff, squelch: b, zap: trip}}
+    - {name: lead_b, type: chorus, bars: 16, chords: main, hit: [crash], play: {kick: four, bass: roll, hat: sixteen, ohat: off, perc: riff, squelch: a, pad: hold}, auto: {squelch: {lpf: [8000, 600]}}, energy: 0.8}
+    - {name: outro, type: outro, bars: 16, chords: main, play: {kick: four, bass: roll, hat: off}, gap: {kick: 16, bass: 16}}

@@ -1,0 +1,35 @@
+extends: house
+name: Tech House
+summary: stripped, percussive house with a rolling bass riff and few chords
+bpm: [124, 128, 126]
+keys: [G minor, A minor, F minor, E minor]
+about: |
+  Rhythm: tight punchy kick, crisp clap, busy shuffled percussion (rim, conga, shaker) is the hook.
+  Bass: a short repeating riff of 1-3 pitches, almost percussive, locked to the kick.
+  Harmony: minimal; one chord or a two-chord vamp, stabs used as percussion.
+  Arrangement: long DJ-friendly sections, tension from filter moves and drum drop-outs instead of melodies.
+  Mix: dry and upfront, little reverb, loud club master.
+profile:
+  master: {lufs: -9}
+  returns: {reverb: {decay: 1.2}}
+  roles: {perc: {level: -10}}
+song:
+  ending: hit
+  swing: 0.1
+  chords:
+    main: "i | i | i | bVII"
+    lift: "i | i | iv | iv"
+  tracks:
+    kick: {inst: kick_techno}
+    perc: {inst: rim_808, role: perc, parts: {riff: {hits: "..x..x....x..x.."}}}
+    conga: {inst: conga, role: perc, parts: {riff: {hits: "...x....x..x...x", vel: 0.8}}, mix: {pan: 0.3}}
+    bass: {inst: bass_moog, parts: {groove: {grid: "1 . . 1 . . 1 . b7, . 1 . . 1 . 3"}, simple: {grid: "1 . . 1 . . 1 . . . 1 . . 1 . ."}}}
+    chord: {inst: chord_rave, parts: {stab: {grid: ". . . . . . c . . . . . . . c ."}, sparse: {grid: ". . . . . . c . . . . . . . . ."}}}
+  sections:
+    - {name: intro, type: intro, bars: 16, chords: main, play: {kick: four, hat: off, perc: riff}}
+    - {name: groove, type: verse, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, perc: riff, bass: simple}}
+    - {name: full, type: chorus, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, perc: riff, conga: riff, bass: groove, chord: sparse}}
+    - {name: break, type: break, bars: 8, chords: lift, hit: [downlifter], play: {perc: riff, conga: riff, chord: stab, pad: hold}, auto: {pad: {lpf: [300, 3000]}}}
+    - {name: build, type: build, bars: 8, chords: lift, rise: {riser: 8, snare_roll: 4}, play: {hat: sixteen, perc: riff, conga: riff, chord: stab, bass: simple}, auto: {bass: {lpf: [200, 6000]}}}
+    - {name: drop, type: drop, bars: 32, chords: main, hit: [impact, crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, shaker: run, perc: riff, conga: riff, bass: groove, chord: stab}}
+    - {name: outro, type: outro, bars: 16, chords: main, hit: [crash], play: {kick: four, hat: off, perc: riff, bass: simple}}

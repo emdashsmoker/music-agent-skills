@@ -1,0 +1,199 @@
+title: Signal Fires
+genre: futurepop
+bpm: 128
+key: A minor
+seed: 2026
+ending: hit                   # the outro ends on VII: a tonic downbeat that fades over two bars closes the song
+notes: >
+  Futurepop demo. Female vocal, verse low and narrative (A3-G4), chorus lifted (C4-A4).
+  The supersaw hook answers the vocal in the choruses and carries the post-chorus alone.
+chords:
+  verse: i | VI | III | VII
+  pre: iv | iv | VI | VII
+  chorus: VI | VII | i | i | VI | VII | III | VII
+tracks:
+  kick:
+    inst: kick_trance
+    role: kick
+    parts:
+      four: {hits: "x...x...x...x..."}
+      half: {hits: "x.......x......."}
+  snare:
+    inst: snare_909
+    role: snare
+    parts:
+      two: {hits: "....x.......x..."}
+      fill: {hits: "....x.......x...|....x.......x...|....x.......x...|....x.......x.xx"}
+  clap:
+    inst: clap_909
+    role: snare
+    parts:
+      two: {hits: "....x.......x..."}
+    mix: {gain_db: -5}
+  hat:
+    inst: hat_closed_909
+    role: hat
+    parts:
+      eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.8}
+      sixteen: {hits: "x.oxx.oxx.oxx.ox", vel: 0.8}
+  ohat:
+    inst: hat_open_909
+    role: hat
+    parts:
+      "off": {hits: "..x...x...x...x."}
+    mix: {gain_db: -3}
+  bass:
+    inst: bass_fm
+    role: bass
+    parts:
+      eight: {grid: "1 . 1 . 1' . 1 . 1 . 1 . 1' . 1 1"}
+      oct: {grid: ". 1 1' 1 . 1 1' 1 . 1 1' 1 . 1 1' 1"}
+      long: {grid: "1 - - - - - - - - - - - - - - -"}
+  arp:
+    inst: pluck_saw
+    role: arp
+    octave: 4
+    parts:
+      up: {grid: "1 5 1' 5 3' 5 1' 5 1 5 1' 5 3' 5 1' 5"}
+      thin: {grid: "1 . 5 . 1' . 5 . 3' . 5 . 1' . 5 ."}
+  pad:
+    inst: pad_supersaw
+    role: pad
+    parts:
+      hold: {grid: "c - - - - - - - - - - - - - - -"}
+  stab:
+    inst: pluck_supersaw
+    role: pluck
+    parts:
+      hits: {grid: "c . . c . . c . . c . . c . c ."}
+    mix: {gain_db: -3}
+  lead:
+    inst: lead_supersaw
+    role: lead
+    octave: 5
+    parts:
+      # fills the gaps the voice leaves at the end of every two-bar line
+      answer: {line: "r:4 | r:2 1:.5 7,:.5 5,:1 | r:4 | r:2 5,:.5 7,:.5 1:1 | r:4 | r:2 1:.5 7,:.5 5,:1 | r:4 | r:2 2:.5 1:.5 7,:1", vel: 0.8}
+      hook: {line: "1:1 7,:.5 1:.5 5,:2 | 2:1 1:.5 2:.5 7,:2 | 1:1 7,:.5 1:.5 5,:1 3:1 | 1:3 r:1 | 1:1 7,:.5 1:.5 5,:2 | 2:1 1:.5 2:.5 7,:2 | 3:1 2:.5 1:.5 7,:1 5,:1 | 7,:3 r:1"}
+  vox:
+    role: vocal
+    vocal: {engine: kokoro, voice: af_heart}
+    layers:
+      - {type: double, sections: [chorus1, chorus2, chorus3]}
+      - {type: harmony, steps: 2, sections: [chorus2, chorus3]}
+    parts:
+      verse1:
+        lyrics:
+          - {bar: 1,  text: "Cold light upon the station wall",   notes: "r:.5 E4:.5 E4:.5 D4:.5 E4:.5 D4:.5 C4:.5 D4:.5 | C4:3 r:1"}
+          - {bar: 3,  text: "I count the trains that never slow", notes: "r:.5 E4:.5 G4:.5 E4:.5 E4:.5 D4:.5 E4:.5 D4:.5 | D4:3 r:1"}
+          - {bar: 5,  text: "Your name is static on the line",    notes: "r:.5 E4:.5 E4:.5 D4:.5 E4:.5 D4:.5 C4:.5 D4:.5 | C4:3 r:1"}
+          - {bar: 7,  text: "A thousand miles of falling snow",   notes: "r:.5 E4:.5 G4:.5 E4:.5 E4:.5 D4:.5 C4:.5 B3:.5 | D4:3 r:1"}
+          - {bar: 9,  text: "I kept the letters, every one",      notes: "r:.5 A3:.5 C4:.5 A3:.5 C4:.5 D4:.5 E4:.5 D4:.5 | C4:3 r:1"}
+          - {bar: 11, text: "I held the dark against the day",    notes: "r:.5 E4:.5 G4:.5 E4:.5 E4:.5 D4:.5 E4:.5 G4:.5 | G4:3 r:1"}
+          - {bar: 13, text: "And every night I light the flame",  notes: "r:.5 A3:.5 C4:.5 A3:.5 C4:.5 D4:.5 E4:.5 D4:.5 | C4:3 r:1"}
+          - {bar: 15, text: "To hear you from so far away",       notes: "r:.5 E4:.5 G4:.5 E4:.5 E4:.5 D4:.5 C4:.5 B3:.5 | D4:3 r:1"}
+      verse2:
+        lyrics:
+          - {bar: 1,  text: "The city sleeps beneath the glow",    notes: "r:.5 E4:.5 E4:.5 D4:.5 E4:.5 D4:.5 C4:.5 D4:.5 | C4:3 r:1"}
+          - {bar: 3,  text: "A thousand windows, none are mine",   notes: "r:.5 E4:.5 G4:.5 E4:.5 E4:.5 D4:.5 E4:.5 D4:.5 | D4:3 r:1"}
+          - {bar: 5,  text: "I trace the roads I used to know",    notes: "r:.5 E4:.5 E4:.5 D4:.5 E4:.5 D4:.5 C4:.5 D4:.5 | C4:3 r:1"}
+          - {bar: 7,  text: "And follow every broken line",        notes: "r:.5 E4:.5 G4:.5 E4:.5 E4:.5 D4:.5 C4:.5 B3:.5 | D4:3 r:1"}
+          - {bar: 9,  text: "The beacons blink across the bay",    notes: "r:.5 A3:.5 C4:.5 A3:.5 C4:.5 D4:.5 E4:.5 D4:.5 | C4:3 r:1"}
+          - {bar: 11, text: "I hold my breath and hear you say",   notes: "r:.5 E4:.5 G4:.5 E4:.5 E4:.5 D4:.5 E4:.5 G4:.5 | G4:3 r:1"}
+          - {bar: 13, text: "No matter how the seasons turn",      notes: "r:.5 A3:.5 C4:.5 A3:.5 C4:.5 D4:.5 E4:.5 D4:.5 | C4:3 r:1"}
+          - {bar: 15, text: "The light inside will always burn",   notes: "r:.5 E4:.5 G4:.5 E4:.5 E4:.5 D4:.5 C4:.5 B3:.5 | D4:3 r:1"}
+      pre:
+        lyrics:
+          - {bar: 1, text: "So raise the flame into the sky",  notes: "r:.5 D4:.5 F4:.5 D4:.5 F4:.5 E4:.5 F4:.5 G4:.5 | A4:3 r:1"}
+          - {bar: 3, text: "Tonight we burn, tonight we fly",  notes: "r:.5 A4:.5 A4:.5 G4:.5 F4:.5 F4:.5 G4:.5 A4:.5 | G4:2 r:2"}
+      chorus:
+        lyrics:
+          - {bar: 1,  text: "We are signal fires",     notes: "C4:1 F4:1 A4:1 G4:1 | G4:1 D4:2 r:1"}
+          - {bar: 3,  text: "Burning all the way",     notes: "E4:1 D4:1 C4:1 D4:1 | E4:3 r:1"}
+          - {bar: 5,  text: "Over hills of snow",       notes: "F4:1 A4:1 A4:1 G4:1 | D4:3 r:1"}
+          - {bar: 7,  text: "Calling out your name",   notes: "E4:1 E4:1 G4:1 E4:1 | D4:3 r:1"}
+          - {bar: 9,  text: "We are signal fires",     notes: "C4:1 F4:1 A4:1 G4:1 | G4:1 D4:2 r:1"}
+          - {bar: 11, text: "Shining through the grey", notes: "E4:1 D4:1 C4:1 D4:1 | E4:3 r:1"}
+          - {bar: 13, text: "Burning ever brighter",   notes: "F4:1 A4:1 A4:1 G4:1 | G4:2 D4:1 r:1"}
+          - {bar: 15, text: "Till the break of day",   notes: "E4:1 G4:1 G4:1 A4:1 | G4:3 r:1"}
+      bridge:
+        lyrics:
+          - {bar: 1, text: "If you can hear me now",              notes: "r:1 D4:1 F4:1 D4:1 | F4:1 E4:1 D4:1 r:1"}
+          - {bar: 3, text: "I am right here where you left me",   notes: "C4:1 C4:.5 F4:.5 A4:1 G4:1 | G4:.5 E4:.5 D4:3"}
+          - {bar: 5, text: "If you can hear me now",              notes: "r:1 D4:1 F4:1 D4:1 | F4:1 E4:1 D4:1 r:1"}
+sections:
+  - name: intro
+    type: intro
+    bars: 8
+    chords: verse
+    play: {kick: four, hat: eight, bass: eight, arp: up}
+    auto: {arp: {lpf: [500, 9000]}}
+    rise: {reverse_crash: 1}
+  - name: verse1
+    type: verse
+    bars: 16
+    chords: verse
+    hit: [crash]
+    play: {kick: four, snare: two, hat: eight, bass: eight, arp: thin, vox: verse1}
+  - name: pre1
+    type: prechorus
+    bars: 4
+    chords: pre
+    play: {kick: half, snare: two, hat: sixteen, bass: eight, pad: hold, vox: pre}
+    rise: {riser: 2, snare_roll: 1}
+    auto: {pad: {lpf: [900, 9000]}}
+  - name: chorus1
+    type: chorus
+    bars: 16
+    chords: chorus
+    hit: [crash]
+    play: {kick: four, snare: fill, clap: two, hat: sixteen, ohat: "off", bass: oct, pad: hold, stab: hits, lead: answer, vox: chorus}
+  - name: hook1
+    type: drop
+    bars: 8
+    chords: chorus
+    hit: [crash]
+    energy: 0.9
+    play: {kick: four, snare: fill, clap: two, hat: sixteen, ohat: "off", bass: oct, pad: hold, stab: hits, lead: hook, arp: up}
+  - name: verse2
+    type: verse
+    bars: 16
+    chords: verse
+    play: {kick: four, snare: two, hat: eight, bass: eight, arp: up, pad: hold, vox: verse2}
+    vel: {pad: 0.7}
+  - name: pre2
+    type: prechorus
+    bars: 4
+    chords: pre
+    play: {kick: half, snare: two, hat: sixteen, bass: eight, pad: hold, vox: pre}
+    rise: {riser: 2, snare_roll: 1}
+    auto: {pad: {lpf: [900, 9000]}}
+  - name: chorus2
+    type: chorus
+    bars: 16
+    chords: chorus
+    hit: [crash]
+    play: {kick: four, snare: fill, clap: two, hat: sixteen, ohat: "off", bass: oct, pad: hold, stab: hits, lead: answer, vox: chorus}
+  - name: bridge
+    type: bridge
+    bars: 8
+    chords: pre
+    hit: [downlifter]
+    play: {pad: hold, arp: thin, bass: long, vox: bridge}
+    rise: {riser: 4, snare_roll: 2}
+    auto: {pad: {lpf: [600, 6000]}, arp: {lpf: [700, 7000]}}
+  - name: chorus3
+    type: chorus
+    bars: 16
+    chords: chorus
+    hit: [impact, crash]
+    energy: 1.0
+    play: {kick: four, snare: fill, clap: two, hat: sixteen, ohat: "off", bass: oct, pad: hold, stab: hits, lead: answer, arp: up, vox: chorus}
+  - name: outro
+    type: outro
+    bars: 8
+    chords: chorus
+    hit: [crash]
+    play: {kick: four, hat: eight, bass: eight, arp: up, lead: hook}
+    vel: {lead: 0.7}
+    auto: {master: {lpf: [20000, 1200]}, lead: {volume: [-3, -14]}}

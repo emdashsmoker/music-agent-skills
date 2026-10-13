@@ -1,0 +1,26 @@
+extends: breakbeat
+name: Big Beat
+summary: loud, distorted breakbeats, overdriven bass riffs and rock or rave hooks around 120-135 bpm
+bpm: [110, 140, 126]
+keys: [E minor, A minor, D minor, G minor]
+about: |
+  Rhythm: heavy, compressed, slightly crunchy breakbeats; kick and snare hit hard, fills and rolls before changes.
+  Bass: distorted, riff-driven (think overdriven synth or bass guitar), usually a one- or two-bar hook on the
+  minor pentatonic.
+  Harmony: riffs instead of progressions; sirens, hoover stabs, guitar-like leads, acid lines, vocal shouts.
+  Arrangement: intro with filtered beat, the riff drops with full drums, breakdowns with a build on snare rolls,
+  everything returns louder.
+  Mix: drum bus saturated and compressed, bass and lead distorted, loud master with audible pump.
+profile:
+  master: {lufs: -8.5}
+  roles: {snare: {level: -5.5}, kick: {level: -5}, hat: {level: -16}}
+  buses:
+    drums: [{fx: dist, drive: 0.25, mix: 0.5, tone: 6500}, {fx: comp, threshold: -18, ratio: 4, attack: 0.008, release: 0.09, makeup: 1}]
+song:
+  ending: hit
+  tracks:
+    kick: {inst: kick_industrial}
+    snare: {inst: snare_industrial}
+    bass: {inst: bass_saw_dist, parts: {riff: {grid: "1 . 1 . b3 . 1 . 4 . b3 . 1 . b7, ."}, simple: {grid: "1 . 1 . . . 1 . . . 1 . . . . ."}}}
+    stab: {inst: lead_hoover}
+    lead: {inst: lead_guitar_dist, octave: 4, parts: {riff: {grid: "1 . . 1 . b3 . . 4 . . b3 . 1 . ."}}}

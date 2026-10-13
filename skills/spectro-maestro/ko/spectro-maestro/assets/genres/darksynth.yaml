@@ -1,0 +1,28 @@
+extends: synthwave
+name: Darksynth
+summary: aggressive, horror-tinged synthwave; distorted bass, heavy drums, minor and phrygian riffs
+bpm: [95, 135, 115]
+keys: [D minor, E minor, C minor, E phrygian, D phrygian]
+about: |
+  Rhythm: hard kick (often four-on-the-floor or double-time patterns), cracking gated snare on 2 and 4, driving hats.
+  Bass: distorted saw bass in sixteenths, palm-mute guitar feel; riffs with flat second and tritone.
+  Harmony: dark minor, phrygian and harmonic minor; power chords, choirs, organ-like pads; chromatic movement.
+  Melody: aggressive lead riffs, fast arpeggios, sudden stops and hits.
+  Arrangement: cinematic intro, riff sections alternating with a half-time breakdown, big final section.
+  Mix: loud and saturated compared with synthwave; bass and kick tight; lead cutting.
+profile:
+  master: {lufs: -9}
+  roles: {bass: {duck: -5, level: -2}, kick: {level: -3.5}}
+song:
+  ending: hit
+  chords:
+    verse: "i5 | i5 | bII5 | i5"
+    chorus: "i | bVI | bVII | V"
+    bridge: "iv | bII | i | V"
+  tracks:
+    kick: {inst: kick_industrial, parts: {half: {hits: "x...x...x...x..."}, four: {hits: "x...x...x.x.x..."}}}
+    snare: {inst: snare_industrial}
+    bass: {inst: bass_saw_dist, parts: {eight: {grid: "1 1 1 1 1 1 1 1 1 1 1 1 1 1 b2 1"}, sixteen: {grid: "1 1 1 1' 1 1 b7, 1 1 1 1 1' 1 1 b3 1"}}}
+    arp: {inst: lead_psy, octave: 4}
+    pad: {inst: pad_choir, parts: {hold: {grid: "c - - - - - - - - - - - - - - -", octave: 4}}}
+    lead: {inst: lead_hoover, octave: 4, parts: {theme: {line: "1':1 1':.5 b7:.5 5:1 b3:1 | 4:1 4:.5 b3:.5 1:2 | b7:1 b7:.5 5:.5 4:1 2:1 | 5:3 r:1 | 1':1 1':.5 b7:.5 5:1 b3:1 | 4:1 4:.5 5:.5 b7:2 | 1':1 b7:.5 5:.5 4:1 2:1 | 2:3 r:1"}}}

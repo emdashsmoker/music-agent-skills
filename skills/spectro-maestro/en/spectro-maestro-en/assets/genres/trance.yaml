@@ -1,0 +1,54 @@
+name: Trance
+family: trance
+summary: driving off-beat bass, arpeggios and a supersaw lead melody over a four-chord minor progression
+bpm: [132, 142, 138]
+keys: [A minor, F# minor, E minor, D minor, G minor]
+about: |
+  Rhythm: kick on every beat, off-beat open hat, clap on 2 and 4, sixteenth closed hats, ride in the climax.
+  Bass: off-beat bass (the note sits between the kicks) on the chord root; a sub layer below it.
+  Harmony: four-chord minor progressions, one chord per bar or per two bars: i VI III VII, i VII VI VII, VI VII i i.
+  Melody: singable, mostly stepwise, 8 or 16 bars, played by a supersaw lead and echoed by plucks and arpeggios.
+  Arrangement: intro (drums and bass), build of layers, breakdown without drums presenting the melody on pads or piano,
+  snare-roll build with riser, climax with the full lead, outro mirroring the intro.
+  Mix: lead and pads wide with long reverb and dotted-eighth delay; sidechain pump on everything tonal.
+profile:
+  master: {lufs: -9}
+  roles:
+    bass: {duck: -8}
+    pad: {duck: -6, reverb: 0.35}
+    lead: {reverb: 0.3, delay: 0.22, duck: -4}
+    arp: {delay: 0.3}
+    pluck: {delay: 0.3}
+  returns:
+    reverb: {decay: 3.2, predelay: 0.03}
+    delay: {time: 1/8d, feedback: 0.42}
+song:
+  ending: hit
+  seed: 31
+  chords:
+    main: "i | VI | III | VII"
+    lift: "VI | VII | i | i"
+  tracks:
+    kick: {inst: kick_trance, role: kick, parts: {four: {hits: "x...x...x...x..."}}}
+    clap: {inst: clap_909, role: snare, parts: {two: {hits: "....x.......x..."}}}
+    hat: {inst: hat_closed_909, role: hat, parts: {sixteen: {hits: "o.xoo.xoo.xoo.xo", vel: 0.8}, eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.6}}}
+    ohat: {inst: hat_open_909, role: hat, parts: {off: {hits: "..x...x...x...x."}}}
+    ride: {inst: ride_909, role: hat, parts: {eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.7}}, mix: {gain_db: -3}}
+    bass: {inst: bass_offbeat, role: bass, parts: {off: {grid: ". . 1 - . . 1 - . . 1 - . . 1 -"}}}
+    sub: {inst: bass_sub, role: sub, parts: {off: {grid: ". . 1 - . . 1 - . . 1 - . . 1 -"}}}
+    arp: {inst: arp_pulse, role: arp, octave: 4, parts: {up: {grid: "1 3 5 1' 3' 1' 5 3 1 3 5 1' 3' 1' 5 3"}}}
+    pluck: {inst: pluck_supersaw, role: pluck, parts: {gate: {grid: "c . c . . c . c . . c . c . c ."}}}
+    pad: {inst: pad_supersaw, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+    lead:
+      inst: lead_supersaw
+      role: lead
+      parts:
+        theme: {line: "5:1.5 3:.5 5:1 1':1 | 7:1.5 6:.5 5:2 | 3:1.5 2:.5 3:1 5:1 | 2:2 r:1 5,:1 | 5:1.5 3:.5 5:1 1':1 | 2':1.5 1':.5 7:2 | 1':1.5 7:.5 5:1 3:1 | 2:3 r:1"}
+  sections:
+    - {name: intro, type: intro, bars: 16, chords: main, play: {kick: four, hat: eight, ohat: off}}
+    - {name: bass_in, type: verse, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, bass: off, sub: off}}
+    - {name: layers, type: verse, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, bass: off, sub: off, arp: up, pluck: gate}, auto: {pluck: {lpf: [500, 8000]}}, energy: 0.7}
+    - {name: breakdown, type: break, bars: 16, chords: main, hit: [downlifter], play: {pad: hold, lead: theme}, auto: {pad: {lpf: [600, 10000]}}}
+    - {name: build, type: build, bars: 8, chords: lift, rise: {riser: 8, snare_roll: 8}, play: {pad: hold, pluck: gate, arp: up, hat: eight}, auto: {pluck: {lpf: [500, 12000]}}}
+    - {name: climax, type: drop, bars: 32, chords: main, hit: [impact, crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, ride: eight, bass: off, sub: off, arp: up, pluck: gate, pad: hold, lead: theme}}
+    - {name: outro, type: outro, bars: 16, chords: main, hit: [crash], play: {kick: four, hat: sixteen, ohat: off, bass: off, sub: off}, auto: {master: {lpf: [20000, 2500]}}}

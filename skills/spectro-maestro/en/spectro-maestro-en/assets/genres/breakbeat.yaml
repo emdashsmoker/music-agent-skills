@@ -1,0 +1,39 @@
+name: Breakbeat
+family: breakbeat
+summary: funky syncopated drum breaks at 125-140 bpm with a heavy bass line and rave or electro elements
+bpm: [125, 140, 132]
+keys: [E minor, A minor, G minor, D minor]
+about: |
+  Rhythm: no four-on-the-floor. Kick on 1, syncopated kicks before or after beat 3; snare on 2 and 4 with ghost
+  notes; eighth or sixteenth hats with open-hat accents. The drum pattern itself is the groove and varies with fills.
+  Bass: fat, riff-based, often an acid or saw bass doubling the kick rhythm.
+  Harmony: minor riffs, stabs, vocal samples; one or two chords.
+  Arrangement: intro, drop, breakdown, second drop; fills every 4 or 8 bars.
+  Mix: drums loud and roomy, bass upfront, moderate master loudness.
+profile:
+  master: {lufs: -9.5}
+  roles: {snare: {level: -3.5, reverb: 0.14}, bass: {duck: -3}}
+song:
+  ending: hit
+  seed: 61
+  swing: 0.05
+  chords:
+    main: "i | i | bVII | bVI"
+    alt: "i | bVII | bVI | v"
+  tracks:
+    kick: {inst: kick_break, role: kick, parts: {funk: {hits: "x.....x...x.....|x..x......x..x.."}, simple: {hits: "x.........x....."}}}
+    snare: {inst: snare_break, role: snare, parts: {two: {hits: "....x.......x..."}, ghost: {hits: "....x..o....x.o.|....x..o.o..x..r"}}}
+    hat: {inst: hat_closed_909, role: hat, parts: {eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.75}, sixteen: {hits: "x.xxx.xxx.xxx.xx", vel: 0.7}}}
+    ohat: {inst: hat_open_909, role: hat, parts: {accent: {hits: "..............x."}}}
+    perc: {inst: cowbell_808, role: perc, parts: {riff: {hits: "..x...x..x....x.", vel: 0.6}}, mix: {pan: 0.3, gain_db: -3}}
+    bass: {inst: bass_moog, role: bass, parts: {riff: {grid: "1 . . 1 . . 1 . . . b7, . 1 . b3 ."}, simple: {grid: "1 - - . . . 1 . . . 1 - . . . ."}}}
+    stab: {inst: chord_rave, role: chord, parts: {hit: {grid: ". . . . c . . . . . . c . . . ."}}}
+    lead: {inst: lead_acid, role: lead, octave: 4, parts: {riff: {grid: "1 . 1' . b7 . 5 . 1 . b3 . 1' 1 . b7,"}}}
+    pad: {inst: pad_warm, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+  sections:
+    - {name: intro, type: intro, bars: 8, chords: main, play: {kick: simple, hat: eight, pad: hold}, auto: {pad: {lpf: [400, 5000]}}}
+    - {name: groove, type: verse, bars: 16, chords: main, hit: [crash], play: {kick: funk, snare: two, hat: eight, ohat: accent, bass: simple}}
+    - {name: drop, type: drop, bars: 16, chords: main, hit: [impact, crash], play: {kick: funk, snare: ghost, hat: sixteen, ohat: accent, perc: riff, bass: riff, stab: hit}}
+    - {name: breakdown, type: break, bars: 8, chords: alt, hit: [downlifter], play: {pad: hold, lead: riff, hat: eight}, auto: {lead: {lpf: [500, 6000]}}, rise: {riser: 4, snare_roll: 2}}
+    - {name: drop2, type: drop, bars: 32, chords: main, hit: [impact, crash], play: {kick: funk, snare: ghost, hat: sixteen, ohat: accent, perc: riff, bass: riff, stab: hit, lead: riff}}
+    - {name: outro, type: outro, bars: 8, chords: main, play: {kick: simple, snare: two, hat: eight, bass: simple}}
