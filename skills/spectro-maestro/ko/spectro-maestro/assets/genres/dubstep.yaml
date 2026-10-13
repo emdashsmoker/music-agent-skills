@@ -1,0 +1,43 @@
+name: Dubstep
+family: bass
+summary: 140 bpm half-time; kick on 1, snare on 3, wobbling mid bass over a deep sub, lots of space
+bpm: [138, 142, 140]
+keys: [F minor, E minor, G minor, D minor]
+about: |
+  Rhythm: half-time. Kick on beat 1 (plus a syncopated extra), snare on beat 3, sparse hats in triplets or eighths.
+  Bass: two layers. A clean sine sub on the root, and a mid bass whose filter is modulated in rhythm (the wobble:
+  1/8, 1/8 triplet, 1/16 rates changing through the bar). The bass rhythm is the hook.
+  Harmony: minor, minimal; a dark pad or a few plucked notes in the intro and breakdown.
+  Arrangement: 16-bar atmospheric intro, 8-bar build, drop of 16-32 bars, breakdown, second drop with a new
+  bass pattern, outro.
+  Mix: sub mono and the loudest thing below 80 Hz; snare big with reverb; everything else leaves room.
+profile:
+  master: {lufs: -9}
+  roles:
+    kick: {level: -3.5}
+    snare: {level: -3, reverb: 0.2}
+    bass: {duck: -3, level: -1.5, hpf: 90}
+    sub: {duck: -4, level: -3}
+  returns: {reverb: {decay: 3.0}}
+song:
+  ending: hit
+  seed: 71
+  chords:
+    main: "i | i | i | i | bVI | bVI | bVII | bVII"
+    alt: "i | i | iv | bVI"
+  tracks:
+    kick: {inst: kick_808, role: kick, parts: {half: {hits: "x.........x.....|x......x........"}}}
+    snare: {inst: snare_trap, role: snare, parts: {three: {hits: "........x......."}}}
+    clap: {inst: clap_big, role: snare, parts: {three: {hits: "........x......."}}, mix: {gain_db: -4}}
+    hat: {inst: hat_closed_808, role: hat, parts: {sparse: {hits: "..x...x...x.x.x."}, trip: {hits: "x..x..x..x..x..x", step: 0.3333333}}}
+    sub: {inst: bass_sub, role: sub, parts: {long: {grid: "1 - - - - - - - - - - - - - - -"}}}
+    wobble: {inst: bass_wobble, role: bass, octave: 2, parts: {a: {grid: "1 - - - - - - - 1 - - - b3 - 1 -"}, b: {grid: "1 - - 1 - - 1 - . . 1' - b7, - - -"}}}
+    pad: {inst: pad_dark, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+    pluck: {inst: pluck_fm, role: pluck, parts: {motif: {grid: "1' . . . 5 . . . 3 . . . 5 . . .", octave: 4}}}
+  sections:
+    - {name: intro, type: intro, bars: 16, chords: main, play: {pad: hold, pluck: motif, hat: sparse}, auto: {pad: {lpf: [300, 4000]}}}
+    - {name: build, type: build, bars: 8, chords: main, rise: {riser: 8, snare_roll: 4}, play: {pad: hold, pluck: motif, kick: half}}
+    - {name: drop, type: drop, bars: 16, chords: main, hit: [impact, crash, sub_drop], play: {kick: half, snare: three, clap: three, hat: sparse, sub: long, wobble: a}}
+    - {name: breakdown, type: break, bars: 8, chords: alt, hit: [downlifter], play: {pad: hold, pluck: motif}, rise: {riser: 4}}
+    - {name: drop2, type: drop, bars: 16, chords: main, hit: [impact, crash], play: {kick: half, snare: three, clap: three, hat: trip, sub: long, wobble: b, pluck: motif}}
+    - {name: outro, type: outro, bars: 8, chords: main, play: {pad: hold, hat: sparse, sub: long}}

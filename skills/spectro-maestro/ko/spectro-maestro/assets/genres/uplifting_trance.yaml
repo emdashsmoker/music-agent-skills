@@ -1,0 +1,46 @@
+extends: trance
+name: Uplifting Trance
+summary: 138 bpm, rolling bass, long emotional breakdown, soaring supersaw anthem at the climax
+bpm: [136, 140, 138]
+keys: [A minor, F# minor, B minor, E minor, G minor]
+about: |
+  Rhythm: tight kick on every beat, off-beat open hat, clap on 2 and 4, shaker or sixteenth hats; ride in the climax.
+  Bass: rolling sixteenth bass that skips the kick's sixteenth (. x x x) on the chord root, mid-bass above a sub.
+  Harmony: bright minor progressions with a lift: i VI III VII, VI VII i i, VI VII v i, iv VI III VII; one chord
+  per bar in the groove, held chords in the breakdown. Suspended and added-ninth chords add shimmer.
+  Melody: long-breathed, stepwise with one or two hopeful leaps upward (a fifth or sixth), resolving on the tonic
+  or the fifth; stated first softly (piano, pluck, strings) in the breakdown, then by the supersaw lead at full power.
+  Arrangement (7-10 min): intro 32 bars drums and bass; first groove with arps and plucks; breakdown 32-48 bars
+  with pads, piano or strings and the full melody; 16-bar build with snare roll, riser and filter opening; climax
+  32-64 bars; short second break or strip-down; outro 32 bars.
+  Mix: very wide and wet. Long hall reverb and dotted-eighth delay on lead and plucks, strong sidechain pump,
+  low end mono. The lead sits above everything in the climax.
+profile:
+  master: {lufs: -9}
+  roles:
+    bass: {duck: -6}
+    pad: {duck: -7, reverb: 0.4}
+    lead: {reverb: 0.32, delay: 0.25, duck: -4, level: -1}
+    keys: {reverb: 0.4, delay: 0.15}
+  returns:
+    reverb: {decay: 3.8, predelay: 0.03}
+    delay: {time: 1/8d, feedback: 0.45}
+song:
+  ending: hit
+  seed: 32
+  chords:
+    main: "i | VI | III | VII"
+  tracks:
+    bass: {inst: bass_rolling, parts: {off: {grid: ". 1 1 1 . 1 1 1 . 1 1 1 . 1 1 1"}}}
+    shaker: {inst: shaker, role: perc, parts: {run: {hits: "o.x.o.x.o.x.o.x.", vel: 0.7}}}
+    piano: {inst: keys_piano, role: keys, parts: {theme: {line: "5:1.5 3:.5 5:1 1':1 | 7:1.5 6:.5 5:2 | 3:1.5 2:.5 3:1 5:1 | 2:2 r:1 5,:1 | 5:1.5 3:.5 5:1 1':1 | 2':1.5 1':.5 7:2 | 1':1.5 7:.5 5:1 3:1 | 2:3 r:1", octave: 4}, chords: {grid: "c - - - - - - - c - - - - - - -", octave: 3}}}
+    strings: {inst: strings_orch, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -", octave: 4}}}
+  sections:
+    - {name: intro, type: intro, bars: 32, chords: main, play: {kick: four, hat: eight, ohat: off, shaker: run}, energy: 0.3}
+    - {name: bass_in, type: verse, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, bass: off, sub: off}, energy: 0.5}
+    - {name: layers, type: verse, bars: 32, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, shaker: run, bass: off, sub: off, arp: up, pluck: gate}, auto: {pluck: {lpf: [400, 9000]}, arp: {lpf: [800, 12000]}}, energy: 0.7}
+    - {name: breakdown, type: break, bars: 32, chords: main, hit: [downlifter], play: {pad: hold, strings: hold, piano: theme}, auto: {pad: {lpf: [500, 9000]}}, energy: 0.3}
+    - {name: build, type: build, bars: 16, chords: main, rise: {riser: 16, snare_roll: 8}, play: {pad: hold, strings: hold, pluck: gate, arp: up, lead: theme, hat: eight}, auto: {pluck: {lpf: [500, 14000]}, lead: {lpf: [700, 9000], volume: [-10, -2]}}, energy: 0.7}
+    - {name: climax, type: drop, bars: 32, chords: main, hit: [impact, crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, ride: eight, shaker: run, bass: off, sub: off, arp: up, pluck: gate, pad: hold, lead: theme}, energy: 1.0}
+    - {name: strip, type: verse, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, bass: off, sub: off, arp: up, pluck: gate}, auto: {pluck: {lpf: [9000, 600]}}, energy: 0.65}
+    - {name: outro, type: outro, bars: 32, chords: main, play: {kick: four, hat: eight, ohat: off, shaker: run, bass: off, sub: off}, auto: {master: {lpf: [20000, 2000]}}, gap: {bass: 64, sub: 64}, energy: 0.3}

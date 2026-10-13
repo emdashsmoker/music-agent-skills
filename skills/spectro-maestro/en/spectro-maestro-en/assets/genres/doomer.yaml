@@ -1,0 +1,81 @@
+name: Doomer (post-punk / coldwave)
+family: retro
+summary: cold Eastern-bloc post-punk; drum machine, driving melodic bass, chorus guitar, icy synth, deadpan baritone
+bpm: [140, 170, 156]
+keys: [E minor, A minor, D minor, B minor, F# minor]
+about: |
+  Rhythm: a plain drum machine. Kick on 1 and 3 (often with an extra eighth), snare on 2 and 4, relentless closed
+  hats in eighths; no swing, no fills beyond a snare flam or a tom at section ends. The tempo is fast but the
+  mood is resigned.
+  Bass: the lead instrument. A picked bass guitar plays constant eighths that outline the chord and add a
+  melodic turn at the end of each bar (root root root fifth, walking up to the next root). Slightly overdriven.
+  Guitar: clean with heavy chorus, playing arpeggiated triads or a two-note hook high on the neck.
+  Synth: one cold pad or string-machine line holding the chord, and a simple monophonic lead (saw or square)
+  that states a short, sad theme between vocal lines.
+  Harmony: natural minor, three or four chords, one per bar or per two bars: i VI III VII, i iv VI V, i VII VI VI.
+  Vocal: low, flat, close to speech, heavy plate reverb; the lyrics are bleak and plain. Little or no vibrato.
+  Arrangement: intro with the bass riff and drums, verse, chorus (synth lead joins), verse, chorus,
+  instrumental bridge, final chorus, abrupt or faded end. 3-4 minutes.
+  Mix: lo-fi on purpose: narrow, mid-heavy, rolled-off highs, tape wobble; bass and vocal in front, drums dry
+  and boxy, long reverb on voice, guitar and snare. Quiet master with dynamics left in.
+profile:
+  master: {lufs: -12, eq: [[highshelf, 8000, -2.5], [lowshelf, 80, -1.5]], vocal_carve: -3.0}
+  roles:
+    kick: {level: -5}
+    snare: {level: -4.5, reverb: 0.2}
+    hat: {level: -15}
+    bass: {duck: 0, level: -1.5, hpf: 40}
+    lead: {duck: 0, reverb: 0.3, delay: 0.15}
+    pad: {duck: 0, level: -8}
+    pluck: {duck: 0, reverb: 0.3, level: -5}
+    vocal: {reverb: 0.3, delay: 0.1, level: 0.5}
+  returns:
+    reverb: {decay: 2.6, damp: 5000}
+    vox_reverb: {decay: 2.8, predelay: 0.05, damp: 5500}
+    vox_delay: {time: 1/4, feedback: 0.25}
+  buses:
+    music: [{fx: lofi, wow: 0.25, noise_db: -54, top: 9000}]
+    drums: [{fx: comp, threshold: -14, ratio: 2.5, attack: 0.02, release: 0.12, makeup: 1}]
+song:
+  ending: fade
+  seed: 131
+  chords:
+    verse: "i | i | VI | VI | III | III | VII | VII"
+    chorus: "i | VI | III | VII"
+    bridge: "iv | iv | VI | VII"
+  tracks:
+    kick: {inst: kick_linn, role: kick, parts: {a: {hits: "x.....x.x.......|x.....x.x.....x."}}}
+    snare: {inst: snare_linn, role: snare, parts: {two: {hits: "....x.......x..."}, fill: {hits: "....x.......x...|....x.......x.x."}}}
+    hat: {inst: hat_closed_808, role: hat, parts: {eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.8}}}
+    tom: {inst: tom_mid, role: perc, parts: {fill: {hits: "................|................|................|..........x.x.xx"}}}
+    bass:
+      inst: bass_picked
+      role: bass
+      octave: 2
+      parts:
+        drive: {grid: "1 . 1 . 1 . 5 . 1 . 1 . 3 . 5 .|1 . 1 . 1 . 5 . 1 . 1' . 7 . 5 ."}
+        chorus: {grid: "1 . 1 . 5 . 1' . 1 . 1 . 5 . 3 ."}
+    guitar:
+      inst: lead_guitar
+      role: pluck
+      octave: 4
+      parts:
+        arp: {grid: "1 . 3 . 5 . 3 . 1' . 5 . 3 . 5 ."}
+        hook: {grid: "5 . . . 3 . 5 . . . 1' . . . 5 ."}
+    pad: {inst: pad_strings, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+    synth:
+      inst: lead_square
+      role: lead
+      octave: 5
+      parts:
+        theme: {line: "5:2 3:1 1:1 | 3:1.5 1:.5 6,:2 | 5,:2 7,:1 3:1 | 2:3 r:1"}
+  sections:
+    - {name: intro, type: intro, bars: 8, chords: chorus, play: {bass: chorus, kick: a, hat: eight}}
+    - {name: verse1, type: verse, bars: 16, chords: verse, play: {kick: a, snare: two, hat: eight, bass: drive, guitar: arp}}
+    - {name: chorus1, type: chorus, bars: 16, chords: chorus, play: {kick: a, snare: fill, hat: eight, bass: chorus, guitar: hook, pad: hold, synth: theme}}
+    - {name: verse2, type: verse, bars: 16, chords: verse, play: {kick: a, snare: two, hat: eight, bass: drive, guitar: arp, pad: hold, tom: fill}}
+    - {name: chorus2, type: chorus, bars: 16, chords: chorus, play: {kick: a, snare: fill, hat: eight, bass: chorus, guitar: hook, pad: hold, synth: theme}}
+    - {name: bridge, type: bridge, bars: 16, chords: bridge, play: {hat: eight, bass: chorus, guitar: arp, pad: hold}, energy: 0.45}
+    - {name: verse3, type: verse, bars: 16, chords: verse, play: {kick: a, snare: two, hat: eight, bass: drive, guitar: arp, pad: hold, tom: fill}}
+    - {name: chorus3, type: chorus, bars: 16, chords: chorus, play: {kick: a, snare: fill, hat: eight, bass: chorus, guitar: hook, pad: hold, synth: theme, tom: fill}}
+    - {name: outro, type: outro, bars: 8, chords: chorus, play: {kick: a, hat: eight, bass: chorus, guitar: arp}, auto: {master: {volume: [0, -14]}}}

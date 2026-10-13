@@ -1,0 +1,39 @@
+extends: synthpop
+name: Futurepop
+summary: melancholic synthpop with trance energy; four-on-the-floor, sequenced bass, supersaw and pluck hooks, anthemic chorus
+bpm: [122, 136, 128]
+keys: [A minor, D minor, E minor, F# minor, C minor]
+about: |
+  Rhythm: kick on every beat, snare or clap on 2 and 4, off-beat open hat and sixteenth hats; EBM heritage, club tempo.
+  Bass: sequenced sixteenth or eighth FM/analog bass on the chord root with octave jumps; in choruses an off-beat
+  trance bass. Tight and dry.
+  Harmony: minor, emotional four-chord progressions held for the whole section: i VI III VII, VI VII i i,
+  i iv VI V. Bright leads and trance plucks over dark chords give the bittersweet character.
+  Melody: clean male or female vocal with a singable chorus; a supersaw or pluck hook answers the vocal and
+  carries the instrumental chorus. Arpeggios run through the verses.
+  Arrangement: intro with arpeggio and kick, verse (sparse), pre-chorus lift, chorus (full, wide), second verse,
+  chorus, breakdown or bridge with pads and vocal, final double chorus, outro.
+  Mix: vocal clear and upfront with plate reverb and eighth delay; sidechain pump on pads and plucks; kick and
+  bass tight; loudness between synthpop and trance.
+profile:
+  master: {lufs: -9.5}
+  roles:
+    bass: {duck: -6}
+    pad: {duck: -5, reverb: 0.3}
+    pluck: {duck: -4, delay: 0.25}
+    lead: {duck: -3, reverb: 0.25, delay: 0.2}
+    arp: {duck: -3, delay: 0.25}
+  returns: {reverb: {decay: 2.8}, delay: {time: 1/8d, feedback: 0.4}}
+song:
+  ending: hit
+  seed: 102
+  tracks:
+    kick: {inst: kick_trance}
+    snare: {inst: snare_909}
+    hat: {inst: hat_closed_909}
+    ohat: {inst: hat_open_909}
+    bass: {inst: bass_fm, parts: {eight: {grid: "1 1 1' 1 1 1 1' 1 1 1 1' 1 1 1 1' 1"}, oct: {grid: ". 1 1' 1 . 1 1' 1 . 1 1' 1 . 1 1' 1"}}}
+    arp: {inst: pluck_saw, role: pluck}
+    pad: {inst: pad_supersaw}
+    stab: {inst: pluck_supersaw, role: pluck, parts: {hits: {grid: "c . . c . . c . . c . . c . c ."}}}
+    lead: {inst: lead_supersaw}

@@ -1,0 +1,45 @@
+name: Trap
+family: hiphop
+summary: half-time 808 kick and sliding sub bass, clap on 3, rolling hi-hats, dark minor melody
+bpm: [130, 160, 140]
+keys: [C minor, D minor, F minor, G minor, A minor]
+about: |
+  Rhythm: half-time feel. Clap or snare on beat 3; kicks syncopated and tied to the 808 notes; closed hats in
+  eighths or sixteenths with rolls (32nds and triplets, written r and t) and velocity ramps; open hat accents.
+  Bass: long, tuned 808 notes that follow the kick; slides between notes (~); it is both bass and kick tail.
+  Harmony: dark minor, two or four chords, often just root and flat sixth or flat second; bells, plucks, flutes
+  and pads play a short repeating motif.
+  Arrangement: intro with the melody, verse (hook out or thinned), hook with everything, 8-bar switches.
+  Mix: 808 and kick share the low end (kick short, 808 long, no sidechain pump on the 808 or a very light one);
+  hats crisp but not loud; lots of space for a vocal.
+profile:
+  master: {lufs: -9.5}
+  roles:
+    kick: {level: -4}
+    bass: {duck: -2, level: -1.5, hpf: 25}
+    hat: {level: -13}
+  returns: {reverb: {decay: 2.4}}
+song:
+  ending: hit
+  seed: 81
+  chords:
+    main: "i | i | bVI | v"
+    alt: "i | bVI | iv | v"
+  tracks:
+    kick: {inst: kick_house, role: kick, parts: {a: {hits: "x.....x.......x.|x..x......x....."}}}
+    b808: {inst: bass_808, role: bass, parts: {a: {grid: "1 - - - - - 1 - - - - - - - 1 -", gate: 1.0}, b: {grid: "1 - - - - - 1 - - - 5, -~ 1 - - -", gate: 1.0}}}
+    clap: {inst: clap_808, role: snare, parts: {three: {hits: "........x......."}}}
+    snare: {inst: snare_trap, role: snare, parts: {three: {hits: "........x.......|........x.....o."}}, mix: {gain_db: -3}}
+    hat: {inst: hat_closed_808, role: hat, parts: {roll: {hits: "x.x.x.x.x.x.xrx.|x.x.xtx.x.x.x.rr"}, eight: {hits: "x.x.x.x.x.x.x.x."}}}
+    ohat: {inst: hat_open_808, role: hat, parts: {accent: {hits: "......x........."}}, mix: {gain_db: -3}}
+    bell: {inst: lead_fm_bell, role: pluck, parts: {motif: {line: "1':.75 b7:.75 5:.5 r:2 | b6:.75 5:.75 b3:.5 r:2 | 1':.75 b7:.75 5:.5 r:1 5:1 | 5:1.5 4:2.5"}}}
+    pad: {inst: pad_dark, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+    pluck: {inst: pluck_string, role: arp, octave: 4, parts: {arp: {grid: "1 . 5 . 1' . 5 . b3' . 5 . 1' . 5 ."}}}
+  sections:
+    - {name: intro, type: intro, bars: 8, chords: main, play: {bell: motif, pad: hold}, auto: {bell: {lpf: [800, 9000]}}}
+    - {name: hook, type: chorus, bars: 16, chords: main, hit: [impact], play: {kick: a, b808: a, clap: three, snare: three, hat: roll, ohat: accent, bell: motif, pad: hold}}
+    - {name: verse, type: verse, bars: 16, chords: main, play: {kick: a, b808: b, clap: three, hat: eight, pluck: arp}}
+    - {name: hook2, type: chorus, bars: 16, chords: main, hit: [impact, crash], play: {kick: a, b808: a, clap: three, snare: three, hat: roll, ohat: accent, bell: motif, pad: hold, pluck: arp}}
+    - {name: bridge, type: bridge, bars: 8, chords: alt, hit: [downlifter], play: {pad: hold, pluck: arp, hat: eight}, rise: {riser: 2}}
+    - {name: hook3, type: chorus, bars: 16, chords: main, hit: [impact, crash], play: {kick: a, b808: b, clap: three, snare: three, hat: roll, ohat: accent, bell: motif, pad: hold, pluck: arp}}
+    - {name: outro, type: outro, bars: 8, chords: main, play: {bell: motif, pad: hold}}

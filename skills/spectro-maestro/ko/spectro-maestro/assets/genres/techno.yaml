@@ -1,0 +1,60 @@
+name: Techno
+family: techno
+summary: hypnotic, percussive four-on-the-floor; one idea developed by filter and layering
+bpm: [125, 140, 132]
+keys: [A minor, F minor, D minor, G minor]
+about: |
+  Rhythm: heavy kick on every beat with a low rumble under it, off-beat hat, clap or rim on 2 and 4 (often sparse),
+  ride or shaker in the peak, sixteenth percussion with accents.
+  Bass: often just the kick's rumble or a single-note pulse on the off-beats.
+  Harmony: one chord, usually minor; a short stab or 2-4 note sequence repeats and is shaped by cutoff, resonance,
+  delay and reverb over time. Dissonance and atonal hits are part of the vocabulary.
+  Arrangement: long (6-8 min), elements enter and leave every 8-16 bars, tension by removing the kick for 4-16 bars.
+  Mix: kick dominant and dry, mids sparse, long dark reverbs on percussion, loud master.
+profile:
+  master: {lufs: -9}
+  roles:
+    kick: {level: -3}
+    bass: {duck: -9, level: -5}
+    chord: {delay: 0.3, reverb: 0.3}
+  returns:
+    reverb: {decay: 3.0, damp: 4500}
+    delay: {time: 1/8d, feedback: 0.5}
+song:
+  ending: hit
+  seed: 21
+  swing: 0.0
+  chords:
+    main: "i | i | i | i"
+    alt: "i | i | bII | i"
+  tracks:
+    kick: {inst: kick_techno, role: kick, parts: {four: {hits: "x...x...x...x..."}}}
+    rumble: {inst: bass_sub, role: sub, parts: {off: {grid: ". . 1 - . . 1 - . . 1 - . . 1 -"}}, mix: {gain_db: -3}}
+    clap: {inst: clap_909, role: snare, parts: {two: {hits: "....x.......x..."}, sparse: {hits: "............x..."}}}
+    hat: {inst: hat_closed_909, role: hat, parts: {off: {hits: "..x...x...x...x."}, sixteen: {hits: "o.xoo.xoo.xoo.xo", vel: 0.8}}}
+    ohat: {inst: hat_open_909, role: hat, parts: {off: {hits: "..x...x...x...x."}}}
+    ride: {inst: ride_909, role: hat, parts: {eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.7}}, mix: {gain_db: -3}}
+    perc: {inst: tom_mid, role: perc, parts: {riff: {hits: "...x..x......x..", vel: 0.8}}, mix: {pan: -0.3}}
+    rim: {inst: rim_808, role: perc, parts: {riff: {hits: "..x..x..x..x..x.", vel: 0.7}}, mix: {pan: 0.3}}
+    stab:
+      inst: chord_rave
+      role: chord
+      parts:
+        pulse: {grid: ". . . c . . . . . . c . . . . ."}
+        busy: {grid: ". . . c . . c . . . c . . c . ."}
+    seq:
+      inst: lead_psy
+      role: arp
+      octave: 4
+      parts:
+        loop: {grid: "1 . 1 b3 . 1 . 5 1 . 1 b2 . 1 b7, ."}
+    pad: {inst: pad_dark, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+  sections:
+    - {name: intro, type: intro, bars: 16, chords: main, play: {kick: four, hat: off, rim: riff}}
+    - {name: layer1, type: verse, bars: 16, chords: main, hit: [crash], play: {kick: four, rumble: off, hat: sixteen, clap: sparse, rim: riff, seq: loop}, auto: {seq: {lpf: [300, 2500]}}}
+    - {name: layer2, type: verse, bars: 16, chords: main, play: {kick: four, rumble: off, hat: sixteen, ohat: off, clap: two, rim: riff, perc: riff, seq: loop, stab: pulse}, energy: 0.7}
+    - {name: break, type: break, bars: 16, chords: alt, hit: [downlifter], play: {pad: hold, stab: pulse, seq: loop, rim: riff}, auto: {seq: {lpf: [2500, 400]}, pad: {lpf: [300, 4000]}}}
+    - {name: build, type: build, bars: 8, chords: alt, rise: {riser: 8, snare_roll: 4}, play: {hat: sixteen, stab: busy, seq: loop, pad: hold, rim: riff}, auto: {seq: {lpf: [400, 9000]}}}
+    - {name: peak, type: drop, bars: 32, chords: main, hit: [impact, crash], play: {kick: four, rumble: off, hat: sixteen, ohat: off, ride: eight, clap: two, rim: riff, perc: riff, seq: loop, stab: busy}}
+    - {name: strip, type: verse, bars: 16, chords: main, play: {kick: four, rumble: off, hat: sixteen, ohat: off, rim: riff, seq: loop}, auto: {seq: {lpf: [9000, 800]}}, energy: 0.6}
+    - {name: outro, type: outro, bars: 16, chords: main, play: {kick: four, hat: off, rim: riff}}

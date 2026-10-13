@@ -1,0 +1,54 @@
+name: Chiptune
+family: retro
+summary: 8-bit game console sound; pulse-wave leads, fast arpeggios in place of chords, triangle bass, noise drums
+bpm: [120, 180, 150]
+keys: [C major, A minor, G major, E minor, D minor]
+about: |
+  Sound: few voices, no reverb. Pulse waves (12.5 %, 25 %, 50 % duty) for lead and arpeggio, a triangle or
+  square for bass, short noise bursts for drums.
+  Rhythm: simple and fast: kick and snare from noise or short tones, hats as tiny noise ticks.
+  Harmony: chords are played as very fast arpeggios (a note every sixteenth or thirty-second) on one voice;
+  bright major or heroic minor progressions: I V vi IV, i VII VI VII, I IV V.
+  Melody: catchy, busy, with fast runs, trills and echo done by repeating notes quietly.
+  Arrangement: A section, B section, repeat; 1-3 minutes, loops cleanly.
+  Mix: dry, narrow, mid-focused; no sub; moderate loudness.
+profile:
+  master: {lufs: -11, mono_below: 0}
+  roles:
+    lead: {duck: 0, reverb: 0.0, delay: 0.12, hpf: 120}
+    arp: {duck: 0, reverb: 0.0, delay: 0.0, level: -6}
+    bass: {duck: 0, reverb: 0.0, hpf: 40}
+    kick: {level: -5}
+    snare: {level: -6, reverb: 0.0}
+    hat: {reverb: 0.0}
+  returns: {delay: {time: 1/8, feedback: 0.3}}
+  qa:
+    drums_vs_rest_db: [-12, 7]
+    low_share_db: [-16, -2]
+    slope_db_per_octave: [-5, 0.5]
+song:
+  ending: hit
+  seed: 191
+  chords:
+    a: "I | V | vi | IV"
+    b: "IV | V | iii | vi | IV | V | I | I"
+  tracks:
+    kick: {inst: {base: kick_dnb, decay: 0.12, click: 0.1}, role: kick, parts: {a: {hits: "x...x...x...x..."}, b: {hits: "x.....x.x......."}}}
+    snare: {inst: {base: snare_trap, tone: 0.2, noise_decay: 0.09}, role: snare, parts: {two: {hits: "....x.......x..."}}}
+    hat: {inst: {base: hat_closed_lofi, decay: 0.02}, role: hat, parts: {eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.7}}}
+    bass: {inst: {engine: sub, osc: [{wave: tri}], amp: [0.002, 0.1, 0.9, 0.03]}, role: bass, parts: {a: {grid: "1 . 1 . 1' . 1 . 1 . 1 . 5 . 1' ."}}}
+    arp: {inst: lead_chip, role: arp, octave: 4, parts: {fast: {grid: "1 3 5 1' 1 3 5 1' 1 3 5 1' 1 3 5 1'", gate: 0.9}}}
+    lead:
+      inst: {base: lead_chip, osc: [{wave: pulse, pw: 0.5}], vibrato: {rate: 6.0, depth: 14, delay: 0.18}}
+      role: lead
+      octave: 5
+      parts:
+        a: {line: "3:.5 5:.5 1':1 7:.5 5:.5 3:1 | 2:.5 5:.5 7:1 5:.5 2:.5 7,:1 | 1:.5 3:.5 6:1 5:.5 3:.5 1:1 | 4:.5 6:.5 1':.5 6:.5 4:1 r:1"}
+        b: {line: "6:1 1':.5 6:.5 4:2 | 7:1 2':.5 7:.5 5:2 | 5:1 7:.5 5:.5 3:2 | 3:1 6:.5 3:.5 1:2 | 6:1 1':.5 6:.5 4:1 6:1 | 7:1 2':.5 7:.5 5:1 7:1 | 1':3 5:1 | 3:3 r:1"}
+  sections:
+    - {name: intro, type: intro, bars: 4, chords: a, play: {arp: fast, bass: a}}
+    - {name: a1, type: verse, bars: 16, chords: a, play: {kick: a, snare: two, hat: eight, bass: a, arp: fast, lead: a}, energy: 0.8}
+    - {name: b1, type: chorus, bars: 16, chords: b, play: {kick: b, snare: two, hat: eight, bass: a, arp: fast, lead: b}, energy: 0.9}
+    - {name: a2, type: verse, bars: 16, chords: a, play: {kick: a, snare: two, hat: eight, bass: a, arp: fast, lead: a}, energy: 0.8}
+    - {name: b2, type: chorus, bars: 16, chords: b, play: {kick: b, snare: two, hat: eight, bass: a, arp: fast, lead: b}, energy: 0.9}
+    - {name: outro, type: outro, bars: 4, chords: a, play: {arp: fast, bass: a}, energy: 0.4}
