@@ -23,7 +23,7 @@
 
 ## LMMS project
 - `python scripts/studio.py export song.yaml --to lmms`
-    + Result : `lmms/<song>.mmp` and `lmms/samples/`
+    + Result : `lmms/<song>.mmp`, `lmms/samples/<song>/` and `lmms/HOW_TO_OPEN.txt`
 - How things are converted
     + Drum tracks : sampler tracks holding the same drum sounds as one-shot samples; hits can be edited
     + Pitched tracks : Triple Oscillator tracks that approximate the patch; notes can be edited
@@ -35,8 +35,9 @@
     + Bus processing, return effects and mastering are not included
     + Automation (filter movement, level changes, the fade at the end of the song) is not included, so draw it again in LMMS
     + All track volumes are exported 6 dB lower to prevent clipping
-- Sample paths are written as absolute paths
-    + When the project moves to another computer, point LMMS at the samples again
+- Sample paths are written relative to the LMMS samples folder (`<song>/<file>.wav`)
+    + To open the project, copy `samples/<song>/` into the LMMS samples folder; `HOW_TO_OPEN.txt` says the same
+    + The project then opens on any computer
 - The project file is in the LMMS 1.2 format
 
 ## Checking in LMMS

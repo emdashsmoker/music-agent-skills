@@ -9,7 +9,9 @@ What goes where
                    editable notes, close but not identical tone
   vocals, sweeps   sample tracks holding rendered stems (written by `render --stems`)
 Notes are grouped into one pattern per section so the arrangement stays readable in LMMS.
-Sample paths are absolute: LMMS 1.2 cannot resolve paths relative to the project file."""
+Samples go to samples/<song>/ beside the project and are referenced as "<song>/<file>", relative to the LMMS
+samples folder, because LMMS 1.2 resolves relative paths there and not beside the project file. Copying that one
+folder into the LMMS samples folder makes the project open on any machine; HOW_TO_OPEN.txt says so."""
 from __future__ import annotations
 
 import glob
@@ -28,6 +30,10 @@ MIDI_TO_LMMS = -12
 ENVELOPE_SECONDS = 5.0          # LMMS envelope knobs map x -> x^2 * 5 seconds
 HEADROOM_DB = -6.0              # LMMS sums tracks without a limiter; this keeps the exported song below clipping
 STEM_VOLUME = 100.0 * 10.0 ** (HEADROOM_DB / 20.0)     # stems already carry their mix level
+SAMPLES_SUBDIR = "samples"       # LMMS resolves relative sample paths under <working directory>/samples
+HOW_TO_OPEN = ("Open {name}.mmp in LMMS 1.2 or newer.\n"
+               "Copy the folder samples/{name} into your LMMS samples folder first (LMMS: Edit > Settings > Paths > "
+               "'LMMS working directory', subfolder 'samples'), otherwise the drum and vocal tracks stay silent.\n")
 WAVES = {"sine": 0, "tri": 1, "saw": 2, "square": 3, "pulse": 3, "noise": 6}
 
 
@@ -124,8 +130,13 @@ def _patterns(track_el, notes: list, sections: list, meter: float, fixed_key: in
 
 
 def write(project: dict, out_dir: str, name: str, stems_dir: str | None = None) -> str:
-    """Write <out_dir>/<name>.mmp plus a samples folder. Returns the project path."""
-    os.makedirs(os.path.join(out_dir, "samples"), exist_ok=True)
+    """Write <out_dir>/<name>.mmp, its samples in <out_dir>/samples/<name>/ and HOW_TO_OPEN.txt. Returns the project path."""
+    os.makedirs(os.path.join(out_dir, SAMPLES_SUBDIR, name), exist_ok=True)
+
+    def sample_file(label: str) -> tuple:
+        """(where the WAV is written, how the project refers to it); LMMS wants forward slashes on every system."""
+        return os.path.join(out_dir, SAMPLES_SUBDIR, name, f"{label}.wav"), f"{name}/{label}.wav"
+
     meta = project["meta"]
     ctx = fx.FxContext(meta["bpm"], meta["seed"])
     root = ET.Element("lmms-project", version="1.0", creator="LMMS", creatorversion="1.2.2", type="song")
@@ -142,13 +153,13 @@ def write(project: dict, out_dir: str, name: str, stems_dir: str | None = None) 
         stem = os.path.join(stems_dir, f"{track['name']}.flac") if stems_dir else None
         resolved = None if track.get("kind") == "vocal" else instruments.resolve(track["inst"], project.get("patches"))
         if resolved is not None and resolved["kind"] == "drum":
-            sample = os.path.abspath(os.path.join(out_dir, "samples", f"{track['name']}.wav"))
+            sample, src = sample_file(track["name"])
             pitches = sorted({n[2] for n in track["notes"]})
             hit = instruments.render_track(resolved, [[0.0, 1.0, pitches[0] if len(pitches) == 1 else 60, 1.0]], ctx, 3 * SR, 1)
             length = max(1, int(np.nonzero(np.abs(hit) > 1e-4)[0][-1]) + 1) if np.any(hit) else SR // 10
             export.write_audio(sample, hit[:length])
             track_el, inner = _instrument_track(container, track["name"], volume, float(settings.get("pan", 0.0)))
-            _sample_player(inner, sample)
+            _sample_player(inner, src)
             _finish_instrument(inner)
             hold = max(1, int(np.ceil(length / SR / seconds_per_beat * TICKS_PER_BEAT)))
             fixed = LMMS_BASE_NOTE if len(pitches) == 1 else None
@@ -165,13 +176,13 @@ def write(project: dict, out_dir: str, name: str, stems_dir: str | None = None) 
             for source in [stem] + layers:
                 label = os.path.splitext(os.path.basename(source))[0]
                 audio, rate = sf.read(source)
-                sample = os.path.abspath(os.path.join(out_dir, "samples", f"{label}.wav"))
+                sample, src = sample_file(label)
                 export.write_audio(sample, audio, rate)
                 track_el = ET.SubElement(container, "track", type="2", name=label, muted="0", solo="0")
                 sample_track = ET.SubElement(track_el, "sampletrack", vol=f"{STEM_VOLUME:.1f}", pan="0")
                 ET.SubElement(sample_track, "fxchain", numofeffects="0", enabled="0")
                 ticks = int(np.ceil(len(audio) / rate / seconds_per_beat * TICKS_PER_BEAT))
-                ET.SubElement(track_el, "sampletco", pos="0", len=str(ticks), muted="0", src=sample)
+                ET.SubElement(track_el, "sampletco", pos="0", len=str(ticks), muted="0", src=src)
                 audio_written += 1
         else:
             skipped.append(track["name"])
@@ -184,6 +195,8 @@ def write(project: dict, out_dir: str, name: str, stems_dir: str | None = None) 
     ET.indent(root)
     with open(path, "w", encoding="utf-8") as handle:
         handle.write('<?xml version="1.0"?>\n<!DOCTYPE lmms-project>\n' + ET.tostring(root, encoding="unicode"))
+    with open(os.path.join(out_dir, "HOW_TO_OPEN.txt"), "w", encoding="utf-8") as handle:
+        handle.write(HOW_TO_OPEN.format(name=name))
     if skipped:
         print(f"[lmms] no audio stem for {skipped}; run `render --stems` first to include them as sample tracks")
     print(f"[lmms] {notes_written} notes on instrument tracks, {audio_written} sample tracks")
