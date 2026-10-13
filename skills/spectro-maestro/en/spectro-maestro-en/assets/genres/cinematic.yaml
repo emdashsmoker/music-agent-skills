@@ -1,0 +1,56 @@
+name: Cinematic (hybrid orchestral)
+family: orchestral
+summary: trailer-style hybrid; string ostinatos, brass swells, big drums and synth pulses building to a climax
+bpm: [80, 140, 110]
+keys: [D minor, C minor, E minor, A minor, G minor]
+about: |
+  Rhythm: low, wide drums (timpani, toms, big hits) in simple powerful patterns; a ticking pulse or sixteenth
+  string ostinato drives the time; electronic kick and impacts reinforce the downbeats.
+  Bass: low strings or a sub drone on the root; synth pulse in eighths.
+  Harmony: minor, slow, heroic: i VI III VII, i VI iv V, i III VII iv; one chord per bar or two; a rising top
+  line through the progression. Brass holds the chords, strings repeat a short figure.
+  Melody: broad, few notes, in horns or high strings; stated quietly, then with full forces.
+  Arrangement: three acts: quiet intro (pad, piano, pulse), build with ostinato and drums, full climax with
+  brass and choir; a sudden stop and a soft tail are typical.
+  Note: the orchestral voices here are synthesised imitations (ensemble strings, synth brass, timpani), suited
+  to hybrid scoring, not to a realistic solo orchestra.
+  Mix: big hall reverb, drums wide and deep, low end powerful but not constant; wide dynamic range.
+profile:
+  master: {lufs: -12}
+  roles:
+    pad: {duck: 0, reverb: 0.4, level: -4}
+    chord: {duck: 0, reverb: 0.35, level: -3}
+    arp: {duck: 0, reverb: 0.3, level: -5}
+    lead: {duck: 0, reverb: 0.4}
+    perc: {reverb: 0.3, level: -5, hpf: 40}
+    kick: {level: -4, reverb: 0.1}
+    bass: {duck: 0}
+    keys: {duck: 0, reverb: 0.4}
+  returns: {reverb: {decay: 4.2, predelay: 0.04}}
+  qa: {crest_db: [8, 20]}
+song:
+  ending: hit
+  seed: 201
+  chords:
+    main: "i | VI | III | VII"
+    rise: "i | VI | iv | V"
+  tracks:
+    piano: {inst: keys_piano, role: keys, octave: 4, parts: {motif: {line: "5:2 3:1 1:1 | 6:2 4:2 | 3:2 5:1 3:1 | 2:4"}}}
+    pad: {inst: pad_warm, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+    pulse: {inst: bass_fm, role: bass, parts: {eight: {grid: "1 . 1 . 1 . 1 . 1 . 1 . 1 . 1 ."}}}
+    ostinato: {inst: strings_orch, role: arp, octave: 4, parts: {fig: {grid: "1 1 3 1 5 1 3 1 1 1 3 1 5 1 3 1", gate: 0.6}}}
+    strings: {inst: strings_orch, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -", octave: 4}}}
+    brass: {inst: brass_synth, role: chord, octave: 3, parts: {swell: {grid: "c - - - - - - - - - - - - - - -", gate: 1.0}, hits: {grid: "c - - . . . . . c - - . c - - -"}}}
+    horn: {inst: brass_synth, role: lead, octave: 4, parts: {theme: {line: "5:2 3:1 1:1 | 6:2 4:2 | 3:2 5:1 3:1 | 2:4"}}}
+    choir: {inst: pad_choir, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -", octave: 4}}}
+    timpani: {inst: timpani, role: perc, parts: {roots: {hits: "x.......x.....x.", note: C3}, drive: {hits: "x..x..x.x..x..x.", note: C3}}}
+    toms: {inst: tom_low, role: perc, parts: {drive: {hits: "x.x...x.x.x...xx"}}, mix: {pan: -0.3}}
+    kick: {inst: kick_808, role: kick, parts: {one: {hits: "x..............."}, two: {hits: "x.......x......."}}}
+    hat: {inst: shaker, role: hat, parts: {tick: {hits: "x.x.x.x.x.x.x.x.", vel: 0.6}}}
+  sections:
+    - {name: act1, type: intro, bars: 8, chords: main, play: {pad: hold, piano: motif}, auto: {pad: {lpf: [300, 4000]}}, energy: 0.2}
+    - {name: pulse, type: verse, bars: 8, chords: main, play: {pad: hold, piano: motif, pulse: eight, hat: tick}, energy: 0.4}
+    - {name: act2, type: build, bars: 16, chords: main, hit: [impact], play: {pulse: eight, hat: tick, ostinato: fig, strings: hold, kick: one, timpani: roots}, rise: {riser: 8}, auto: {ostinato: {lpf: [800, 9000]}}, energy: 0.65}
+    - {name: lift, type: build, bars: 8, chords: rise, play: {pulse: eight, hat: tick, ostinato: fig, strings: hold, brass: swell, kick: two, timpani: drive, toms: drive}, rise: {riser: 8, snare_roll: 4}, energy: 0.8}
+    - {name: act3, type: drop, bars: 16, chords: main, hit: [impact, crash], play: {pulse: eight, ostinato: fig, strings: hold, brass: hits, horn: theme, choir: hold, kick: two, timpani: drive, toms: drive, hat: tick}, energy: 1.0}
+    - {name: tail, type: outro, bars: 8, chords: main, hit: [impact, downlifter], play: {pad: hold, piano: motif}, auto: {master: {volume: [0, -14]}}, energy: 0.2}

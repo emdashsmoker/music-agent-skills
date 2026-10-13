@@ -1,0 +1,161 @@
+title: Last Tram
+genre: doomer
+bpm: 156
+key: E minor
+seed: 1986
+notes: >
+  Doomer / coldwave demo. The picked bass carries the song, the voice stays low and flat
+  (B2-B3 for a male voice, one syllable per beat in the verses), the square synth states the theme between the vocal lines.
+  The vocal melody is written in scale degrees so the song can be moved to another key in one edit.
+ending: {type: fade, bars: 8} # the outro's eight bars fade to silence
+chords:
+  verse: i | i | VI | VI | III | III | VII | VII
+  chorus: i | VI | III | VII
+  bridge: iv | iv | VI | VII
+tracks:
+  kick:
+    inst: kick_linn
+    role: kick
+    mix: {gain_db: 3.0}          # first render: drums 5.6 dB under the rest, the beat was close to buried
+    parts:
+      a: {hits: "x.....x.x.......|x.....x.x.....x."}
+  snare:
+    inst: snare_linn
+    role: snare
+    # boxy on purpose: the cut at 3 kHz keeps its noise out of the band where consonants are read
+    mix: {gain_db: 0.5, inserts: [{fx: eq, bands: [[peak, 3000, -4.0, 1.0]]}]}
+    parts:
+      two: {hits: "....x.......x..."}
+      fill: {hits: "....x.......x...|....x.......x...|....x.......x...|....x.......x.x."}
+  hat:
+    inst: hat_closed_808
+    role: hat
+    parts:
+      eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.8}
+  tom:
+    inst: tom_mid
+    role: perc
+    parts:
+      fill: {hits: "................|................|................|................|................|................|................|..........x.x.xx"}
+  bass:
+    inst: bass_picked
+    role: bass
+    octave: 2
+    mix: {lpf: 1800}             # the pick noise sat on the vocal's consonant band (1.3-5 kHz)
+    parts:
+      drive: {grid: "1 . 1 . 1 . 5 . 1 . 1 . 3 . 5 .|1 . 1 . 1 . 5 . 1 . 1' . 7 . 5 ."}
+      chorus: {grid: "1 . 1 . 5 . 1' . 1 . 1 . 5 . 3 ."}
+      riff: {grid: "1 . 1 . 5 . 1' . 7 . 5 . 3 . 5 ."}
+  guitar:
+    inst: lead_guitar
+    role: pluck
+    octave: 4
+    parts:
+      arp: {grid: "1 . 3 . 5 . 3 . 1' . 5 . 3 . 5 ."}
+      hook: {grid: "5 . . . 3 . 5 . . . 1' . . . 5 ."}
+  pad:
+    inst: pad_strings
+    role: pad
+    parts:
+      hold: {grid: "c - - - - - - - - - - - - - - -"}
+  synth:
+    inst: lead_square
+    role: lead
+    octave: 5
+    parts:
+      theme: {line: "5:2 3:1 1:1 | 3:1.5 1:.5 6,:2 | 5,:2 7,:1 3:1 | 2:3 r:1"}
+      # in the chorus the synth leaves the bars to the voice and only answers at the end of each line
+      answer: {line: "r:4 | r:2.5 5:.5 3:1 | r:4 | r:3 2:.5 1:.5 | r:4 | r:2.5 5:.5 3:1 | r:4 | r:3 7,:.5 2:.5", vel: 0.8}
+  vox:
+    role: vocal
+    vocal: {engine: kokoro, voice: am_michael, style: {vibrato_depth: 10, scoop: 0.3}}
+    mix: {gain_db: 2.0, inserts: [{fx: eq, bands: [[peak, 3000, 3.5, 1.0]]}]}   # a low voice needs presence to carry the words
+    layers:
+      - {type: double, sections: [chorus1, chorus2, chorus3]}
+    parts:
+      verse1:
+        octave: 3
+        lyrics:
+          - {bar: 1,  text: "The last tram leaves at midnight", notes: "r:1 5,:1 1:1 1:1 | 3:1 3:1 1:1 5,:1"}
+          - {bar: 3,  text: "And no one's coming home",          notes: "r:1 1:1 1:1 7,:1 | 1:1 1:1 3:2"}
+          - {bar: 5,  text: "I walk the frozen courtyard",      notes: "r:1 7,:1 3:1 3:1 | 5:1 4:1 3:1 7,:1"}
+          - {bar: 7,  text: "And climb the stairs alone",       notes: "r:1 7,:1 2:1 1:1 | 2:1 1:1 2:2"}
+          - {bar: 9,  text: "The radio is silent",              notes: "r:1 5,:1 1:1 1:1 | 3:1 3:1 1:1 5,:1"}
+          - {bar: 11, text: "The heater starts to hum",         notes: "r:1 1:1 1:1 7,:1 | 1:1 1:1 3:2"}
+          - {bar: 13, text: "Another winter evening",           notes: "r:1 7,:1 3:1 3:1 | 5:1 4:1 3:1 7,:1"}
+          - {bar: 15, text: "Another day is done",              notes: "r:1 7,:1 2:1 1:1 | 2:1 1:1 7,:1.5 r:.5"}
+      verse2:
+        octave: 3
+        lyrics:
+          - {bar: 1,  text: "The neon sign is broken",          notes: "r:1 5,:1 1:1 1:1 | 3:1 3:1 1:1 5,:1"}
+          - {bar: 3,  text: "It flickers on the wall",          notes: "r:1 1:1 1:1 7,:1 | 1:1 1:1 3:2"}
+          - {bar: 5,  text: "My neighbours never answer",       notes: "r:1 7,:1 3:1 3:1 | 5:1 4:1 3:1 7,:1"}
+          - {bar: 7,  text: "I never try to call",              notes: "r:1 7,:1 2:1 1:1 | 2:1 1:1 2:2"}
+          - {bar: 9,  text: "The city sleeps in concrete",      notes: "r:1 5,:1 1:1 1:1 | 3:1 3:1 1:1 5,:1"}
+          - {bar: 11, text: "The river turns to stone",         notes: "r:1 1:1 1:1 7,:1 | 1:1 1:1 3:2"}
+          - {bar: 13, text: "I light another morning",          notes: "r:1 7,:1 3:1 3:1 | 5:1 4:1 3:1 7,:1"}
+          - {bar: 15, text: "And face it on my own",            notes: "r:1 7,:1 2:1 1:1 | 2:1 1:1 7,:1.5 r:.5"}
+      chorus:
+        octave: 3
+        lyrics:
+          - {bar: 1,  text: "Nothing changes here",   notes: "5:1 5:1 5:1 3:1 | 3:2 r:2"}
+          - {bar: 3,  text: "Only snow, only snow",   notes: "3:1 3:1 7,:1.5 r:.5 | 2:1 1:1 7,:1.5 r:.5"}
+          - {bar: 5,  text: "Nothing changes here",   notes: "5:1 5:1 5:1 3:1 | 3:2 r:2"}
+          - {bar: 7,  text: "And I've nowhere to go", notes: "3:1 3:1 3:1 2:.5 1:.5 | 7,:3 r:1"}
+          - {bar: 9,  text: "Nothing changes here",   notes: "5:1 5:1 5:1 3:1 | 3:2 r:2"}
+          - {bar: 11, text: "Only grey, only grey",   notes: "3:1 3:1 7,:1.5 r:.5 | 2:1 1:1 7,:1.5 r:.5"}
+          - {bar: 13, text: "Nothing changes here",   notes: "5:1 5:1 5:1 3:1 | 3:2 r:2"}
+          - {bar: 15, text: "So I stay, so I stay",   notes: "3:1 3:1 7,:1.5 r:.5 | 2:1 1:1 7,:1.5 r:.5"}
+sections:
+  - name: intro
+    type: intro
+    bars: 8
+    chords: chorus
+    play: {bass: riff, kick: a, hat: eight}
+  - name: verse1
+    type: verse
+    bars: 16
+    chords: verse
+    play: {kick: a, snare: two, hat: eight, bass: drive, guitar: arp, tom: fill, vox: verse1}
+    vel: {guitar: 0.7}
+  - name: chorus1
+    type: chorus
+    bars: 16
+    chords: chorus
+    play: {kick: a, snare: fill, hat: eight, bass: chorus, guitar: hook, pad: hold, synth: answer, vox: chorus}
+  - name: theme1
+    type: bridge
+    bars: 8
+    chords: chorus
+    energy: 0.7
+    play: {kick: a, snare: fill, hat: eight, bass: riff, guitar: arp, pad: hold, synth: theme}
+  - name: verse2
+    type: verse
+    bars: 16
+    chords: verse
+    play: {kick: a, snare: two, hat: eight, bass: drive, guitar: arp, pad: hold, tom: fill, vox: verse2}
+    vel: {pad: 0.7, guitar: 0.7}
+  - name: chorus2
+    type: chorus
+    bars: 16
+    chords: chorus
+    play: {kick: a, snare: fill, hat: eight, bass: chorus, guitar: hook, pad: hold, synth: answer, vox: chorus}
+  - name: bridge
+    type: bridge
+    bars: 16
+    chords: bridge
+    energy: 0.45
+    play: {hat: eight, bass: chorus, guitar: arp, pad: hold, synth: theme, tom: fill}
+    vel: {synth: 0.7}
+    auto: {pad: {lpf: [700, 6000]}}
+  - name: chorus3
+    type: chorus
+    bars: 16
+    chords: chorus
+    energy: 1.0
+    play: {kick: a, snare: fill, hat: eight, bass: chorus, guitar: hook, pad: hold, synth: answer, vox: chorus, tom: fill}
+  - name: outro
+    type: outro
+    bars: 8
+    chords: chorus
+    play: {kick: a, hat: eight, bass: riff, guitar: arp, synth: theme}

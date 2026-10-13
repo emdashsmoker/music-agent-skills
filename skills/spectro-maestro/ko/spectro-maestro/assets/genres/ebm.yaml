@@ -1,0 +1,56 @@
+name: EBM
+family: industrial
+summary: electronic body music; hard sequenced sixteenth bass, martial four-on-the-floor drums, shouted vocals, little harmony
+bpm: [110, 130, 120]
+keys: [E minor, A minor, D minor, G minor, E phrygian]
+about: |
+  Rhythm: stiff and physical. Kick on every beat, snare on 2 and 4, sometimes a snare on every beat or marching
+  patterns; closed hats in eighths or sixteenths; metallic percussion as accents.
+  Bass: the hook. A one-bar sequence of sixteenths or eighths on one or two pitches (root, octave, minor third,
+  flat seventh, flat second) from an FM or analog bass with a short filter envelope; no swing.
+  Harmony: sparse. One root for long stretches, a second root for the chorus; cold string or choir pads, minor
+  stabs, sampled noises.
+  Vocals: shouted or commanding short phrases, often doubled.
+  Arrangement: sequence alone, drums enter, verse and chorus differ by root note and added layers; breakdown
+  with sequence and percussion only.
+  Mix: bass sequence and kick dominate, dry and punchy, snare with a short room; mids left open for the voice.
+profile:
+  master: {lufs: -9.5}
+  roles:
+    bass: {duck: -4, level: -6, hpf: 40}
+    kick: {level: -4.5}
+    snare: {level: -4}
+    pad: {duck: -2, level: -9}
+  returns: {reverb: {decay: 1.6}}
+song:
+  ending: hit
+  seed: 111
+  chords:
+    verse: "i5 | i5 | i5 | i5"
+    chorus: "bVI5 | bVI5 | bVII5 | i5"
+    bridge: "iv5 | iv5 | bII5 | bII5"
+  tracks:
+    kick: {inst: kick_909, role: kick, parts: {four: {hits: "x...x...x...x..."}}}
+    snare: {inst: snare_909, role: snare, parts: {two: {hits: "....x.......x..."}, march: {hits: "....x.......x.xx"}}}
+    hat: {inst: hat_closed_909, role: hat, parts: {eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.8}, sixteen: {hits: "xoxoxoxoxoxoxoxo", vel: 0.75}}}
+    ohat: {inst: hat_open_909, role: hat, parts: {off: {hits: "..x...x...x...x."}}, mix: {gain_db: -3}}
+    metal: {inst: metal_hit, role: perc, parts: {accent: {hits: "..........x.....|......x.......x."}}, mix: {pan: 0.3}}
+    bass:
+      inst: bass_fm
+      role: bass
+      parts:
+        seq_a: {grid: "1 1 1' 1 1 1 b7, 1 1 1 1' 1 b3 1 1' 1"}
+        seq_b: {grid: "1 . 1 1' . 1 1 . 1 1' 1 . 1 1 b7, 1"}
+    seq2: {inst: lead_psy, role: arp, octave: 4, parts: {a: {grid: "1 . . 1 . . 5 . 1 . . 1 . b3 . ."}}}
+    pad: {inst: pad_choir, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -", octave: 4}}}
+    stab: {inst: chord_rave, role: chord, parts: {hit: {grid: "c . . . . . . . . . c . . . . ."}}}
+  sections:
+    - {name: intro, type: intro, bars: 8, chords: verse, play: {bass: seq_a}, auto: {bass: {lpf: [300, 6000]}}}
+    - {name: drums_in, type: verse, bars: 8, chords: verse, hit: [impact], play: {kick: four, hat: eight, bass: seq_a}}
+    - {name: verse1, type: verse, bars: 16, chords: verse, play: {kick: four, snare: two, hat: eight, bass: seq_a, metal: accent}}
+    - {name: chorus1, type: chorus, bars: 8, chords: chorus, hit: [crash], play: {kick: four, snare: march, hat: sixteen, ohat: off, bass: seq_b, pad: hold, stab: hit}}
+    - {name: verse2, type: verse, bars: 16, chords: verse, play: {kick: four, snare: two, hat: eight, bass: seq_a, metal: accent, seq2: a}}
+    - {name: chorus2, type: chorus, bars: 8, chords: chorus, hit: [crash], play: {kick: four, snare: march, hat: sixteen, ohat: off, bass: seq_b, pad: hold, stab: hit}}
+    - {name: break, type: break, bars: 8, chords: bridge, hit: [downlifter], play: {bass: seq_a, metal: accent, pad: hold}, rise: {riser: 4, snare_roll: 2}}
+    - {name: chorus3, type: chorus, bars: 16, chords: chorus, hit: [impact, crash], play: {kick: four, snare: march, hat: sixteen, ohat: off, bass: seq_b, pad: hold, stab: hit, seq2: a}}
+    - {name: outro, type: outro, bars: 8, chords: verse, play: {kick: four, hat: eight, bass: seq_a}, gap: {kick: 8, hat: 8}}

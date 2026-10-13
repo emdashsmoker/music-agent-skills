@@ -1,0 +1,26 @@
+extends: dnb
+name: Liquid Drum and Bass
+summary: melodic, soulful drum and bass; electric piano or piano chords, warm sub, smooth breaks
+bpm: [170, 176, 174]
+keys: [F minor, A minor, C minor, D minor, G minor]
+about: |
+  Rhythm: the two-step break with soft ghost notes, rides and shakers; lighter snare than club drum and bass.
+  Bass: round sub following the chord roots, sometimes a soft mid layer.
+  Harmony: jazzy seventh and ninth chords on electric piano, piano or pads; four-chord loops (im9 VImaj7 IIImaj7 VII).
+  Melody: vocal lines, piano or bell motifs; plenty of reverb.
+  Arrangement and mix: as drum and bass but gentler dynamics, quieter master, wide pads.
+profile:
+  master: {lufs: -10}
+  roles: {keys: {reverb: 0.3}, snare: {level: -5}}
+  returns: {reverb: {decay: 3.0}}
+song:
+  ending: hit
+  chords:
+    main: "im9 | im9 | VImaj7 | VImaj7 | IIImaj7 | IIImaj7 | VII | VII"
+    alt: "VImaj7 | VII | im9 | im9"
+  tracks:
+    snare: {inst: snare_break}
+    reese: {inst: bass_pluck, parts: {riff: {grid: "1 - - - . . . . 1 - - . 5 - - ."}}}
+    stab: {inst: keys_ep, role: keys, parts: {hit: {grid: "c - - - - - . . . . c - - - . .", gate: 1.0}}}
+    pad: {inst: pad_strings}
+    lead: {inst: keys_piano, role: keys}

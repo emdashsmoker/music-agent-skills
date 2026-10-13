@@ -1,0 +1,19 @@
+extends: psytrance
+name: Dark Psytrance
+summary: faster and darker psytrance; dissonant leads, horror atmospheres, relentless bass
+bpm: [148, 160, 150]
+keys: [E phrygian, D phrygian, F locrian, E phrygian_dominant]
+about: |
+  Rhythm and bass as psytrance but faster and drier; the bass is even shorter and the kick more clicky.
+  Harmony: static root with flat second, tritone and minor third; chromatic movement; no comforting chords.
+  Leads: metallic FM, detuned squelches, pitch-bent zaps, noise and distorted textures; rhythm in sixteenths and triplets.
+  Arrangement: dense, new sounds every 8 bars, breaks are short and unsettling.
+  Mix: dark top end, strong low mids avoided, loud master.
+profile:
+  master: {lufs: -8.5}
+song:
+  ending: hit
+  chords: {main: "i5 | i5 | i5 | i5", alt: "i5 | bII5 | i5 | bV5"}
+  tracks:
+    squelch: {inst: {base: lead_psy, drive: 0.6, filter: {res: 0.8}}}
+    pad: {inst: drone}

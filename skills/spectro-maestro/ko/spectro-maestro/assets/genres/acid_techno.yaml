@@ -1,0 +1,23 @@
+extends: techno
+name: Acid Techno
+summary: fast techno driven by distorted, screaming 303 lines
+bpm: [135, 145, 140]
+keys: [A minor, E minor, C minor]
+about: |
+  Rhythm: hard 909 kick on every beat, off-beat open hat, clap on 2 and 4, relentless sixteenth hats.
+  Lead: one or two overdriven 303 patterns with many slides and accents; resonance high, cutoff automated in long sweeps.
+  Harmony: single root note; minor third, fifth, octave and flat seventh colour the line.
+  Arrangement: 303 enters filtered, opens to a scream at the peak; kick drop-outs of 4-8 bars reset the energy.
+  Mix: 303 loud and central with distortion; kick punches through below; short delay.
+profile:
+  master: {lufs: -8.5}
+song:
+  ending: hit
+  tracks:
+    kick: {inst: kick_909}
+    seq:
+      inst: {base: lead_acid, drive: 0.6}
+      role: bass
+      octave: 2
+      parts:
+        loop: {grid: "1 1 1'~ 1 b3! 1 1'~ b7 1 1! 5~ 5 1 1'! b3~ 1"}

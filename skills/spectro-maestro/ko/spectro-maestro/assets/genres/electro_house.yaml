@@ -1,0 +1,26 @@
+extends: house
+name: Electro House
+summary: heavy sawtooth bass riff with deep sidechain pumping, big build-ups and drops
+bpm: [125, 130, 128]
+keys: [F minor, G minor, E minor, A minor]
+about: |
+  Rhythm: hard kick on every beat, clap on 2 and 4, bright off-beat hats; drums are simple so the bass can roar.
+  Bass: a distorted saw riff is the hook, often on the off-beats with pitch jumps of an octave, ducked hard by the kick.
+  Harmony: sparse; breakdown uses a supersaw chord progression, the drop is mostly riff and root.
+  Arrangement: intro, breakdown with chords and vocal space, long snare-roll build with riser, drop on the riff.
+  Mix: loud, aggressive; sidechain 8-10 dB on bass and chords.
+profile:
+  master: {lufs: -8.5}
+  roles: {bass: {duck: -9}, chord: {duck: -7}, pad: {duck: -7}}
+song:
+  ending: hit
+  swing: 0.0
+  chords:
+    main: "i | i | VI | VII"
+    lift: "VI | VII | i | v"
+  tracks:
+    kick: {inst: kick_house}
+    bass: {inst: bass_saw_dist, parts: {groove: {grid: ". . 1 1 . . 1' 1 . . 1 1 . . b7, 1'"}, simple: {grid: ". . 1 - . . 1 - . . 1 - . . 1 -"}}}
+    chord: {inst: chord_supersaw, parts: {stab: {grid: "c - - . c - - . c - - . c - c -"}, sparse: {grid: "c - - - - - - - . . . . . . . ."}}}
+    pad: {inst: pad_supersaw}
+    lead: {inst: lead_supersaw, role: lead}

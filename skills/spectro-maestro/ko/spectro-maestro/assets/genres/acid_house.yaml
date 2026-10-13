@@ -1,0 +1,41 @@
+extends: house
+name: Acid House
+summary: a TB-303 line with slides and accents over 909 drums; the filter is the melody
+bpm: [118, 128, 122]
+keys: [A minor, C minor, E minor, G minor]
+about: |
+  Rhythm: 909 kick on every beat, clap on 2 and 4, off-beat open hat, sixteenth closed hats; raw and simple.
+  Bass / lead: one 303 pattern of 16 steps repeats for the whole track. Its notes are few (root, octave, minor third,
+  fifth, flat seventh); slides (~) and accents (!) and above all the slowly turning cutoff and resonance make the movement.
+  Harmony: none or one chord; a pad or stab may mark the root.
+  Arrangement: start with drums, bring the 303 in closed (dark), open the filter over 16-32 bars, drop the kick for a
+  bar or eight, slam back. Two 303 lines can trade places.
+  Mix: 303 in the middle and loud, kick punchy below it, little reverb, some delay on the 303.
+profile:
+  master: {lufs: -9.5}
+  roles: {bass: {delay: 0.18, reverb: 0.06, duck: -5, hpf: 45, level: -2}}
+song:
+  ending: hit
+  swing: 0.04
+  chords:
+    main: "i | i | i | i"
+    lift: "i | i | bVII | bVII"
+  tracks:
+    kick: {inst: kick_909}
+    acid:
+      inst: bass_303
+      role: bass
+      octave: 2
+      parts:
+        a: {grid: "1 1' 1~ b3 1 . 1'! 1 5~ 5 1 1'! . b3 1 b7,!"}
+        b: {grid: "1 . 1'~ 1' b7,! 1 . b3~ 4 4! 1 . 1'~ 5 b3! 1"}
+    chord: {inst: chord_rave, parts: {stab: {grid: ". . . . c . . . . . . . . . c ."}, sparse: {grid: ". . . . . . . . . . . . . . c ."}}}
+  sections:
+    - {name: intro, type: intro, bars: 8, chords: main, play: {kick: four, hat: off}}
+    - {name: acid_in, type: verse, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, acid: a}, auto: {acid: {lpf: [350, 5000]}}}
+    - {name: groove, type: chorus, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, shaker: run, acid: a}}
+    - {name: break, type: break, bars: 8, chords: lift, hit: [downlifter], play: {acid: b, chord: sparse, hat: off}, auto: {acid: {lpf: [3000, 500]}}}
+    - {name: build, type: build, bars: 8, chords: lift, rise: {riser: 8, snare_roll: 4}, play: {acid: b, hat: sixteen, chord: stab}, auto: {acid: {lpf: [500, 12000]}}}
+    - {name: peak, type: drop, bars: 32, chords: main, hit: [impact, crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, shaker: run, acid: b, chord: stab}}
+    - {name: second_line, type: chorus, bars: 16, chords: main, hit: [crash], play: {kick: four, clap: two, hat: sixteen, ohat: off, acid: a}}
+    - {name: outro, type: outro, bars: 8, chords: main, play: {kick: four, hat: off, acid: a}, auto: {acid: {lpf: [4000, 300]}}}

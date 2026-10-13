@@ -1,0 +1,24 @@
+extends: techno
+name: Industrial Techno
+summary: distorted kick and rumble, metallic percussion, noise and dissonance at high pressure
+bpm: [135, 150, 142]
+keys: [A minor, D minor, E minor]
+about: |
+  Rhythm: overdriven kick with a long distorted tail, metal hits and anvils, harsh open hats, snare rolls and rides in the peaks.
+  Bass: the kick's rumble; sometimes a distorted single-note sequence.
+  Harmony: none in the classical sense; tritones, flat seconds, noise sweeps, sirens.
+  Arrangement: build pressure by layering percussion and noise; short breaks of 4-8 bars.
+  Mix: saturated and dense but the kick must still punch; master loud.
+profile:
+  master: {lufs: -8}
+  roles: {kick: {level: -2}}
+song:
+  ending: hit
+  chords: {main: "i | i | i | i", alt: "i | bII | i | bV"}
+  tracks:
+    kick: {inst: kick_industrial}
+    clap: {inst: snare_industrial}
+    perc: {inst: metal_hit}
+    rim: {inst: anvil}
+    stab: {inst: lead_hoover}
+    seq: {inst: bass_saw_dist, role: bass, octave: 2}
