@@ -148,5 +148,6 @@ Thanks to the developers and contributors of these projects.
 - [DAWproject](https://github.com/bitwig/dawproject)
 - [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M)
 - [Piper](https://github.com/OHF-Voice/piper1-gpl)
+- [eSpeak NG](https://github.com/espeak-ng/espeak-ng)
 - [WORLD](https://github.com/mmorise/World)
 - [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
