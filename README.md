@@ -137,3 +137,17 @@ skills/synth-ventriloquist/
 `demo/` 폴더의 데모 곡(음원, 가사, 프로젝트 파일)은 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.ko)을 따릅니다. LMMS 프로젝트 압축 파일 안의 드럼 샘플(`samples/kit/`)은 LMMS DrumSynth 프리셋을 녹음한 소리라서 CC BY-NC 4.0 대신 GPL-2.0-or-later를 따릅니다.
 
 </details>
+
+## References
+
+Thanks to the developers and contributors of these projects.
+
+이 프로젝트들의 개발자와 기여자분들께 감사드립니다.
+
+- [LMMS](https://lmms.io)
+- [DAWproject](https://github.com/bitwig/dawproject)
+- [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M)
+- [Piper](https://github.com/OHF-Voice/piper1-gpl)
+- [eSpeak NG](https://github.com/espeak-ng/espeak-ng)
+- [WORLD](https://github.com/mmorise/World)
+- [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
