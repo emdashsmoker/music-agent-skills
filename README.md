@@ -51,7 +51,7 @@ skills/synth-ventriloquist/
 - For results that do not resemble them, add an instruction such as `Do not make it similar to the examples or demos in the skill.` to your request.
 - Speech voices turned into singing sound synthetic, and some words may come out mispronounced.
 - The terms of each voice model or voicebank also apply to the sung audio. Some allow non-commercial use only.
-- Every skill needs a code execution environment and network access. Rendering runs on the CPU, so each song takes time.
+- Every skill needs a code execution environment and network access.
 - `synth-ventriloquist` works where LMMS is installed. The LMMS integration was tested with LMMS 1.2.2 on Linux.
 
 ## Disclaimer
