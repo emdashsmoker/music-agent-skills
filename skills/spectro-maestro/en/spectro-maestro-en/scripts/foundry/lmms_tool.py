@@ -13,11 +13,13 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 
 from . import settings
 
 FLATPAK_ID = "io.lmms.LMMS"
 RENDER_TIMEOUT_S = 1800
+SAMPLES_SUBDIR = "samples"       # LMMS resolves relative sample paths under <working directory>/samples
 
 
 def _flatpak_installed() -> bool:
@@ -64,6 +66,31 @@ def _environment(command: list) -> dict:
     return env
 
 
+def _write_config(project_dir: str, scratch: str) -> str:
+    """LMMS settings for one render whose working directory links to <project_dir>/samples, so the relative sample
+    paths of an exported project resolve. LMMS gets this file through -c: the user's own configuration stays untouched.
+
+    A scratch working directory is used because LMMS creates its standard subfolders in it on start; where links
+    cannot be made (Windows without the right to make them) the project folder is used after all."""
+    working = os.path.join(scratch, "work")
+    os.makedirs(working)
+    samples = os.path.join(project_dir, SAMPLES_SUBDIR)
+    if os.path.isdir(samples):
+        try:
+            os.symlink(samples, os.path.join(working, SAMPLES_SUBDIR), target_is_directory=True)
+        except OSError:
+            working = project_dir
+    as_lmms_path = lambda path: path.replace(os.sep, "/").rstrip("/") + "/"
+    unused = as_lmms_path(os.path.join(scratch, "unused"))
+    path = os.path.join(scratch, "lmmsrc.xml")
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write('<?xml version="1.0"?>\n<!DOCTYPE lmms-config-file>\n<lmms version="1.2.2">\n'
+                     f'  <paths workingdir="{as_lmms_path(working)}" sf2dir="{unused}sf2/" gigdir="{unused}gig/" '
+                     f'vstdir="{unused}vst/" laddir="{unused}ladspa/" artwork="data:/themes/default/" '
+                     'backgroundartwork="" defaultsf2=""/>\n</lmms>\n')
+    return path
+
+
 def render(project_path: str, wav_path: str) -> str:
     """Let LMMS render a project to a WAV file. Raises RuntimeError with LMMS's own words when it fails."""
     command, _how = find()
@@ -75,14 +102,17 @@ def render(project_path: str, wav_path: str) -> str:
         folders = {os.path.dirname(project_path), os.path.dirname(wav_path)}
         command = command[:2] + [f"--filesystem={folder}" for folder in sorted(folders)] + command[2:]
     extra = ["--allowroot"] if hasattr(os, "geteuid") and os.geteuid() == 0 else []      # LMMS refuses to run as root otherwise
-    full = command + extra + ["render", project_path, "-f", "wav", "-o", wav_path]
     if os.path.exists(wav_path):
         os.remove(wav_path)
-    try:
-        done = subprocess.run(full, capture_output=True, text=True, errors="replace", env=_environment(command),
-                              timeout=RENDER_TIMEOUT_S)
-    except subprocess.TimeoutExpired as error:
-        raise RuntimeError(f"LMMS did not finish within {RENDER_TIMEOUT_S} s") from error
+    # The scratch folder sits beside the WAV, a folder a Flatpak sandbox is already given (its /tmp is private).
+    with tempfile.TemporaryDirectory(prefix=".lmms-", dir=os.path.dirname(wav_path)) as scratch:
+        config = _write_config(os.path.dirname(project_path), scratch)
+        full = command + extra + ["-c", config, "render", project_path, "-f", "wav", "-o", wav_path]
+        try:
+            done = subprocess.run(full, capture_output=True, text=True, errors="replace", env=_environment(command),
+                                  timeout=RENDER_TIMEOUT_S)
+        except subprocess.TimeoutExpired as error:
+            raise RuntimeError(f"LMMS did not finish within {RENDER_TIMEOUT_S} s") from error
     if not os.path.isfile(wav_path) or os.path.getsize(wav_path) == 0:
         tail = "\n".join((done.stdout + "\n" + done.stderr).strip().splitlines()[-8:])
         raise RuntimeError(f"LMMS wrote no audio (exit code {done.returncode}). Command: {' '.join(full)}\n{tail}")
