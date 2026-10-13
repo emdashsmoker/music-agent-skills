@@ -142,7 +142,7 @@ skills/synth-ventriloquist/
 
 Thanks to the developers and contributors of these projects.
 
-이 프로젝트들을 만들고 가꿔 온 개발자와 기여자분들께 감사드립니다.
+이 프로젝트들의 개발자와 기여자분들께 감사드립니다.
 
 - [LMMS](https://lmms.io)
 - [DAWproject](https://github.com/bitwig/dawproject)
