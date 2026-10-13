@@ -8,20 +8,20 @@ Composing agent skills that finish songs without diffusion models, following the
 
 ### LMMS-based
 
-- `synth-ventriloquist`: Writes an LMMS project and renders every sound through LMMS running without its window. It also analyzes and edits existing LMMS projects (.mmp, .mmpz).
+- [`synth-ventriloquist`](skills/synth-ventriloquist): Writes an LMMS project and renders every sound through LMMS running without its window. It also analyzes and edits existing LMMS projects (.mmp, .mmpz).
 
 ### Non-LMMS
 
-- `spectro-maestro`: Renders a YAML song file with its own Python synthesizer, mixer and mastering chain, so a finished song needs no DAW. It can export the result as audio, MIDI, project JSON, LMMS and DAWproject files.
+- [`spectro-maestro`](skills/spectro-maestro): Renders a YAML song file with its own Python synthesizer, mixer and mastering chain, so a finished song needs no DAW. It can export the result as audio, MIDI, project JSON, LMMS and DAWproject files.
 
 ## Demos
 
 The `demo/` folder of each skill holds the audio (.ogg), the project file and the lyrics of each song.
 
-- `synth-ventriloquist`
+- [`synth-ventriloquist`](skills/synth-ventriloquist)
     - [Anyway](skills/synth-ventriloquist/demo/anyway): coldwave, 142 BPM, F minor
     - [Second Brain](skills/synth-ventriloquist/demo/second_brain): futurepop, 136 BPM, F minor
-- `spectro-maestro`
+- [`spectro-maestro`](skills/spectro-maestro)
     - [Abundance](skills/spectro-maestro/demo/abundance): futurepop, 132 BPM, D minor
     - [Coat by the Door](skills/spectro-maestro/demo/coat_by_the_door): coldwave, 144 BPM, D minor
 

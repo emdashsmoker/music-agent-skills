@@ -8,20 +8,20 @@
 
 ### LMMS 기반
 
-- `synth-ventriloquist`: LMMS 프로젝트를 작성하고 창 없이 실행한 LMMS로 모든 소리를 렌더링합니다. 기존 LMMS 프로젝트(.mmp, .mmpz)의 분석과 편집도 지원합니다.
+- [`synth-ventriloquist`](skills/synth-ventriloquist): LMMS 프로젝트를 작성하고 창 없이 실행한 LMMS로 모든 소리를 렌더링합니다. 기존 LMMS 프로젝트(.mmp, .mmpz)의 분석과 편집도 지원합니다.
 
 ### 비LMMS 기반
 
-- `spectro-maestro`: YAML 곡 파일을 자체 파이썬 신시사이저, 믹서, 마스터링 체인으로 렌더링해 DAW 없이 완성곡을 만듭니다. 완성곡은 오디오, MIDI, 프로젝트 JSON, LMMS, DAWproject 파일로 내보낼 수 있습니다.
+- [`spectro-maestro`](skills/spectro-maestro): YAML 곡 파일을 자체 파이썬 신시사이저, 믹서, 마스터링 체인으로 렌더링해 DAW 없이 완성곡을 만듭니다. 완성곡은 오디오, MIDI, 프로젝트 JSON, LMMS, DAWproject 파일로 내보낼 수 있습니다.
 
 ## 데모
 
 스킬 폴더의 `demo/` 폴더에 곡별 음원(.ogg), 프로젝트 파일, 가사가 있습니다.
 
-- `synth-ventriloquist`
+- [`synth-ventriloquist`](skills/synth-ventriloquist)
     - [Anyway](skills/synth-ventriloquist/demo/anyway): 콜드웨이브, 142 BPM, F 단조
     - [Second Brain](skills/synth-ventriloquist/demo/second_brain): 퓨처팝, 136 BPM, F 단조
-- `spectro-maestro`
+- [`spectro-maestro`](skills/spectro-maestro)
     - [Abundance](skills/spectro-maestro/demo/abundance): 퓨처팝, 132 BPM, D 단조
     - [Coat by the Door](skills/spectro-maestro/demo/coat_by_the_door): 콜드웨이브, 144 BPM, D 단조
 
