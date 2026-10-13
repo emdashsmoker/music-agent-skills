@@ -1,0 +1,28 @@
+extends: house
+name: Nu Disco
+summary: live-feeling four-on-the-floor with octave bass, strings and funky chords
+bpm: [110, 124, 118]
+keys: [A minor, D minor, E minor, C major, F major]
+about: |
+  Rhythm: kick on every beat, snare or clap on 2 and 4, open hat on every off-beat (the disco hat), tambourine or shaker.
+  Bass: octave-jumping eighths or a syncopated funk line; it is melodic and prominent.
+  Harmony: seventh chords in 4-bar turnarounds (ii7 V7 Imaj7 VI7, i7 IV7), string lines and stabs, electric piano.
+  Arrangement: verse and chorus contrast like a pop song; breakdown strips to bass and strings.
+  Mix: warm, less sub than house, moderate loudness, plate reverb on snare and strings.
+profile:
+  master: {lufs: -10.5}
+  roles: {bass: {duck: -4, level: -2}, pad: {duck: -3}, chord: {duck: -2}}
+song:
+  ending: hit
+  swing: 0.03
+  chords:
+    main: "i7 | IV7 | bVIImaj7 | IIImaj7"
+    lift: "bVImaj7 | bVII | i7 | V7"
+  tracks:
+    kick: {inst: kick_linn}
+    clap: {inst: snare_linn}
+    bass: {inst: bass_moog, parts: {groove: {grid: "1 . 1' . 1 . 1' 1 . 1 1' . 1 . 1' 5"}, simple: {grid: "1 . 1' . 1 . 1' . 1 . 1' . 1 . 1' ."}}}
+    chord: {inst: keys_ep, role: keys, parts: {stab: {grid: ". . c . . c . . . . c . . . c .", gate: 0.7}, sparse: {grid: ". . c . . . . . . . c . . . . .", gate: 0.7}}}
+    pad: {inst: pad_strings}
+    shaker: {inst: tambourine}
+    lead: {inst: brass_synth, role: lead}

@@ -1,0 +1,47 @@
+name: Future Bass
+family: bass
+summary: half-time trap drums under huge, pulsing supersaw chords and a bright, emotional drop melody
+bpm: [140, 170, 150]
+keys: [F major, C major, G major, A minor, D minor, E minor]
+about: |
+  Rhythm: half-time: kick on 1 and around the end of the bar, snare or clap on beat 3, trap hats with rolls.
+  Bass: sub or 808 following the chord roots with long notes.
+  Harmony: the drop is a wall of detuned saw chords, rich (seventh, ninth, added-note) and rhythmically
+  pulsed: either re-struck in a syncopated pattern or held with a volume wobble. Progressions are bright:
+  IV V vi, IV V iii vi, vi IV I V.
+  Melody: the top note of the chords or a vocal chop carries a simple tune; verses are sparse with plucks and vocals.
+  Arrangement: intro and verse soft, build with snare roll and riser, drop with the chords, second verse, bigger drop.
+  Mix: chords very wide and ducked by kick and snare; sub mono; bright but not harsh.
+profile:
+  master: {lufs: -9.5}
+  roles:
+    chord: {duck: -6, level: -1.5, reverb: 0.25}
+    bass: {duck: -3}
+    snare: {level: -3.5, reverb: 0.18}
+    pluck: {delay: 0.25, reverb: 0.3}
+  returns: {reverb: {decay: 2.8}}
+song:
+  ending: hit
+  seed: 181
+  chords:
+    main: "IVmaj7 | V | vim7 | iiim7"
+    verse: "vim7 | IVmaj7 | I | V"
+  tracks:
+    kick: {inst: kick_house, role: kick, parts: {half: {hits: "x.........x.....|x......x..x....."}}}
+    snare: {inst: snare_trap, role: snare, parts: {three: {hits: "........x......."}}}
+    clap: {inst: clap_big, role: snare, parts: {three: {hits: "........x......."}}, mix: {gain_db: -3}}
+    hat: {inst: hat_closed_808, role: hat, parts: {roll: {hits: "x.x.x.x.x.x.xrx.|x.x.xtx.x.x.x.rr", vel: 0.8}, eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.7}}}
+    sub: {inst: bass_808, role: bass, parts: {long: {grid: "1 - - - - - - - - - - - - - - -", gate: 1.0}}}
+    chords: {inst: chord_supersaw, role: chord, parts: {pulse: {grid: "c - - c - - c - c - - c - - c -", gate: 0.85}, hold: {grid: "c - - - - - - - - - - - - - - -"}}, mix: {inserts: [{fx: tremolo, rate: 1/8, depth: 0.35}]}}
+    pluck: {inst: pluck_saw, role: pluck, octave: 4, parts: {arp: {grid: "1 . 5 . 1' . 3' . 5 . 1' . 5 . 3 ."}}}
+    lead: {inst: lead_fm_bell, role: lead, octave: 5, parts: {tune: {line: "3:1.5 5:.5 6:1 5:1 | 2:1.5 3:.5 5:2 | 1:1.5 3:.5 5:1 3:1 | 2:3 r:1"}}}
+    pad: {inst: pad_warm, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+  sections:
+    - {name: intro, type: intro, bars: 8, chords: verse, play: {pad: hold, pluck: arp}, auto: {pluck: {lpf: [600, 8000]}}}
+    - {name: verse1, type: verse, bars: 16, chords: verse, play: {kick: half, snare: three, hat: eight, sub: long, pad: hold, pluck: arp}}
+    - {name: build1, type: build, bars: 8, chords: main, rise: {riser: 8, snare_roll: 4}, play: {pad: hold, pluck: arp, chords: hold}, auto: {chords: {lpf: [400, 9000]}}}
+    - {name: drop1, type: drop, bars: 16, chords: main, hit: [impact, crash], play: {kick: half, snare: three, clap: three, hat: roll, sub: long, chords: pulse, lead: tune}}
+    - {name: verse2, type: verse, bars: 8, chords: verse, hit: [downlifter], play: {kick: half, snare: three, hat: eight, sub: long, pad: hold, pluck: arp}}
+    - {name: build2, type: build, bars: 8, chords: main, rise: {riser: 8, snare_roll: 4}, play: {pad: hold, pluck: arp, chords: hold}, auto: {chords: {lpf: [400, 9000]}}}
+    - {name: drop2, type: drop, bars: 32, chords: main, hit: [impact, crash], play: {kick: half, snare: three, clap: three, hat: roll, sub: long, chords: pulse, lead: tune, pluck: arp}}
+    - {name: outro, type: outro, bars: 8, chords: verse, play: {pad: hold, pluck: arp}, auto: {master: {volume: [0, -12]}}}

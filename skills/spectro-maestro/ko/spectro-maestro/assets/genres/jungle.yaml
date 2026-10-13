@@ -1,0 +1,25 @@
+extends: dnb
+name: Jungle
+summary: chopped, rolling breakbeats at 160-170 bpm, deep sub bass lines, rave stabs and reggae influence
+bpm: [155, 170, 165]
+keys: [F minor, A minor, E minor, G minor]
+about: |
+  Rhythm: a sampled-break feel: syncopated kicks, snares on 2 and 4 plus rolling ghost snares and re-triggered
+  hits (rolls, r and t in patterns), shuffled hats; the pattern changes every bar or two like a chopped break.
+  Bass: deep sine sub playing a slow reggae-style melodic line, often sliding.
+  Harmony: minor; rave stabs, pads, timestretched-vocal style hooks.
+  Arrangement: intro with pads and break fragments, drop, switch-ups of the break every 8-16 bars.
+  Mix: break slightly gritty (bit reduction helps), sub huge and mono.
+profile:
+  master: {lufs: -9}
+  buses:
+    drums: [{fx: crush, bits: 12, rate: 22050, mix: 0.5}, {fx: comp, threshold: -16, ratio: 3, attack: 0.01, release: 0.1, makeup: 2}]
+song:
+  ending: hit
+  swing: 0.06
+  tracks:
+    kick: {inst: kick_break, parts: {two: {hits: "x.x.......x..x..|x.........xx...."}, roll: {hits: "x.x...x...x....x|x..x......x.x..."}}}
+    snare: {inst: snare_break, parts: {two: {hits: "....x.......x...|....x..x.x..x..r"}, ghost: {hits: "....x..o.o..x..o|....x.ox.o.rx.or"}}}
+    sub: {inst: lead_sine, octave: 1, parts: {long: {grid: "1 - - - - - - - - - 5 - - - - -"}, riff: {grid: "1 - - - - -~ b3 - - - 1 - 5~ 1 - -"}}}
+    reese: {inst: bass_hoover, octave: 2, parts: {riff: {grid: ". . . . . . . . 1 - - - . . . ."}}}
+    stab: {inst: chord_rave}

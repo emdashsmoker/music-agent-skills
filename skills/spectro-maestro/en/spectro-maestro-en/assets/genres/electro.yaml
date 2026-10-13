@@ -1,0 +1,41 @@
+name: Electro
+family: retro
+summary: 808 electro-funk; syncopated machine beat, robotic bass line, cowbell and vocoder-style hooks
+bpm: [118, 135, 128]
+keys: [E minor, A minor, D minor, G minor]
+about: |
+  Rhythm: 808 drums with a broken, syncopated kick (1, the 'a' of 1 or 2, the 'and' of 3), snare or clap on 2
+  and 4, sixteenth hats with open-hat accents, cowbell, rim and tom figures. Dry, tight, funky; no swing.
+  Bass: a sequenced, robotic line of sixteenths with octave jumps and rests, square or FM bass.
+  Harmony: minimal minor; stabs, short string hits, vocoder chords; one or two roots.
+  Arrangement: beat alone, bass in, hook in, break with beat only, everything back.
+  Mix: drums dry and forward, bass tight, little reverb.
+profile:
+  master: {lufs: -10}
+  roles: {kick: {level: -5.5}, bass: {duck: -3, level: -4}, perc: {level: -11}}
+  returns: {reverb: {decay: 1.2}}
+song:
+  ending: hit
+  seed: 171
+  chords:
+    main: "i | i | i | bVII"
+    alt: "bVI | bVI | bVII | bVII"
+  tracks:
+    kick: {inst: kick_808, role: kick, parts: {a: {hits: "x.....x...x....."}, b: {hits: "x..x..x...x..x.."}}, mix: {inserts: [{fx: eq, bands: [[hp, 35]]}]}}
+    snare: {inst: snare_808, role: snare, parts: {two: {hits: "....x.......x..."}}}
+    clap: {inst: clap_808, role: snare, parts: {two: {hits: "....x.......x..."}}, mix: {gain_db: -3}}
+    hat: {inst: hat_closed_808, role: hat, parts: {sixteen: {hits: "x.xxx.xxx.xxx.xx", vel: 0.8}}}
+    ohat: {inst: hat_open_808, role: hat, parts: {accent: {hits: "......x.......x."}}, mix: {gain_db: -3}}
+    cowbell: {inst: cowbell_808, role: perc, parts: {riff: {hits: "x..x..x.....x...", vel: 0.7}}, mix: {pan: 0.3}}
+    tom: {inst: tom_high, role: perc, parts: {riff: {hits: "..........x.xx..", vel: 0.7}}, mix: {pan: -0.3}}
+    bass: {inst: bass_fm, role: bass, parts: {seq: {grid: "1 . 1 1' . 1 . b7, 1 . 1' . 1 b3 . 1"}}}
+    stab: {inst: chord_rave, role: chord, parts: {hit: {grid: ". . . . c . . . . . . . . . c ."}}}
+    lead: {inst: lead_square, role: lead, octave: 4, parts: {hook: {line: "1:.5 1:.5 r:.5 b3:.5 r:.5 1:.5 b7,:1 | r:2 5:.5 4:.5 b3:1 | 1:.5 1:.5 r:.5 b3:.5 r:.5 4:.5 5:1 | r:2 b7:.5 5:.5 4:1"}}}
+    pad: {inst: pad_strings, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+  sections:
+    - {name: intro, type: intro, bars: 8, chords: main, play: {kick: a, hat: sixteen, cowbell: riff}}
+    - {name: bass_in, type: verse, bars: 16, chords: main, play: {kick: a, snare: two, hat: sixteen, ohat: accent, cowbell: riff, bass: seq}}
+    - {name: hook1, type: chorus, bars: 16, chords: main, hit: [crash], play: {kick: b, snare: two, clap: two, hat: sixteen, ohat: accent, cowbell: riff, tom: riff, bass: seq, stab: hit, lead: hook}}
+    - {name: break, type: break, bars: 8, chords: alt, play: {kick: a, hat: sixteen, tom: riff, pad: hold}, rise: {riser: 2}}
+    - {name: hook2, type: chorus, bars: 32, chords: main, hit: [impact, crash], play: {kick: b, snare: two, clap: two, hat: sixteen, ohat: accent, cowbell: riff, tom: riff, bass: seq, stab: hit, lead: hook, pad: hold}}
+    - {name: outro, type: outro, bars: 8, chords: main, play: {kick: a, hat: sixteen, bass: seq}}

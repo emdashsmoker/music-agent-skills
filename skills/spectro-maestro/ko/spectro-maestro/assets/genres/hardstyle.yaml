@@ -1,0 +1,32 @@
+extends: gabber
+name: Hardstyle
+summary: 150 bpm; hard distorted kick with a pitched tail and reverse bass, screeches, and a euphoric supersaw melody
+bpm: [145, 155, 150]
+keys: [F minor, E minor, G minor, D minor]
+about: |
+  Rhythm: distorted kick on every beat whose tail is tuned to the track's root; reverse bass (off-beat bass
+  pulse) between kicks in the intro and mid-intro; clap on 2 and 4, off-beat open hat.
+  Harmony: the anti-climax uses screeches and a dark riff; the climax plays a big, emotional supersaw melody
+  over a four-chord minor progression (i VI III VII, VI VII i).
+  Arrangement: intro with reverse bass, break with the melody on plucks or piano, build with snare roll, climax
+  with kick and lead together, outro.
+  Mix: kick first, lead second; the melody is ducked hard by every kick.
+profile:
+  master: {lufs: -7.5}
+song:
+  ending: hit
+  chords:
+    main: "i | VI | III | VII"
+    alt: "VI | VII | i | i"
+  tracks:
+    kick: {inst: kick_hardstyle}
+    rbass: {inst: bass_saw_dist, role: bass, parts: {off: {grid: ". . 1 - . . 1 - . . 1 - . . 1 -"}}}
+    hoover: {inst: lead_supersaw, octave: 4, parts: {riff: {line: "5:1.5 3:.5 5:1 1':1 | 6:1.5 5:.5 3:2 | 3:1.5 2:.5 3:1 5:1 | 2:2 7,:2"}}}
+    stab: {inst: pluck_supersaw, role: pluck}
+  sections:
+    - {name: intro, type: intro, bars: 16, chords: main, play: {kick: four, ohat: off, rbass: off}, energy: 0.6}
+    - {name: break, type: break, bars: 16, chords: main, hit: [downlifter], play: {pad: hold, stab: riff, hoover: riff}, auto: {hoover: {lpf: [600, 9000]}}}
+    - {name: build, type: build, bars: 8, chords: main, rise: {riser: 8, snare_roll: 8}, play: {pad: hold, stab: riff, hoover: riff}}
+    - {name: climax, type: drop, bars: 32, chords: main, hit: [impact, crash], play: {kick: roll, ohat: off, clap: two, ride: eight, hoover: riff, stab: riff}}
+    - {name: anti, type: verse, bars: 16, chords: alt, hit: [crash], play: {kick: four, ohat: off, clap: two, rbass: off, screech: a}, energy: 0.8}
+    - {name: outro, type: outro, bars: 8, chords: main, play: {kick: four, ohat: off, rbass: off}, energy: 0.6}

@@ -1,0 +1,31 @@
+extends: ebm
+name: Industrial
+summary: slow to mid-tempo, distorted drums, metal percussion, noise and dissonant synths; machine aggression
+bpm: [90, 125, 110]
+keys: [D minor, E minor, A minor, E phrygian, D locrian]
+about: |
+  Rhythm: heavy distorted kick and snare, often with a stomping or half-time feel; clanging metal hits, anvils,
+  noise bursts; sixteenth hats or none.
+  Bass: distorted saw or FM sequence, single pitch or tritone and flat-second movement.
+  Harmony: dissonant and static; power chords, clusters, drones; guitars-like distorted leads; samples and noise.
+  Vocals: distorted, whispered or screamed.
+  Arrangement: verse and chorus exist but texture changes matter more than chord changes; noise swells as transitions.
+  Mix: saturated; distortion on drum and music buses; keep the kick and snare transients alive through the dirt.
+profile:
+  master: {lufs: -9}
+  roles: {kick: {level: -6}, snare: {level: -6.5}, bass: {duck: -4, level: -3.5, hpf: 40}}
+  buses:
+    drums: [{fx: dist, drive: 0.3, mix: 0.6, tone: 7000}, {fx: comp, threshold: -16, ratio: 3, attack: 0.01, release: 0.1, makeup: 0}]
+song:
+  ending: hit
+  chords:
+    verse: "i5 | i5 | i5 | bII5"
+    chorus: "i5 | bV5 | bVI5 | bII5"
+    bridge: "i5 | i5 | i5 | i5"
+  tracks:
+    kick: {inst: kick_industrial}
+    snare: {inst: snare_industrial}
+    bass: {inst: bass_saw_dist}
+    stab: {inst: lead_guitar_dist, octave: 3}
+    pad: {inst: drone}
+    metal: {inst: anvil}

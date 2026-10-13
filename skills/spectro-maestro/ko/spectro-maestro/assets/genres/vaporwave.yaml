@@ -1,0 +1,32 @@
+extends: synthwave
+name: Vaporwave
+summary: slowed, hazy, nostalgic; lush electric piano and pad chords, soft drums, heavy tape wobble and reverb
+bpm: [60, 95, 80]
+keys: [F major, C major, Bb major, D minor, G minor]
+about: |
+  Rhythm: slow, soft drum machine or none; everything feels pitched down and half asleep.
+  Bass: smooth round bass, long notes.
+  Harmony: smooth-jazz and 80s pop chords slowed down: maj7, m7, m9, IVmaj7 iii vi, ii V I; chorus and
+  detune everywhere.
+  Texture: tape wow and flutter, low-pass around 5-7 kHz, long reverb, sidechain or chopped repeats.
+  Arrangement: loop-based with small edits; 2-4 minutes.
+  Mix: quiet, washed, no sharp transients.
+profile:
+  master: {lufs: -14, eq: [[highshelf, 6000, -4]]}
+  roles: {pad: {duck: -3, reverb: 0.4}, keys: {reverb: 0.4, duck: -3}, lead: {reverb: 0.4, delay: 0.3}, snare: {reverb: 0.25, level: -6}}
+  returns: {reverb: {decay: 4.0, damp: 4000}}
+  buses:
+    music: [{fx: lofi, wow: 0.8, noise_db: -50, top: 6000}]
+song:
+  ending: fade
+  chords:
+    verse: "IVmaj7 | IVmaj7 | iiim7 | vim7"
+    chorus: "iim7 | V7 | Imaj7 | vim7"
+    bridge: "IVmaj7 | V7 | iiim7 | vim7"
+  tracks:
+    kick: {inst: kick_lofi}
+    snare: {inst: snare_lofi, mix: {inserts: []}}
+    bass: {inst: bass_sub, parts: {eight: {grid: "1 - - - - - - - 1 - - - 5 - - -"}, sixteen: {grid: "1 - - - - - 1 - - - - - 5 - 1' -"}}}
+    arp: {inst: keys_ep, role: keys, octave: 4, parts: {up: {grid: "1 . 3 . 5 . 7 . 1' . 7 . 5 . 3 ."}}}
+    pad: {inst: pad_warm}
+    lead: {inst: lead_sine, octave: 5, parts: {theme: {line: "3:2 5:1 3:1 | 2:2 7,:2 | 3:2 5:1 6:1 | 5:3 r:1 | 3:2 5:1 3:1 | 2:2 4:2 | 3:2.5 2:.5 1:1 | 1:3 r:1"}}}

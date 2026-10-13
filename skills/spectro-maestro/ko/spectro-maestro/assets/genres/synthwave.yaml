@@ -1,0 +1,51 @@
+name: Synthwave
+family: retro
+summary: 1980s nostalgia; gated-reverb drums, driving eighth-note bass, analog pads, arpeggios and a soaring lead
+bpm: [80, 118, 100]
+keys: [A minor, D minor, E minor, F# minor, C minor]
+about: |
+  Rhythm: drum machine of the 80s: kick on 1 and 3 (or four-on-the-floor in outrun), big snare on 2 and 4 with gated
+  reverb, steady eighth or sixteenth hats, tom fills into new sections.
+  Bass: constant eighths or sixteenths on the chord root (octave jumps optional), analog saw-square with a plucky filter.
+  Harmony: minor progressions with lift: i VI III VII, i VII VI VII, VI VII i; lush chorus-drenched pads, bright arps.
+  Melody: a lead synth with vibrato and delay plays a simple, wide-interval theme, like a guitar solo.
+  Arrangement: intro with arp or pad, verse, chorus with lead, breakdown, final chorus, fade out.
+  Mix: warm, chorus on pads and bass, long plate reverb on snare and lead, moderate loudness, gentle top end.
+profile:
+  master: {lufs: -11}
+  roles:
+    snare: {level: -3.5, reverb: 0.1}
+    bass: {duck: -3}
+    pad: {duck: -2}
+    lead: {reverb: 0.3, delay: 0.25, duck: 0}
+  returns: {reverb: {decay: 2.6}, delay: {time: 1/8d, feedback: 0.38}}
+song:
+  ending: fade
+  seed: 121
+  chords:
+    verse: "i | i | VI | VII"
+    chorus: "VI | VII | i | III"
+    bridge: "iv | iv | VI | VII"
+  tracks:
+    kick: {inst: kick_linn, role: kick, parts: {half: {hits: "x.......x.x....."}, four: {hits: "x...x...x...x..."}}}
+    snare: {inst: snare_linn, role: snare, parts: {two: {hits: "....x.......x..."}}, mix: {inserts: [{fx: gated_reverb, decay: 1.4, hold: 0.2, mix: 0.5}]}}
+    hat: {inst: hat_closed_808, role: hat, parts: {eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.8}, sixteen: {hits: "x.oxx.oxx.oxx.ox", vel: 0.8}}}
+    tom: {inst: tom_mid, role: perc, parts: {fill: {hits: "................|................|................|........x.x.x.xx", loop: true}}}
+    bass: {inst: bass_moog, role: bass, parts: {eight: {grid: "1 . 1 . 1 . 1 . 1 . 1 . 1 . 1 ."}, sixteen: {grid: "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1' 1"}}}
+    arp: {inst: arp_pulse, role: arp, octave: 4, parts: {up: {grid: "1 3 5 1' 5 3 1 3 5 1' 5 3 1 3 5 1'"}}}
+    pad: {inst: pad_pwm, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+    lead:
+      inst: lead_saw
+      role: lead
+      octave: 5
+      parts:
+        theme: {line: "1:2 6,:1 1:1 | 2:2 7,:1 2:1 | 3:2.5 2:.5 1:1 | 5,:3 r:1 | 1:2 6,:1 1:1 | 2:2 4:1 5:1 | 5:2.5 3:.5 1:1 | 3:3 r:1"}
+  sections:
+    - {name: intro, type: intro, bars: 8, chords: verse, play: {arp: up, pad: hold}, auto: {arp: {lpf: [500, 7000]}}}
+    - {name: verse1, type: verse, bars: 16, chords: verse, hit: [crash], play: {kick: half, snare: two, hat: eight, bass: eight, arp: up, pad: hold, tom: fill}}
+    - {name: chorus1, type: chorus, bars: 16, chords: chorus, hit: [crash], play: {kick: four, snare: two, hat: sixteen, bass: sixteen, pad: hold, lead: theme, tom: fill}}
+    - {name: verse2, type: verse, bars: 8, chords: verse, play: {kick: half, snare: two, hat: eight, bass: eight, arp: up, pad: hold, tom: fill}}
+    - {name: chorus2, type: chorus, bars: 16, chords: chorus, hit: [crash], play: {kick: four, snare: two, hat: sixteen, bass: sixteen, pad: hold, lead: theme, arp: up, tom: fill}}
+    - {name: bridge, type: bridge, bars: 8, chords: bridge, hit: [downlifter], play: {pad: hold, arp: up, bass: eight}, rise: {riser: 4}}
+    - {name: chorus3, type: chorus, bars: 16, chords: chorus, hit: [impact, crash], play: {kick: four, snare: two, hat: sixteen, bass: sixteen, pad: hold, lead: theme, arp: up, tom: fill}}
+    - {name: outro, type: outro, bars: 8, chords: verse, play: {arp: up, pad: hold, bass: eight}, auto: {master: {volume: [0, -18]}}}

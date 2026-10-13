@@ -1,0 +1,25 @@
+extends: hiphop
+name: Trip Hop / Downtempo
+summary: slow, dark, cinematic breakbeat with deep bass, strings or pads and sparse melodies
+bpm: [70, 95, 84]
+keys: [D minor, A minor, E minor, C minor]
+about: |
+  Rhythm: slow heavy break, kick and snare with room, ghost notes, loose swing.
+  Bass: deep and slow, often a two-note sub line.
+  Harmony: minor, moody: i bVI, i iv, with strings, electric piano, guitar-like plucks; chromatic touches.
+  Arrangement: unhurried verse and chorus forms that leave space for a voice; instrumental breaks.
+  Mix: dark and wide, long reverbs and delays, modest loudness.
+profile:
+  master: {lufs: -12}
+  returns: {reverb: {decay: 3.2}, delay: {time: 1/4d, feedback: 0.4}}
+song:
+  ending: fade
+  swing: 0.12
+  chords:
+    main: "im7 | im7 | bVImaj7 | V7"
+    alt: "iv | bVI | i | V7"
+  tracks:
+    kick: {inst: kick_break}
+    snare: {inst: snare_break}
+    pad: {inst: pad_strings}
+    lead: {inst: lead_guitar, role: lead, octave: 4}

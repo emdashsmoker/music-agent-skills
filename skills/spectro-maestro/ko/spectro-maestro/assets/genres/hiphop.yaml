@@ -1,0 +1,41 @@
+name: Hip Hop (boom bap)
+family: hiphop
+summary: 85-95 bpm swung kick and snare, a sampled-feel chord loop and a round bass line
+bpm: [82, 98, 90]
+keys: [A minor, D minor, E minor, G minor, C minor]
+about: |
+  Rhythm: kick on 1 and syncopated around beat 3, snare on 2 and 4, swung eighth or sixteenth hats (swing 0.15-0.25);
+  laid back, the snare slightly late is fine.
+  Bass: round and simple, follows the kick, root and fifth with passing notes.
+  Harmony: a 2- or 4-bar loop of seventh chords on electric piano, piano or a filtered pad, like a chopped sample.
+  Arrangement: intro, 16-bar verses with elements dropping in and out, 8-bar hooks with an added melody.
+  Mix: drums punchy and dry in front, lows warm, highs soft, moderate loudness; leave the centre free for a vocal.
+profile:
+  master: {lufs: -11}
+  roles: {kick: {level: -3}, snare: {level: -3.5}, bass: {duck: -2}, keys: {duck: 0}, pad: {duck: 0}}
+  returns: {reverb: {decay: 1.4}}
+song:
+  ending: fade
+  seed: 91
+  swing: 0.18
+  chords:
+    main: "im7 | ivm7 | bVIImaj7 | V7"
+    alt: "bVImaj7 | V7 | im7 | im7"
+  tracks:
+    kick: {inst: kick_lofi, role: kick, parts: {a: {hits: "x.......x.x.....|x......x..x....."}}}
+    snare: {inst: snare_lofi, role: snare, parts: {two: {hits: "....x.......x..."}}}
+    hat: {inst: hat_closed_lofi, role: hat, parts: {eight: {hits: "x.x.x.x.x.x.x.x.", vel: 0.8}, sixteen: {hits: "x.xox.x.x.xox.xo", vel: 0.75}}}
+    ohat: {inst: hat_open_909, role: hat, parts: {accent: {hits: "..............x."}}, mix: {gain_db: -4}}
+    bass: {inst: bass_moog, role: bass, parts: {a: {grid: "1 - - . . . . 1 5 - . . . . 1 ."}}}
+    keys: {inst: keys_ep, role: keys, parts: {comp: {grid: "c - - - - - . . . . c - - . . .", gate: 1.0}}}
+    pad: {inst: pad_warm, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}, mix: {gain_db: -3}}
+    lead: {inst: lead_sine, role: lead, octave: 5, parts: {hook: {line: "5:1 3:.5 5:.5 r:2 | 4:1 3:.5 1:.5 r:2 | 5:1 3:.5 5:.5 7:1 5:1 | 4:1.5 2:2.5"}}}
+  sections:
+    - {name: intro, type: intro, bars: 4, chords: main, play: {keys: comp}, auto: {keys: {lpf: [600, 6000]}}}
+    - {name: verse1, type: verse, bars: 16, chords: main, play: {kick: a, snare: two, hat: eight, bass: a, keys: comp}}
+    - {name: hook1, type: chorus, bars: 8, chords: main, hit: [crash], play: {kick: a, snare: two, hat: sixteen, ohat: accent, bass: a, keys: comp, pad: hold, lead: hook}}
+    - {name: verse2, type: verse, bars: 16, chords: main, play: {kick: a, snare: two, hat: eight, bass: a, keys: comp}, gap: {kick: 4, bass: 4}}
+    - {name: hook2, type: chorus, bars: 8, chords: main, hit: [crash], play: {kick: a, snare: two, hat: sixteen, ohat: accent, bass: a, keys: comp, pad: hold, lead: hook}}
+    - {name: bridge, type: bridge, bars: 8, chords: alt, play: {keys: comp, pad: hold, hat: eight}}
+    - {name: hook3, type: chorus, bars: 16, chords: main, hit: [crash], play: {kick: a, snare: two, hat: sixteen, ohat: accent, bass: a, keys: comp, pad: hold, lead: hook}}
+    - {name: outro, type: outro, bars: 4, chords: main, play: {keys: comp}, auto: {keys: {lpf: [6000, 500]}}}

@@ -1,0 +1,47 @@
+name: Ambient
+family: experimental
+summary: slow, beatless or nearly beatless; evolving pads and drones, sparse notes, long reverb
+bpm: [50, 90, 70]
+keys: [C major, D dorian, F lydian, A minor, E minor]
+about: |
+  Rhythm: none, or a soft pulse; time is felt through slow chord changes and swelling layers.
+  Bass: a low drone or a root held for many bars.
+  Harmony: static or very slow (one chord per 4-8 bars): suspended, added-ninth and major-seventh chords, modal
+  colours (lydian, dorian); voices enter and leave one by one.
+  Melody: a few long notes or a sparse bell motif with long gaps.
+  Arrangement: an arc: thin, fuller, thin; 4-10 minutes; filter and volume swells do the work of drums.
+  Mix: very wide and deep, long reverb and delay, low loudness (-16 to -20 LUFS), nothing sharp.
+profile:
+  master: {lufs: -17, glue: false, clip: false}
+  roles:
+    pad: {duck: 0, reverb: 0.5, level: -2}
+    pluck: {duck: 0, reverb: 0.5, delay: 0.4, level: -6}
+    bass: {duck: 0, level: -6}
+    keys: {duck: 0, reverb: 0.5, level: -6}
+    perc: {reverb: 0.4, level: -16}
+  returns: {reverb: {decay: 7.0, damp: 4500, predelay: 0.04}, delay: {time: 1/4d, feedback: 0.55}}
+  qa:
+    drums_vs_rest_db: [-40, 7]
+    crest_db: [8, 24]
+    slope_db_per_octave: [-7, -1.5]
+    high_share_db: [-45, -12]
+    low_share_db: [-14, -1]
+song:
+  ending: fade
+  seed: 161
+  chords:
+    main: "Imaj7 | Imaj7 | IVadd9 | IVadd9 | vim7 | vim7 | IVadd9 | IVadd9"
+    alt: "IVmaj7 | IVmaj7 | Isus2 | Isus2"
+  tracks:
+    drone: {inst: drone, role: bass, octave: 2, parts: {hold: {grid: "1 - - - - - - - - - - - - - - -"}}}
+    pad: {inst: pad_warm, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -"}}}
+    glass: {inst: pad_glass, role: pad, parts: {hold: {grid: "c - - - - - - - - - - - - - - -", octave: 4}}, mix: {gain_db: -4}}
+    bell: {inst: lead_fm_bell, role: pluck, octave: 5, parts: {sparse: {line: "5:4 | r:4 | 2:2 5,:2 | r:4 | 1:4 | r:4 | 6,:2 5,:2 | r:4"}}}
+    harp: {inst: pluck_string, role: keys, octave: 4, parts: {arp: {grid: "1 . . . 5 . . . 2' . . . 5 . . ."}}}
+    shimmer: {inst: shaker, role: perc, parts: {soft: {hits: "....o.......o...", vel: 0.4}}}
+  sections:
+    - {name: dawn, type: intro, bars: 8, chords: main, play: {drone: hold, pad: hold}, auto: {pad: {lpf: [300, 3000], volume: [-12, 0]}}, energy: 0.2}
+    - {name: open, type: verse, bars: 16, chords: main, play: {drone: hold, pad: hold, glass: hold, bell: sparse}, energy: 0.5}
+    - {name: drift, type: chorus, bars: 16, chords: alt, play: {drone: hold, pad: hold, glass: hold, harp: arp, shimmer: soft}, energy: 0.7}
+    - {name: full, type: chorus, bars: 16, chords: main, play: {drone: hold, pad: hold, glass: hold, bell: sparse, harp: arp, shimmer: soft}, energy: 0.8}
+    - {name: dusk, type: outro, bars: 16, chords: main, play: {drone: hold, pad: hold, bell: sparse}, auto: {master: {volume: [0, -20]}, pad: {lpf: [6000, 400]}}, energy: 0.3}

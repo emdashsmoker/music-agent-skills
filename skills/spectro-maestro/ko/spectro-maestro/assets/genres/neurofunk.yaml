@@ -1,0 +1,21 @@
+extends: dnb
+name: Neurofunk
+summary: dark, technical drum and bass with growling, modulated reese bass riffs
+bpm: [170, 176, 174]
+keys: [F minor, E minor, G minor, F phrygian]
+about: |
+  Rhythm: tight, punchy two-step with fast ghost notes and fills; snare very prominent.
+  Bass: the centrepiece: distorted reese with moving filters, call-and-response riffs in the mid range over a clean sub.
+  Harmony: minimal and dark: root, flat second, minor third, tritone; pads only in the breakdown.
+  Arrangement: long tense intro with atmospheres, hard drop, variations of the bass riff every 8 bars.
+  Mix: aggressive mids, sub strictly mono, very loud master.
+profile:
+  master: {lufs: -8}
+  roles: {bass: {level: -1}}
+song:
+  ending: hit
+  chords: {main: "i | i | i | bII | i | i | i | bVII", alt: "i | bVI | i | bII"}
+  tracks:
+    reese: {inst: {base: bass_reese, drive: 0.7, filter: {lfo_rate: 1/4, lfo_depth: 1.6, cutoff: 600}}, parts: {riff: {grid: "1 - - . 1 . b2 - 1 - . 1 b3 - 1 ."}}}
+    pad: {inst: pad_dark}
+    lead: {inst: lead_psy, role: arp, octave: 4, parts: {motif: {line: "1:.25 r:.75 b2:.25 r:.75 1:.25 r:1.75 | r:4 | 5:.25 r:.75 b5:.25 r:.75 1:.25 r:1.75 | r:4"}}}

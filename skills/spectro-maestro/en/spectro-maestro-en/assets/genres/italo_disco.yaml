@@ -1,0 +1,26 @@
+extends: synthwave
+name: Italo Disco
+summary: 1980s European dance pop; octave bass in sixteenths, claps, bright arpeggios and a simple catchy melody
+bpm: [110, 128, 120]
+keys: [A minor, D minor, E minor, G minor]
+about: |
+  Rhythm: four-on-the-floor kick, clap on 2 and 4, open hat on the off-beats, cowbell or tom fills.
+  Bass: the signature rolling octave bass: root low, root high in sixteenths or eighths, mechanical and constant.
+  Harmony: simple minor progressions (i VI VII i, i iv VII III), string machine pads, bright arpeggios.
+  Melody: naive, catchy, played by a square or bell lead; a vocoder or accented vocal is typical.
+  Arrangement: long instrumental intro, verse and chorus, instrumental break with the melody, extended outro.
+  Mix: dry and bright drums, bass upfront, moderate loudness.
+profile:
+  master: {lufs: -10.5}
+song:
+  ending: hit
+  chords:
+    verse: "i | i | VI | VII"
+    chorus: "i | VI | VII | III"
+    bridge: "iv | VII | III | VI"
+  tracks:
+    kick: {inst: kick_909, parts: {half: {hits: "x...x...x...x..."}, four: {hits: "x...x...x...x..."}}}
+    snare: {inst: clap_909, mix: {inserts: []}}
+    bass: {parts: {eight: {grid: "1 1' 1 1' 1 1' 1 1' 1 1' 1 1' 1 1' 1 1'"}, sixteen: {grid: "1 1' 1 1' 1 1' 1 1' 1 1' 1 1' 1 1' 1 1'"}}}
+    pad: {inst: pad_strings}
+    lead: {inst: lead_square, parts: {theme: {line: "1:1 3:1 5:1 3:1 | 1:1 6,:1 1:1 3:1 | 2:1 7,:1 2:1 4:1 | 3:2 5:1 3:1 | 5:1 3:1 5:1 1':1 | 6:1 4:1 6:1 1':1 | 7:1 5:1 7:1 2':1 | 3':3 r:1"}}}

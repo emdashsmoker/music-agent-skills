@@ -1,0 +1,28 @@
+extends: hiphop
+name: Lo-fi Hip Hop
+summary: slow, dusty beat with jazzy electric piano chords, soft drums, tape wobble and vinyl noise
+bpm: [68, 88, 78]
+keys: [C major, F major, A minor, D minor, G major]
+about: |
+  Rhythm: soft kick and rim-like snare, lazy swung hats, deliberately loose.
+  Bass: mellow sine or soft bass on roots.
+  Harmony: jazz chords (maj7, m7, m9, 9) on a detuned electric piano or piano, ii-V-I and I-vi-ii-V turnarounds.
+  Texture: tape wow, low-pass around 6-8 kHz, hiss and crackle; nothing bright.
+  Arrangement: short (2-3 min), loop-based, small drop-outs for variation.
+  Mix: quiet master, rolled-off highs, gentle sidechain from the kick.
+profile:
+  master: {lufs: -14, eq: [[highshelf, 7000, -3]]}
+  roles: {keys: {duck: -3}, pad: {duck: -3}}
+  buses:
+    music: [{fx: lofi, wow: 0.5, noise_db: -46, top: 6500}]
+    drums: [{fx: lpf, freq: 9000}, {fx: comp, threshold: -16, ratio: 3, attack: 0.02, release: 0.15, makeup: 1}]
+song:
+  ending: fade
+  swing: 0.22
+  chords:
+    main: "iim7 | V7 | Imaj7 | vim7"
+    alt: "IVmaj7 | iiim7 | iim7 | V7"
+  tracks:
+    snare: {inst: rim_808}
+    bass: {inst: bass_sub}
+    lead: {inst: keys_piano, role: keys, octave: 4}

@@ -1,0 +1,151 @@
+title: Silver Box
+genre: acid_house
+bpm: 124
+key: G minor
+seed: 303
+ending: hit
+swing: 0.04
+notes: >
+  Acid house demo. One 16-step 303 line carries the track; its filter opens and closes with the
+  arrangement. A second, square-wave 303 an octave up trades phrases with it in the peak.
+chords:
+  main: i | i | i | i
+  lift: i | i | bVII | bVII
+tracks:
+  kick:
+    inst: kick_909
+    role: kick
+    parts:
+      four: {hits: "x...x...x...x..."}
+  clap:
+    inst: clap_909
+    role: snare
+    parts:
+      two: {hits: "....x.......x..."}
+      fill: {hits: "....x.......x...|....x.......x...|....x.......x...|....x..x....x.xx"}
+  hat:
+    inst: hat_closed_909
+    role: hat
+    parts:
+      "off": {hits: "..x...x...x...x."}
+      sixteen: {hits: "x.oxx.oxx.oxx.ox", vel: 0.8}
+  ohat:
+    inst: hat_open_909
+    role: hat
+    parts:
+      "off": {hits: "..x...x...x...x."}
+    mix: {gain_db: -2}
+  shaker:
+    inst: shaker
+    role: perc
+    parts:
+      run: {hits: "o.x.o.x.o.x.o.x.", vel: 0.7}
+  cowbell:
+    inst: cowbell_808
+    role: perc
+    parts:
+      synco: {hits: "......x...x....x|......x...x..x.."}
+    mix: {gain_db: -3}
+  chord:
+    inst: chord_rave
+    role: chord
+    parts:
+      stab: {grid: ". . . . c . . . . . . . . . c ."}
+      sparse: {grid: ". . . . . . . . . . . . . . c ."}
+  pad:
+    inst: pad_warm
+    role: pad
+    parts:
+      hold: {grid: "c - - - - - - - - - - - - - - -"}
+  acid:
+    inst: bass_303
+    role: bass
+    octave: 2
+    parts:
+      a: {grid: "1 1' 1~ b3 1 . 1'! 1 5~ 5 1 1'! . b3 1 b7,!"}
+      # used over the i-bVII lift: only root, fourth, fifth and flat seventh, which stay in the key over both chords
+      b: {grid: "1 . 1'~ 1' b7,! 1 . 5~ 4 4! 1 . 1'~ 5 b7! 1"}
+    mix: {delay: 0.12}
+  acid_hi:
+    inst: bass_303_square
+    role: lead
+    octave: 3
+    parts:
+      # answers the main line: silent in bars 1-2, speaks in bars 3-4
+      call: {grid: ". . . . . . . . . . . . . . . . | . . . . . . . . . . . . . . . . | 1'! . 1~ b3 . 5! . 4~ b3 . 1! . b7, . 1 . | 5~ 5 . b3! . 1 . . 1'! . b7~ 1' . . . ."}
+      run: {grid: "1! . 1'~ 5 1' . 5! . 4~ 5 . 1'! . b7 1' ."}
+    mix: {gain_db: -3, delay: 0.25, reverb: 0.15}
+sections:
+  - name: intro
+    type: intro
+    bars: 8
+    chords: main
+    play: {kick: four, hat: "off"}
+    rise: {reverse_crash: 1}
+  - name: acid_in
+    type: verse
+    bars: 16
+    chords: main
+    hit: [crash]
+    play: {kick: four, clap: two, hat: sixteen, acid: a}
+    auto: {acid: {lpf: [300, 4000]}}
+  - name: groove
+    type: chorus
+    bars: 16
+    chords: main
+    hit: [crash]
+    play: {kick: four, clap: fill, hat: sixteen, ohat: "off", shaker: run, acid: a, chord: sparse}
+  - name: lift
+    type: chorus
+    bars: 16
+    chords: lift
+    hit: [crash]
+    play: {kick: four, clap: fill, hat: sixteen, ohat: "off", shaker: run, cowbell: synco, acid: b, chord: stab}
+  - name: break
+    type: break
+    bars: 8
+    chords: lift
+    hit: [downlifter]
+    play: {acid: b, pad: hold, hat: "off"}
+    auto: {acid: {lpf: [3000, 400]}, pad: {lpf: [600, 4000]}}
+  - name: build
+    type: build
+    bars: 8
+    chords: lift
+    play: {acid: b, pad: hold, hat: sixteen, chord: stab}
+    rise: {riser: 8, snare_roll: 4}
+    auto: {acid: {lpf: [400, 12000]}}
+  - name: peak_a
+    type: drop
+    bars: 16
+    chords: main
+    hit: [impact, crash]
+    play: {kick: four, clap: fill, hat: sixteen, ohat: "off", shaker: run, cowbell: synco, acid: a, chord: stab}
+  - name: peak_b
+    type: drop
+    bars: 16
+    chords: main
+    hit: [crash]
+    play: {kick: four, clap: fill, hat: sixteen, ohat: "off", shaker: run, cowbell: synco, acid: a, acid_hi: call, chord: stab}
+  - name: strip
+    type: verse
+    bars: 8
+    chords: main
+    energy: 0.6
+    play: {kick: four, hat: sixteen, acid_hi: run}
+    auto: {acid_hi: {lpf: [900, 9000]}}
+    rise: {snare_roll: 2}
+  - name: final
+    type: drop
+    bars: 8
+    chords: lift
+    hit: [impact, crash]
+    play: {kick: four, clap: fill, hat: sixteen, ohat: "off", shaker: run, cowbell: synco, acid: b, acid_hi: run, chord: stab}
+    vel: {acid_hi: 0.8}
+  - name: outro
+    type: outro
+    bars: 8
+    chords: main
+    hit: [crash]
+    play: {kick: four, hat: "off", acid: a}
+    auto: {acid: {lpf: [4000, 300]}}

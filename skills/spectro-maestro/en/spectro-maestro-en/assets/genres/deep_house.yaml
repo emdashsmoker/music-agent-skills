@@ -1,0 +1,27 @@
+extends: house
+name: Deep House
+summary: slower, warmer house with jazzy seventh and ninth chords, soft kick and sub bass
+bpm: [116, 124, 120]
+keys: [C minor, F minor, A minor, D minor]
+about: |
+  Rhythm: soft round kick, rim or snap on 2 and 4 in place of a hard clap, shaker and off-beat hats, light swing.
+  Bass: deep sub or organ bass, sparse, often answering the chords.
+  Harmony: minor ninth and major seventh chords on electric piano or pads, held or lightly stabbed; ii-V movement welcome.
+  Arrangement: unhurried, long intros and outros, small changes every 8 bars instead of big drops.
+  Mix: quieter master than peak-time house, low end round, highs smooth.
+profile:
+  master: {lufs: -11}
+  returns: {reverb: {decay: 2.4}}
+song:
+  ending: hit
+  swing: 0.1
+  chords:
+    main: "im9 | ivm9 | VImaj7 | v7"
+    lift: "VImaj7 | v7 | im9 | im9"
+  tracks:
+    kick: {inst: kick_lofi}
+    clap: {inst: snap}
+    bass: {inst: bass_organ}
+    chord: {inst: keys_ep, role: keys, parts: {stab: {grid: "c - - . . . c - - - . . . c - .", gate: 1.0}, sparse: {grid: "c - - - - - . . . . . . . . . ."}}}
+    pad: {inst: pad_warm}
+    lead: {inst: lead_fm_bell}

@@ -1,0 +1,37 @@
+# Python bytecode and tool caches left behind when the skill scripts run
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local virtual environments
+.venv/
+venv/
+env/
+
+# Credentials must never be committed
+.env
+.env.*
+*.pem
+*.key
+*_secret*
+.credentials.json
+
+# Render intermediates: the scripts write build/, out/ and work/ folders next to the output
+build/
+out/
+work/
+
+# Uncompressed renders; published demos ship as .ogg
+*.wav
+*.mp3
+*.flac
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
