@@ -103,7 +103,7 @@ LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py k
 - Windows and macOS: do not download or install it yourself. Explain the steps and let the user do them. They download LMMS 1.2.2 from the same page and install it as a separate copy, so that it does not replace their current LMMS: on Windows into a folder of its own, on macOS by keeping both apps under different names. Then run `kit --build` with the environment variable `LMMS_BIN` set to the 1.2.2 program for that one command.
 - Afterwards `kit` shows `"lmms": "LMMS 1.2.2"`. Name this in the delivery note. The kit is kept, so this is needed once per computer, or once per container.
 - Tested on Linux with the official 1.2.2 AppImage, extracted because the container had no FUSE (`LMMS_BIN` pointing at `squashfs-root/AppRun`). Not tested on Windows and macOS. The self-test proves the result.
-- If no LMMS can make the kit, write the drums without it: a `sounds.kicker(...)` kick, and one-shots the song script synthesizes with numpy into `samples/` beside the project and plays with `sounds.sample(...)` (see `sounds-effects.md`). A song that uses no kit sound never builds the kit.
+- If no LMMS can make the kit, write the drums without it: one-shots the song script synthesizes with numpy into `samples/` beside the project and plays with `sounds.sample(...)` (see `sounds-effects.md`). For the kick, `kit.synthesize_kick(*kit.KICKS["techno_kick"])` gives a named kick without building the kit, and `sounds.kicker(...)` is another way. A song that uses no kit sound never builds the kit.
 
 ## Python packages
 
