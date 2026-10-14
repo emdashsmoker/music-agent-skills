@@ -39,12 +39,13 @@ skills/synth-ventriloquist/
 ├── synth-ventriloquist-ko.skill    Korean install package
 ├── synth-ventriloquist-en.skill    English install package
 ├── ko/synth-ventriloquist/         Korean source
-├── en/synth-ventriloquist-en/      English source
+├── en/synth-ventriloquist/         English source
 └── demo/                           demo songs
 ```
 
 - A `.skill` file is a zip archive of the skill folder. Where only `.zip` uploads are accepted, rename the extension to `.zip`.
 - To install from source, copy the folder named after the skill (for example `ko/synth-ventriloquist/`) into your agent's skills folder.
+- The Korean and English editions of a skill share one skill name. Install one of the two.
 
 ## Limitations
 
@@ -106,12 +107,13 @@ skills/synth-ventriloquist/
 ├── synth-ventriloquist-ko.skill    한국어판 설치용 패키지
 ├── synth-ventriloquist-en.skill    영어판 설치용 패키지
 ├── ko/synth-ventriloquist/         한국어판 소스
-├── en/synth-ventriloquist-en/      영어판 소스
+├── en/synth-ventriloquist/         영어판 소스
 └── demo/                           데모 곡
 ```
 
 - `.skill` 파일은 스킬 폴더를 묶은 zip 파일입니다. `.zip` 파일만 올릴 수 있는 환경에서는 확장자를 `.zip`으로 바꿔 업로드하면 됩니다.
 - 소스로 설치할 때는 스킬 이름과 같은 폴더(예를 들어 `ko/synth-ventriloquist/`)를 에이전트의 스킬 폴더에 복사합니다.
+- 한국어판과 영어판은 같은 스킬 이름을 씁니다. 둘 중 하나만 설치합니다.
 
 ## 한계
 
