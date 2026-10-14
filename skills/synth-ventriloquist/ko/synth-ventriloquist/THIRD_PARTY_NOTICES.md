@@ -7,6 +7,9 @@ Synth Ventriloquist is Copyright (C) 2026 Em Dash Smoker and is licensed under t
 | What | Where | Origin | License |
 |---|---|---|---|
 | DAWproject schema files | `scripts/lmmskit/schemas/Project.xsd`, `MetaData.xsd` | Copyright (c) 2020 Bitwig, https://github.com/bitwig/dawproject | MIT, full text in `scripts/lmmskit/schemas/LICENSE-dawproject.txt` |
+| DrumSynth preset files (69 `.ds` files, text) | `scripts/lmmskit/drumsynth/` | LMMS 1.2.2, https://github.com/LMMS/lmms/tree/v1.2.2/data/samples/drumsynth, DrumSynth (c) 1998-2000 Paul Kellett, mda-vst.com, and the LMMS developers | GPL-2.0-or-later, full text in `scripts/lmmskit/drumsynth/COPYING` |
+
+The preset files are carried unchanged as the source of the recorded drum-machine hits (next section), so that the hits can be passed on together with their source. The skill does not play them: recordings are always made from the presets of the installed LMMS.
 
 The skill contains no audio files. Two data files hold facts only and no third-party work: `scripts/lmmskit/ladspa_catalog.json` lists the names, port names and value ranges of the LADSPA plugins that LMMS ships (Calf, SWH, TAP, CAPS, CMT), and `scripts/lmmskit/kit.py` lists the file names of LMMS DrumSynth presets.
 
@@ -15,7 +18,7 @@ The skill contains no audio files. Two data files hold facts only and no third-p
 The first time a song needs drums, the skill makes a kit of one-shot WAV files in the user's cache folder. Nothing of it is distributed with the skill.
 
 - Named kicks and a noise loop are computed by the skill's own code.
-- Drum-machine hits are recorded from the DrumSynth presets of the LMMS installed on that machine (LMMS and its presets: GPL-2.0-or-later, DrumSynth renderer (c) 1998-2000 Paul Kellett, mda-vst.com). A hit that sounds in a finished song is in the same position as the sound of any song made in LMMS with those presets. A notice file is written beside the recordings and travels with them into project folders and project packs.
+- Drum-machine hits are recorded from the DrumSynth presets of the LMMS installed on that machine (LMMS and its presets: GPL-2.0-or-later, DrumSynth renderer (c) 1998-2000 Paul Kellett, mda-vst.com). A hit that sounds in a finished song is in the same position as the sound of any song made in LMMS with those presets. A notice file, the GPL-2.0 text (`COPYING`) and the preset files of the hits in use (`source/drumsynth/`) are written beside the recordings and travel with them into project folders and project packs. The bundled preset files come from LMMS 1.2.2. When the hits are recorded with another LMMS version, the presets of that version were used, and the notice file points to them in the LMMS source.
 
 ## Not contained: installed separately and driven by the skill
 
@@ -31,6 +34,7 @@ The skill starts these as separate programs or loads them as libraries. None of 
 | ONNX Runtime | Running speech and singing models | MIT |
 | ONNX | Reading model graphs | Apache-2.0 |
 | kokoro-onnx | Kokoro speech voices | MIT |
+| phonemizer, eSpeak NG (installed with kokoro-onnx, embedded in piper-tts) | Text to phonemes | GPL-3.0-or-later |
 | Kokoro-82M model and voices | Kokoro speech voices | Apache-2.0 |
 | piper-tts | Piper speech voices | GPL-3.0-or-later (the earlier rhasspy/piper releases: MIT) |
 | Piper voice models | Piper speech voices | Each voice has its own license and model card |

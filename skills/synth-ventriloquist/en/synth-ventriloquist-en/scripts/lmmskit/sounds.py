@@ -292,5 +292,5 @@ def install_kit(project: Project, project_path: str) -> list[str]:
         if not os.path.exists(installed) or not filecmp.cmp(os.path.join(kit_dir, name), installed, shallow=False):
             shutil.copyfile(os.path.join(kit_dir, name), installed)
         copied.append(name)
-    shutil.copyfile(os.path.join(kit_dir, kit.NOTICE_FILE), os.path.join(target, kit.NOTICE_FILE))          # the sounds travel with their notice of origin
+    kit.write_notices(target, [os.path.splitext(name)[0] for name in used])     # the sounds travel with their notice, licence and preset sources
     return sorted(set(copied))
