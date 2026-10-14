@@ -12,7 +12,7 @@ import json
 import os
 import shutil
 
-from . import audio, compose, export, genres, kit, lint as lint_tools, mix, render, settings, sounds, visual
+from . import audio, compose, export, genres, lint as lint_tools, mix, render, settings, sounds, visual
 from .findings import finding, format_findings, worst
 from .project import Project
 
@@ -150,9 +150,12 @@ def pack(project_path: str, zip_path: str) -> str:
             path = os.path.join(folder, render.SAMPLES_SUBDIR, source)
             if not os.path.isabs(source) and os.path.exists(path):
                 archive.write(path, os.path.join(render.SAMPLES_SUBDIR, source))
-        kit_notice = os.path.join(folder, render.SAMPLES_SUBDIR, sounds.KIT_FOLDER, kit.NOTICE_FILE)
-        if os.path.exists(kit_notice):
-            archive.write(kit_notice, os.path.join(render.SAMPLES_SUBDIR, sounds.KIT_FOLDER, kit.NOTICE_FILE))
+        samples = os.path.join(folder, render.SAMPLES_SUBDIR)
+        for root, _, files in os.walk(os.path.join(samples, sounds.KIT_FOLDER)):     # the kit's notice, GPL text and preset sources
+            for name in sorted(files):
+                if not name.endswith(".wav"):                                       # sounds the song uses were added above
+                    path = os.path.join(root, name)
+                    archive.write(path, os.path.join(render.SAMPLES_SUBDIR, os.path.relpath(path, samples)))
         archive.writestr("HOW_TO_OPEN.txt", "Open the .mmp in LMMS 1.2 or newer.\n"
                          "Copy the folders inside 'samples' into your LMMS samples folder first (LMMS: Edit > Settings > Paths > "
                          "'LMMS working directory', subfolder 'samples'), otherwise the drum kit and vocal tracks stay silent.\n")
