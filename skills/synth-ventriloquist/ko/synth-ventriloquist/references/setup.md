@@ -103,7 +103,7 @@ LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py k
 - Windows와 macOS: 직접 내려받거나 설치하지 않는다. 절차를 설명하고 사용자가 진행하게 한다. 사용자는 같은 페이지에서 LMMS 1.2.2를 내려받아 지금 쓰는 LMMS를 덮어쓰지 않도록 별도 사본으로 설치한다. Windows에서는 전용 폴더에 설치하고, macOS에서는 두 앱을 다른 이름으로 함께 둔다. 그다음 환경 변수 `LMMS_BIN`을 1.2.2 프로그램으로 지정한 채 `kit --build`를 한 번 실행한다.
 - 녹음이 끝나면 `kit`의 출력에 `"lmms": "LMMS 1.2.2"`가 나온다. 이 사실을 전달 노트에 적는다. 킷은 보관되므로 이 작업은 컴퓨터마다, 또는 컨테이너마다 한 번이면 된다.
 - Linux에서 공식 1.2.2 AppImage로 시험했다. 컨테이너에 FUSE가 없어 압축을 풀어 썼다(`LMMS_BIN`을 `squashfs-root/AppRun`으로 지정). Windows와 macOS에서는 시험하지 않았다. 결과는 자가 시험으로 확인한다.
-- 어떤 LMMS로도 킷을 만들 수 없으면 킷 없이 드럼을 만든다. 킥은 `sounds.kicker(...)`로 만들고, 나머지 원샷은 곡 스크립트가 numpy로 합성해 프로젝트 옆 `samples/`에 저장한 뒤 `sounds.sample(...)`로 연주한다(`sounds-effects.md` 참고). 킷 소리를 쓰지 않는 곡은 킷을 만들지 않는다.
+- 어떤 LMMS로도 킷을 만들 수 없으면 킷 없이 드럼을 만든다. 원샷은 곡 스크립트가 numpy로 합성해 프로젝트 옆 `samples/`에 저장한 뒤 `sounds.sample(...)`로 연주한다(`sounds-effects.md` 참고). 킥도 numpy로 만든다. `kit.synthesize_kick(*kit.KICKS["techno_kick"])`는 킷을 만들지 않고 이름 붙은 킥을 돌려준다. `sounds.kicker(...)`도 쓸 수 있다. 킷 소리를 쓰지 않는 곡은 킷을 만들지 않는다.
 
 ## Python 패키지
 
