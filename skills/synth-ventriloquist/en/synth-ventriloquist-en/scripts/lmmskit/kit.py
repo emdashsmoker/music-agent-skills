@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import tempfile
 
 import numpy as np
@@ -81,6 +82,12 @@ MACHINE_HITS = {
 }
 SLOT_SECONDS, FREEZE_BPM, SILENCE_DB, FADE_SECONDS = 4.0, 120.0, -66.0, 0.004
 
+# The recorded hits stay under the GPL of the presets, so they travel with the licence text and the preset files
+# (their source). The skill carries copies of the presets above, taken from LMMS 1.2.2, for this purpose only:
+# the recording itself always plays the presets of the installed LMMS.
+PRESET_COPIES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "drumsynth")
+LICENSE_FILE, SOURCE_FOLDER = "COPYING", "source"
+
 NOTICE = """Drum one-shots in this folder
 =============================
 
@@ -90,7 +97,12 @@ These files were made on the computer that built this kit, by the Synth Ventrilo
   recordings of the DrumSynth presets of the LMMS installed there (https://lmms.io). LMMS and its presets are
   licensed under the GNU General Public License, version 2 or later. A hit that sounds in a finished song
   is in the same position as the sound of any song made in LMMS with those presets. When you pass these
-  files on as files (for example inside a project pack), keep this notice with them.
+  files on as files (for example inside a project pack), keep this notice, COPYING and the source folder
+  with them.
+- COPYING holds the text of the GNU General Public License, version 2, as shipped with LMMS.
+- source/drumsynth/ holds the DrumSynth preset files the hits were recorded from, as shipped with LMMS 1.2.2
+  (https://github.com/LMMS/lmms/tree/v1.2.2/data/samples/drumsynth). Copyright (c) 1998-2000 Paul Kellett
+  (mda-vst.com) and the LMMS developers. Opening a preset in LMMS plays the same sound.
 - The named kicks (trance_kick, house_kick, techno_kick, psy_kick, dnb_kick, hard_kick, industrial_kick,
   boom_kick) and white_noise.wav were computed by the skill from fixed settings. They are plain program
   output and carry no restrictions from the skill.
@@ -170,6 +182,20 @@ def _record_machine_hits(out_dir: str) -> list[str]:
     return silent
 
 
+def write_notices(target: str, sound_names: list[str]) -> None:
+    """Write the notice, the GPL text and the preset files of the drum-machine hits among sound_names into target."""
+    with open(os.path.join(target, NOTICE_FILE), "w", encoding="utf-8") as handle:
+        handle.write(NOTICE)
+    shutil.copyfile(os.path.join(PRESET_COPIES, LICENSE_FILE), os.path.join(target, LICENSE_FILE))
+    source = os.path.join(target, SOURCE_FOLDER)
+    shutil.rmtree(source, ignore_errors=True)                                 # presets of hits a song no longer uses must not linger
+    for name in sound_names:
+        if name in MACHINE_HITS:
+            preset = os.path.join(source, DRUMSYNTH_FOLDER, MACHINE_HITS[name])
+            os.makedirs(os.path.dirname(preset), exist_ok=True)
+            shutil.copyfile(os.path.join(PRESET_COPIES, MACHINE_HITS[name]), preset)
+
+
 def status() -> dict:
     """What is in the kit folder now. Reads only."""
     state_path = os.path.join(folder(), STATE_FILE)
@@ -191,8 +217,7 @@ def build(out_dir: str | None = None) -> dict:
     if silent:
         raise RuntimeError(f"LMMS rendered no sound for {len(silent)} DrumSynth presets ({', '.join(silent[:5])} ...): this LMMS came without "
                            "its factory samples, or with another preset layout. See references/setup.md, Drum kit")
-    with open(os.path.join(out_dir, NOTICE_FILE), "w", encoding="utf-8") as handle:
-        handle.write(NOTICE)
+    write_notices(out_dir, list(MACHINE_HITS))
     state = {"version": KIT_VERSION, "lmms": render.lmms_version(), "sounds": len(names())}
     with open(os.path.join(out_dir, STATE_FILE), "w", encoding="utf-8") as handle:
         json.dump(state, handle, indent=1)
