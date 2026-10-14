@@ -102,7 +102,8 @@ LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py k
 
 - Windows and macOS: do not download or install it yourself. Explain the steps and let the user do them. They download LMMS 1.2.2 from the same page and install it as a separate copy, so that it does not replace their current LMMS: on Windows into a folder of its own, on macOS by keeping both apps under different names. Then run `kit --build` with the environment variable `LMMS_BIN` set to the 1.2.2 program for that one command.
 - Afterwards `kit` shows `"lmms": "LMMS 1.2.2"`. Name this in the delivery note. The kit is kept, so this is needed once per computer, or once per container.
-- This route was not tested with a real AppImage or on Windows and macOS (see What was tested). The self-test proves the result.
+- Tested on Linux with the official 1.2.2 AppImage, extracted because the container had no FUSE (`LMMS_BIN` pointing at `squashfs-root/AppRun`). Not tested on Windows and macOS. The self-test proves the result.
+- If no LMMS can make the kit, write the drums without it: a `sounds.kicker(...)` kick, and one-shots the song script synthesizes with numpy into `samples/` beside the project and plays with `sounds.sample(...)` (see `sounds-effects.md`). A song that uses no kit sound never builds the kit.
 
 ## Python packages
 
@@ -165,8 +166,8 @@ Tell the user before the first vocal render that these downloads will happen. If
 
 ## What was tested
 
-- Tested: Linux, Python 3.13, LMMS 1.2.2 from the Debian package, numpy 2.5, scipy 1.18, onnxruntime 1.30, kokoro-onnx 0.6, piper-tts 1.8, faster-whisper 1.2, pyworld 0.3.5. Discovery of an AppImage by file name and the Flatpak command path were exercised with stand-ins for those launchers.
-- Not tested: a real AppImage, Flatpak or Snap of LMMS, macOS, Windows, and LMMS versions other than 1.2.2. The discovery code covers them, and the self-test below is what proves a given machine. Say so to the user when working on one of these.
+- Tested: Linux, Python 3.13, LMMS 1.2.2 from the Debian package, numpy 2.5, scipy 1.18, onnxruntime 1.30, kokoro-onnx 0.6, piper-tts 1.8, faster-whisper 1.2, pyworld 0.3.5. The official LMMS 1.2.2 AppImage, extracted (no FUSE in the container), passed the self-test through `LMMS_BIN`. Discovery of an AppImage by file name and the Flatpak command path were exercised with stand-ins for those launchers.
+- Not tested: a Flatpak or Snap of LMMS, macOS, Windows, and LMMS versions other than 1.2.2. The discovery code covers them, and the self-test below is what proves a given machine. Say so to the user when working on one of these.
 - Holding LMMS to one CPU core exists only where the operating system offers it (Linux). Elsewhere LMMS runs unrestricted, renders can differ slightly between runs, and the repeat check of `produce` reports it.
 - LMMS versions after 1.2 changed the project format and some instruments. `doctor` adds a note when the version is not 1.2.x. Run the self-test, and if it fails, offer the user a 1.2.x AppImage beside their own version.
 
