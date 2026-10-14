@@ -45,14 +45,14 @@ These packages are installed separately by the user (`requirements.txt`, `requir
 | huggingface_hub, tokenizers | model download and decoding for recognition | Apache-2.0 |
 | cmudict | pronunciations for DiffSinger voicebanks | package GPL-3.0-or-later; dictionary data Copyright (C) 1993-2015 Carnegie Mellon University, BSD-style |
 
-Optional outside programs, started only when present: a C compiler, FFmpeg (LGPL-2.1-or-later or GPL depending on the build), LMMS (GPL-2.0), git.
+Optional outside programs, started only when present: a C compiler, FFmpeg (LGPL-2.1-or-later or GPL depending on the build), LMMS (GPL-2.0-or-later), git.
 
 ## 5. Voice models and voicebanks
 Models are downloaded on first use or supplied by the user. None is contained in this skill.
 
 | Model | Source | Licence and terms |
 |---|---|---|
-| Kokoro-82M v1.0, ONNX build with timestamps | `onnx-community/Kokoro-82M-v1.0-ONNX-timestamped`, fine-tuned from `hexgrad/Kokoro-82M` | Apache-2.0 |
+| Kokoro-82M v1.0, ONNX build with timestamps | `onnx-community/Kokoro-82M-v1.0-ONNX-timestamped`, an ONNX release of `hexgrad/Kokoro-82M` | Apache-2.0 |
 | Piper voices | `rhasspy/piper-voices` | Repository declared MIT; each voice also carries the terms of the dataset it was trained on, which `studio.py voices` summarises and each voice's model card states |
 | Whisper models in CTranslate2 format | `Systran/faster-whisper-*` | MIT |
 | DiffSinger voicebanks | supplied by the user | The terms of each voicebank; read them with `studio.py diffsinger-inspect` before use |
