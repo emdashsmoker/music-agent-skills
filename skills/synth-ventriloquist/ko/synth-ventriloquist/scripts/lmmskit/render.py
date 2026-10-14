@@ -62,7 +62,9 @@ def lmms_version() -> str:
                                 timeout=settings.DISCOVERY_TIMEOUT_S * 4).stdout
     except (OSError, subprocess.SubprocessError) as error:
         return f"could not be started: {error}"
-    return output.splitlines()[0].strip() if output else "unknown"
+    lines = [line.strip() for line in output.splitlines() if line.strip()]
+    # The launcher script of the official AppImage prints notes (about Carla, JACK) before LMMS's own version line.
+    return next((line for line in lines if line.startswith("LMMS ")), lines[0] if lines else "unknown")
 
 
 def version_is_tested(version: str) -> bool:

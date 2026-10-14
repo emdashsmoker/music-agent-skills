@@ -89,6 +89,22 @@ python scripts/lmms_tool.py kit --build    # 지금 만들기
 - 한 컴퓨터에서는 곡이 렌더마다 같은 소리를 낸다. 컴퓨터 사이에서는 노이즈 기반 타격이 조금 다르므로, 다른 곳에서 렌더한 곡은 여기서 렌더한 같은 곡과 샘플 단위로 동일하지 않다. 똑같은 드럼을 다른 컴퓨터로 가져가려면 킷 폴더를 복사하거나, 곡이 쓰는 사운드를 담는 프로젝트 묶음을 쓴다.
 - `kit --rebuild`는 타격을 새로 녹음하므로 기존 곡의 렌더 결과가 바뀐다. 의도한 경우에만 쓴다.
 
+### 이 LMMS로 킷을 만들 수 없을 때
+
+드럼머신 타격은 LMMS 1.2.x에 들어 있는 DrumSynth 프리셋에서 녹음한다. 이후 버전의 LMMS는 이 프리셋을 옮기거나, 이름을 바꾸거나, 뺄 수 있다. 프리셋 없이 나온 빌드도 있을 수 있다. 이때 킷 생성은 "LMMS rendered no sound for ... DrumSynth presets" 오류로 멈추고, 드럼이 있는 곡을 저장할 수 없다. 해결 방법은 사용자의 LMMS 옆에 LMMS 1.2.2를 따로 두고 킷을 한 번만 녹음하는 것이다. LMMS 1.2.2는 킷 녹음에만 쓴다. 곡 렌더는 사용자가 원래 쓰던 LMMS로 계속하며, 그 LMMS는 그대로 둔다.
+
+- 이 문서의 다른 설치와 달리 일회성 컨테이너를 포함한 모든 환경에서 사용자에게 먼저 묻는다. 사용자가 고른 LMMS 옆에 LMMS를 하나 더 두는 일이기 때문이다. 이유(설치된 LMMS로 드럼머신 타격을 녹음할 수 없음), 받을 대상(https://github.com/LMMS/lmms/releases/tag/v1.2.2 의 LMMS 1.2.2), 사용자의 LMMS는 건드리지 않는다는 점을 함께 말한다. 사용자가 거절하면 문제 해결에 있는 다른 방법을 제안한다.
+- Linux: 사용자가 동의하면 위 페이지의 AppImage를 툴킷 전용 폴더(예를 들어 캐시 폴더)에 내려받아 실행 권한을 준다. 그다음 이 명령 한 번에만 그 AppImage를 지정해 킷을 녹음한다. AppImage가 실행되지 않으면 문제 해결을 본다.
+
+```bash
+LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py kit --build
+```
+
+- Windows와 macOS: 직접 내려받거나 설치하지 않는다. 절차를 설명하고 사용자가 진행하게 한다. 사용자는 같은 페이지에서 LMMS 1.2.2를 내려받아 지금 쓰는 LMMS를 덮어쓰지 않도록 별도 사본으로 설치한다. Windows에서는 전용 폴더에 설치하고, macOS에서는 두 앱을 다른 이름으로 함께 둔다. 그다음 환경 변수 `LMMS_BIN`을 1.2.2 프로그램으로 지정한 채 `kit --build`를 한 번 실행한다.
+- 녹음이 끝나면 `kit`의 출력에 `"lmms": "LMMS 1.2.2"`가 나온다. 이 사실을 전달 노트에 적는다. 킷은 보관되므로 이 작업은 컴퓨터마다, 또는 컨테이너마다 한 번이면 된다.
+- Linux에서 공식 1.2.2 AppImage로 시험했다. 컨테이너에 FUSE가 없어 압축을 풀어 썼다(`LMMS_BIN`을 `squashfs-root/AppRun`으로 지정). 결과는 자가 시험으로 확인한다.
+- 어떤 LMMS로도 킷을 만들 수 없으면 킷 없이 드럼을 만든다. 원샷은 곡 스크립트가 numpy로 합성해 프로젝트 옆 `samples/`에 저장한 뒤 `sounds.sample(...)`로 연주한다(`sounds-effects.md` 참고). 킥은 그 컴퓨터에서 동작하는 쪽을 쓴다. LMMS의 Kicker인 `sounds.kicker(...)`를 쓰거나 numpy로 만든다. numpy로 만들 때는 `kit.synthesize_kick(*kit.KICKS["techno_kick"])`가 킷을 만들지 않고 이름 붙은 킥을 돌려준다. 킷 소리를 쓰지 않는 곡은 킷을 만들지 않는다.
+
 ## Python 패키지
 
 `doctor`는 패키지마다 설치할 이름으로 보여 준다. 그 환경에 속한 설치 도구(pip, uv, conda, poetry)를 쓴다.
@@ -150,8 +166,8 @@ LMMS가 CPU를 쓰는 방식에 따라 정확한 재현성, 속도, 렌더 중 �
 
 ## 시험한 범위
 
-- 시험함: Linux, Python 3.13, Debian 패키지의 LMMS 1.2.2, numpy 2.5, scipy 1.18, onnxruntime 1.30, kokoro-onnx 0.6, piper-tts 1.8, faster-whisper 1.2, pyworld 0.3.5. 파일 이름으로 AppImage를 찾는 경로와 Flatpak 명령 경로는 그 실행 방법을 흉내 낸 대역으로 시험했다.
-- 시험하지 못함: 실제 LMMS AppImage, Flatpak, Snap, macOS, Windows, 1.2.2 이외의 LMMS 버전. 탐색 코드는 이들을 다루며, 특정 컴퓨터에서의 동작은 아래 자가 시험이 증명한다. 이런 환경에서 작업할 때는 사용자에게 이 사실을 말한다.
+- 시험함: Linux, Python 3.13, Debian 패키지의 LMMS 1.2.2, numpy 2.5, scipy 1.18, onnxruntime 1.30, kokoro-onnx 0.6, piper-tts 1.8, faster-whisper 1.2, pyworld 0.3.5. 공식 LMMS 1.2.2 AppImage는 압축을 풀어(컨테이너에 FUSE 없음) `LMMS_BIN`으로 지정한 상태에서 자가 시험을 통과했다. 파일 이름으로 AppImage를 찾는 경로와 Flatpak 명령 경로는 그 실행 방법을 흉내 낸 대역으로 시험했다.
+- 시험하지 못함: LMMS Flatpak, Snap, macOS, Windows, 1.2.2 이외의 LMMS 버전. 탐색 코드는 이들을 다루며, 특정 컴퓨터에서의 동작은 아래 자가 시험이 증명한다. 이런 환경에서 작업할 때는 사용자에게 이 사실을 말한다.
 - LMMS를 CPU 코어 1개에 묶는 기능은 운영체제가 제공하는 곳(Linux)에만 있다. 그 밖의 환경에서는 LMMS가 제한 없이 돌고, 렌더가 실행마다 조금 달라질 수 있으며, `produce`의 반복 점검이 이를 보고한다.
 - 1.2 이후의 LMMS는 프로젝트 형식과 일부 악기가 달라졌다. 버전이 1.2.x가 아니면 `doctor`가 안내를 붙인다. 자가 시험을 돌리고, 실패하면 사용자의 버전 옆에 1.2.x AppImage를 두는 방법을 제안한다.
 
@@ -161,7 +177,7 @@ LMMS가 CPU를 쓰는 방식에 따라 정확한 재현성, 속도, 렌더 중 �
 - AppImage가 시작되지 않는다(FUSE 없음, 컨테이너에서 흔함): 자기 폴더에서 `--appimage-extract`로 한 번 풀고 `lmms_command`를 그 안의 `squashfs-root/AppRun`으로 지정한다.
 - 샌드박스 안의 LMMS(Flatpak, Snap)가 아무것도 렌더하지 않는다: 폴더가 보이지 않는 상태다. 프로젝트와 출력 폴더를 사용자 홈 폴더 안(최상위 숨김 폴더 제외)에 두고, `scratch_dir`를 비워 두어 임시 폴더가 프로젝트 옆에 만들어지게 한다.
 - LMMS가 Qt 플랫폼 오류로 실패한다: 그 빌드에 `offscreen` 플러그인이 없다. `configure --set qt_platform=minimal`을 시도하거나, 디스플레이가 있는 컴퓨터에서는 `qt_platform=xcb`(Linux), `cocoa`(macOS), `windows`로 시스템의 것을 쓴다.
-- 킷을 만들 수 없다("LMMS rendered no sound for ... DrumSynth presets"): 이 LMMS에 기본 샘플이 없거나 배치가 다르다. 데이터 폴더에 `samples/drumsynth`가 있는지 확인하고, 온전한 빌드를 쓰거나, 다른 컴퓨터의 킷 폴더를 복사해 `kit_dir`로 지정한다. 숨김 폴더를 볼 수 없는 Snap에서는 `kit_dir`를 홈 폴더의 보이는 폴더로 둔다.
+- 킷을 만들 수 없다("LMMS rendered no sound for ... DrumSynth presets"): 이 LMMS에 기본 샘플이 없거나 배치가 다르다. 데이터 폴더에 `samples/drumsynth`가 있는지 확인하고, 온전한 빌드를 쓰거나, 다른 컴퓨터의 킷 폴더를 복사해 `kit_dir`로 지정한다. 숨김 폴더를 볼 수 없는 Snap에서는 `kit_dir`를 홈 폴더의 보이는 폴더로 둔다. 이 LMMS가 프리셋이 달라진 이후 버전이면 드럼 킷의 "이 LMMS로 킷을 만들 수 없을 때"를 본다.
 - 렌더 결과가 무음이거나 파일이 아주 작다: `inspect` 출력의 `missing_samples`를 본다. 드럼 사운드는 프로젝트 옆 `samples/kit/`에 있다. `Song.save()`가 거기에 넣으며, `samples/` 폴더 없이 옮긴 프로젝트는 드럼을 잃는다.
 - LADSPA 이펙트가 효과를 내지 않는다: 그 LMMS 빌드에 플러그인이 없다. `fx.catalog()`가 툴킷이 기대하는 목록을 보여 준다. 배포판 패키지와 공식 빌드에는 들어 있다.
 - 렌더가 매우 오래 걸린다: 곡 길이와 파트 수를 확인하고 먼저 `render --bars 1:16`을 시도한다. LMMS는 한 번에 실시간의 약 5배 속도로 렌더하고, `produce`는 파트마다 짧은 렌더 1회와 전체 렌더 3-4회가 필요하다.
