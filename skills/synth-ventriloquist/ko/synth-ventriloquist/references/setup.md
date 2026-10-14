@@ -102,7 +102,8 @@ LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py k
 
 - Windows와 macOS: 직접 내려받거나 설치하지 않는다. 절차를 설명하고 사용자가 진행하게 한다. 사용자는 같은 페이지에서 LMMS 1.2.2를 내려받아 지금 쓰는 LMMS를 덮어쓰지 않도록 별도 사본으로 설치한다. Windows에서는 전용 폴더에 설치하고, macOS에서는 두 앱을 다른 이름으로 함께 둔다. 그다음 환경 변수 `LMMS_BIN`을 1.2.2 프로그램으로 지정한 채 `kit --build`를 한 번 실행한다.
 - 녹음이 끝나면 `kit`의 출력에 `"lmms": "LMMS 1.2.2"`가 나온다. 이 사실을 전달 노트에 적는다. 킷은 보관되므로 이 작업은 컴퓨터마다, 또는 컨테이너마다 한 번이면 된다.
-- 이 방법은 실제 AppImage, Windows, macOS에서 시험하지 않았다(시험한 범위 참고). 결과는 자가 시험으로 확인한다.
+- Linux에서 공식 1.2.2 AppImage로 시험했다. 컨테이너에 FUSE가 없어 압축을 풀어 썼다(`LMMS_BIN`을 `squashfs-root/AppRun`으로 지정). Windows와 macOS에서는 시험하지 않았다. 결과는 자가 시험으로 확인한다.
+- 어떤 LMMS로도 킷을 만들 수 없으면 킷 없이 드럼을 만든다. 킥은 `sounds.kicker(...)`로 만들고, 나머지 원샷은 곡 스크립트가 numpy로 합성해 프로젝트 옆 `samples/`에 저장한 뒤 `sounds.sample(...)`로 연주한다(`sounds-effects.md` 참고). 킷 소리를 쓰지 않는 곡은 킷을 만들지 않는다.
 
 ## Python 패키지
 
@@ -165,8 +166,8 @@ LMMS가 CPU를 쓰는 방식에 따라 정확한 재현성, 속도, 렌더 중 �
 
 ## 시험한 범위
 
-- 시험함: Linux, Python 3.13, Debian 패키지의 LMMS 1.2.2, numpy 2.5, scipy 1.18, onnxruntime 1.30, kokoro-onnx 0.6, piper-tts 1.8, faster-whisper 1.2, pyworld 0.3.5. 파일 이름으로 AppImage를 찾는 경로와 Flatpak 명령 경로는 그 실행 방법을 흉내 낸 대역으로 시험했다.
-- 시험하지 못함: 실제 LMMS AppImage, Flatpak, Snap, macOS, Windows, 1.2.2 이외의 LMMS 버전. 탐색 코드는 이들을 다루며, 특정 컴퓨터에서의 동작은 아래 자가 시험이 증명한다. 이런 환경에서 작업할 때는 사용자에게 이 사실을 말한다.
+- 시험함: Linux, Python 3.13, Debian 패키지의 LMMS 1.2.2, numpy 2.5, scipy 1.18, onnxruntime 1.30, kokoro-onnx 0.6, piper-tts 1.8, faster-whisper 1.2, pyworld 0.3.5. 공식 LMMS 1.2.2 AppImage는 압축을 풀어(컨테이너에 FUSE 없음) `LMMS_BIN`으로 지정한 상태에서 자가 시험을 통과했다. 파일 이름으로 AppImage를 찾는 경로와 Flatpak 명령 경로는 그 실행 방법을 흉내 낸 대역으로 시험했다.
+- 시험하지 못함: LMMS Flatpak, Snap, macOS, Windows, 1.2.2 이외의 LMMS 버전. 탐색 코드는 이들을 다루며, 특정 컴퓨터에서의 동작은 아래 자가 시험이 증명한다. 이런 환경에서 작업할 때는 사용자에게 이 사실을 말한다.
 - LMMS를 CPU 코어 1개에 묶는 기능은 운영체제가 제공하는 곳(Linux)에만 있다. 그 밖의 환경에서는 LMMS가 제한 없이 돌고, 렌더가 실행마다 조금 달라질 수 있으며, `produce`의 반복 점검이 이를 보고한다.
 - 1.2 이후의 LMMS는 프로젝트 형식과 일부 악기가 달라졌다. 버전이 1.2.x가 아니면 `doctor`가 안내를 붙인다. 자가 시험을 돌리고, 실패하면 사용자의 버전 옆에 1.2.x AppImage를 두는 방법을 제안한다.
 
