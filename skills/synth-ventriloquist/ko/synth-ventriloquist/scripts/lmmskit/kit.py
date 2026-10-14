@@ -100,9 +100,11 @@ These files were made on the computer that built this kit, by the Synth Ventrilo
   files on as files (for example inside a project pack), keep this notice, COPYING and the source folder
   with them.
 - COPYING holds the text of the GNU General Public License, version 2, as shipped with LMMS.
-- source/drumsynth/ holds the DrumSynth preset files the hits were recorded from, as shipped with LMMS 1.2.2
+- source/drumsynth/ holds the DrumSynth preset files of these hits, as shipped with LMMS 1.2.2
   (https://github.com/LMMS/lmms/tree/v1.2.2/data/samples/drumsynth). Copyright (c) 1998-2000 Paul Kellett
   (mda-vst.com) and the LMMS developers. Opening a preset in LMMS plays the same sound.
+  If the hits were recorded with another LMMS version, its own presets were used: they are at the same
+  path under data/samples/drumsynth in the source of that version (https://github.com/LMMS/lmms).
 - The named kicks (trance_kick, house_kick, techno_kick, psy_kick, dnb_kick, hard_kick, industrial_kick,
   boom_kick) and white_noise.wav were computed by the skill from fixed settings. They are plain program
   output and carry no restrictions from the skill.

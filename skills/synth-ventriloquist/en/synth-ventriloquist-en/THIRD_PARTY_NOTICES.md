@@ -18,7 +18,7 @@ The skill contains no audio files. Two data files hold facts only and no third-p
 The first time a song needs drums, the skill makes a kit of one-shot WAV files in the user's cache folder. Nothing of it is distributed with the skill.
 
 - Named kicks and a noise loop are computed by the skill's own code.
-- Drum-machine hits are recorded from the DrumSynth presets of the LMMS installed on that machine (LMMS and its presets: GPL-2.0-or-later, DrumSynth renderer (c) 1998-2000 Paul Kellett, mda-vst.com). A hit that sounds in a finished song is in the same position as the sound of any song made in LMMS with those presets. A notice file, the GPL-2.0 text (`COPYING`) and the preset files of the hits in use (`source/drumsynth/`) are written beside the recordings and travel with them into project folders and project packs.
+- Drum-machine hits are recorded from the DrumSynth presets of the LMMS installed on that machine (LMMS and its presets: GPL-2.0-or-later, DrumSynth renderer (c) 1998-2000 Paul Kellett, mda-vst.com). A hit that sounds in a finished song is in the same position as the sound of any song made in LMMS with those presets. A notice file, the GPL-2.0 text (`COPYING`) and the preset files of the hits in use (`source/drumsynth/`) are written beside the recordings and travel with them into project folders and project packs. The bundled preset files come from LMMS 1.2.2. When the hits are recorded with another LMMS version, the presets of that version were used, and the notice file points to them in the LMMS source.
 
 ## Not contained: installed separately and driven by the skill
 
