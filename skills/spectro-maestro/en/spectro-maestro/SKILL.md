@@ -1,5 +1,5 @@
 ---
-name: spectro-maestro-en
+name: spectro-maestro
 license: AGPL-3.0-or-later
 description: Spectro Maestro (English edition) composes, arranges, synthesises, mixes and masters complete songs in code, mainly electronic music, and exports mp3, ogg, wav, MIDI and DAW projects. Use it whenever the user asks to compose or produce a song, track, beat, loop or BGM, or names a genre (house, techno, trance, drum and bass, synthwave, industrial, EBM, futurepop, psytrance, gabber, IDM, hip hop, trap), even for just "make me a beat". Also for sung lyrics (speech voices turned into singing, or a user-supplied DiffSinger voicebank), lyric intelligibility checks, mix review, editing a song file, MIDI import, LMMS and DAWproject export. Read the reference for the step you are on - references/planning.md (planning), song-format.md (song file syntax, required), composition.md (writing, arranging, lint), genres.md, sound.md (instruments, effects), mixing-qa.md (review after rendering, required), vocals.md (all vocal work, required), export.md (export, LMMS check).
 ---
