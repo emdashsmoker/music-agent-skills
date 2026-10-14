@@ -89,6 +89,21 @@ python scripts/lmms_tool.py kit --build    # make it now
 - Songs sound the same on every render on one machine. Between machines the noise-based hits differ slightly, so a song rendered elsewhere is not sample-identical to the same song rendered here. To carry exactly the same drums to another machine, copy the kit folder, or use a project pack, which holds the sounds a song uses.
 - `kit --rebuild` records the hits anew and so changes how existing songs render. Do it only on purpose.
 
+### When this LMMS cannot make the kit
+
+The drum-machine hits are recorded from the DrumSynth presets that LMMS 1.2.x ships. A later LMMS may move, rename or drop those presets, or a build may come without them. The kit build then stops with "LMMS rendered no sound for ... DrumSynth presets", and songs with drums cannot be saved. The way out is to record the kit once with LMMS 1.2.2 kept beside the user's own LMMS. Only the kit recording uses it. Songs go on rendering with the LMMS the user already has, which stays as it is.
+
+- Ask the user first, on every kind of machine, disposable containers included, unlike the other installs in this file: this is a second LMMS beside the one the user chose. Say why (the installed LMMS cannot record the drum-machine hits), what would be fetched (LMMS 1.2.2 from https://github.com/LMMS/lmms/releases/tag/v1.2.2) and that their own LMMS is not touched. If the user declines, offer the other ways under Troubleshooting instead.
+- Linux: with the user's consent, download the AppImage from that page into a folder of the toolkit's own (the cache folder, for example), make it executable and record the kit with it for this one command. If the AppImage does not start, see Troubleshooting.
+
+```bash
+LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py kit --build
+```
+
+- Windows and macOS: do not download or install it yourself. Explain the steps and let the user do them. They download LMMS 1.2.2 from the same page and install it as a separate copy, so that it does not replace their current LMMS: on Windows into a folder of its own, on macOS by keeping both apps under different names. Then run `kit --build` with the environment variable `LMMS_BIN` set to the 1.2.2 program for that one command.
+- Afterwards `kit` shows `"lmms": "LMMS 1.2.2"`. Name this in the delivery note. The kit is kept, so this is needed once per computer, or once per container.
+- This route was not tested with a real AppImage or on Windows and macOS (see What was tested). The self-test proves the result.
+
 ## Python packages
 
 `doctor` lists each package under the name to install. Use the installer that belongs to the environment (pip, uv, conda, poetry).
@@ -161,7 +176,7 @@ Tell the user before the first vocal render that these downloads will happen. If
 - An AppImage does not start (no FUSE, common in containers): run it once with `--appimage-extract` in a folder of your own and set `lmms_command` to `squashfs-root/AppRun` there.
 - A sandboxed LMMS (Flatpak, Snap) renders nothing: it cannot see the folders. Keep the project and the output folder inside the user's home folder (not in a hidden top-level folder), and leave `scratch_dir` unset so scratch folders are made beside the project.
 - LMMS fails with a Qt platform error: the build lacks the `offscreen` plugin. Try `configure --set qt_platform=minimal`, or on a machine with a display leave the variable to the system with `qt_platform=xcb` (Linux), `cocoa` (macOS) or `windows`.
-- The kit cannot be built ("LMMS rendered no sound for ... DrumSynth presets"): this LMMS has no factory samples or lays them out differently. Check that `samples/drumsynth` exists in its data folder, use a complete build, or copy a kit folder from another machine and point `kit_dir` at it. With a Snap, which cannot see hidden folders, set `kit_dir` to a visible folder in the home folder.
+- The kit cannot be built ("LMMS rendered no sound for ... DrumSynth presets"): this LMMS has no factory samples or lays them out differently. Check that `samples/drumsynth` exists in its data folder, use a complete build, or copy a kit folder from another machine and point `kit_dir` at it. When this LMMS is a later version whose presets differ, see Drum kit, When this LMMS cannot make the kit. With a Snap, which cannot see hidden folders, set `kit_dir` to a visible folder in the home folder.
 - A render produces silence or a tiny file: look at `missing_samples` in the `inspect` output. Drum sounds live in `samples/kit/` beside the project. `Song.save()` puts them there, and a project moved without its `samples/` folder loses them.
 - A LADSPA effect has no effect: that LMMS build came without the plugin. `fx.catalog()` lists what the toolkit expects. Distribution packages and the official builds include them.
 - A render takes very long: check the song length and part count, and try `render --bars 1:16` first. LMMS renders about five times faster than real time per pass, and `produce` needs one short pass per part plus three or four full passes.
