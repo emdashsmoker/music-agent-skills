@@ -1,8 +1,8 @@
 # music-agent-skills
 
-Composing agent skills that finish songs without diffusion models, following the principles of harmony and rhythm and the composing process written into each skill. They cover composing, arranging, mixing and mastering. Vocals come from speech synthesis voices (Kokoro, Piper) turned into singing. Every skill ships as a Korean original and an English translation.
+Music production agent skills that finish songs without diffusion models, following the principles of harmony and rhythm and the production process written into each skill. They cover composing, arranging, mixing and mastering. Vocals come from speech synthesis voices (Kokoro, Piper) turned into singing. Every skill ships as a Korean original and an English translation.
 
-화성, 리듬 같은 음악 이론과 작곡 과정을 담은 스킬 지침에 따라 확산 모델 없이 곡을 완성하는 작곡 에이전트 스킬 모음입니다. 작곡부터 편곡, 믹싱, 마스터링까지 다룹니다. 보컬은 음성 합성 모델(Kokoro, Piper)의 목소리를 노래로 바꿔 만듭니다. 모든 스킬은 한국어 원본과 영어 번역본을 함께 제공합니다.
+화성, 리듬 같은 음악 이론과 제작 과정을 담은 스킬 지침에 따라 확산 모델 없이 곡을 완성하는 음악 제작 에이전트 스킬 모음입니다. 작곡부터 편곡, 믹싱, 마스터링까지 다룹니다. 보컬은 음성 합성 모델(Kokoro, Piper)의 목소리를 노래로 바꿔 만듭니다. 모든 스킬은 한국어 원본과 영어 번역본을 함께 제공합니다.
 
 <details>
 <summary><b>English</b></summary>
