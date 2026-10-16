@@ -13,7 +13,7 @@ import json
 import os
 from dataclasses import dataclass, field
 
-from . import fx, sounds, theory
+from . import fx, genres, sounds, theory
 from .project import PROGRESSION_LINEAR, Note, Param, Project, Track
 
 PLAN_SUFFIX = ".plan.json"
@@ -56,6 +56,11 @@ TICK_BEATS = 1.0 / 48.0
 SWEEP_POINTS = 24
 MASTER_CEILING_DB = -1.0
 VOCAL_PRESENCE_HZ, VOCAL_PRESENCE_OCTAVES = 2600.0, 3.0   # centre and width of the dip that clears sung consonants
+# Ducking of the music bus under every sung lead line, applied to any song with a vocal part unless the script calls
+# duck_for_vocals itself or the genre profile carries its own pair. Chosen over a louder vocal: in the test songs
+# +1.5 LU of vocal sounded the same as this dip, but cost 1.2 dB of limiter headroom and kept the vocal near its
+# +9 dB ceiling, while the dip costs no headroom and leaves the master loudness unchanged.
+VOCAL_DUCK_DB, VOCAL_PRESENCE_DB = 2.5, 6.0
 
 
 @dataclass
@@ -203,7 +208,8 @@ class Song:
         self._pump_hits: list[float] = []
         self.vocals: list = []
         self.vocal_reports: list[dict] = []
-        self.vocal_duck_db, self.vocal_presence_db = 0.0, 0.0
+        self.vocal_duck_db: float | None = None          # None until decided: the script's call, else the genre, else the default
+        self.vocal_presence_db: float | None = None
         self.tail_bars = 2
         for bus in BUS_ORDER:
             self._buses[bus] = self.mixer.add_channel(bus.upper())
@@ -329,13 +335,22 @@ class Song:
         self.vocals.append(wrapper)
         return wrapper
 
-    def duck_for_vocals(self, depth_db: float = 1.5, presence_db: float = 0.0) -> None:
-        """Make room on the music bus while a lead vocal line is sung (automation written from the line timings).
+    def duck_for_vocals(self, depth_db: float, presence_db: float = 0.0) -> None:
+        """Set how much room the music bus makes while a lead vocal line is sung (automation written from the line timings).
 
-        depth_db lowers the whole bus a little. presence_db dips only the band where consonants live (around
-        1.3-5 kHz), which clears the words without thinning the music as a level dip that deep would.
+        Every song with a vocal part is ducked without this call: VOCAL_DUCK_DB and VOCAL_PRESENCE_DB, or the
+        genre profile's 'vocal_duck' pair. Call it to choose the numbers yourself; duck_for_vocals(0) turns the
+        ducking off. depth_db lowers the whole bus a little. presence_db dips only the band where consonants live
+        (around 1.3-5 kHz), which clears the words without thinning the music as a level dip that deep would.
         """
         self.vocal_duck_db, self.vocal_presence_db = abs(depth_db), abs(presence_db)
+
+    def vocal_ducking(self) -> tuple[float, float]:
+        """(depth_db, presence_db) that will be written: the script's call wins, then the genre profile, then the default."""
+        if self.vocal_duck_db is not None:
+            return self.vocal_duck_db, self.vocal_presence_db
+        depth, presence = genres.get(self.genre).get("vocal_duck", (VOCAL_DUCK_DB, VOCAL_PRESENCE_DB))
+        return abs(depth), abs(presence)
 
     def render_vocals(self, project_path: str, cache: str | None = None) -> list[dict]:
         """Sing every vocal part into <project folder>/samples/<project name>/<part>.flac and put it on a track."""
@@ -387,7 +402,8 @@ class Song:
 
     def _write_vocal_ducking(self) -> None:
         """Automation on the music bus for the time a lead line is sung: a small level dip and a presence-band dip."""
-        if not (self.vocal_duck_db or self.vocal_presence_db) or not self.vocal_reports:
+        depth_db, presence_db = self.vocal_ducking()
+        if not (depth_db or presence_db) or not self.vocal_reports:
             return
         track_name = "Vocal ducking"
         holder = self.project._automation_track(track_name)
@@ -397,7 +413,7 @@ class Song:
         if not hasattr(self, "_vocal_duck_amp"):
             self._vocal_duck_amp = fx.gain(chain, 100.0)
             self._vocal_presence_eq = fx.eq(chain, peaks=[(VOCAL_PRESENCE_HZ, 0.0, VOCAL_PRESENCE_OCTAVES)])
-        low = FULL_VOLUME_PERCENT * fx.db_to_gain(-self.vocal_duck_db)
+        low = FULL_VOLUME_PERCENT * fx.db_to_gain(-depth_db)
         seconds_per_beat = 60.0 / self.bpm
         spans = sorted((row["audio_start_s"] / seconds_per_beat, row["audio_end_s"] / seconds_per_beat)
                        for report in self.vocal_reports if report["role"] == "vocal" for row in report["lines"])
@@ -408,8 +424,8 @@ class Song:
             else:
                 merged.append([start, end])
         ramp = VOCAL_DUCK_RAMP_BEATS
-        curves = [(fx.control(self._vocal_duck_amp, "volume"), FULL_VOLUME_PERCENT, low, "level", self.vocal_duck_db),
-                  (fx.control(self._vocal_presence_eq, "Peak1gain"), 0.0, -self.vocal_presence_db, "presence", self.vocal_presence_db)]
+        curves = [(fx.control(self._vocal_duck_amp, "volume"), FULL_VOLUME_PERCENT, low, "level", depth_db),
+                  (fx.control(self._vocal_presence_eq, "Peak1gain"), 0.0, -presence_db, "presence", presence_db)]
         for param, rest, sung, label, wanted in curves:
             for start, end in merged if wanted else []:
                 self.project.automate(param, [(max(0.0, start - ramp), rest), (start, sung), (end, sung), (end + ramp, rest)],
@@ -559,6 +575,7 @@ class Song:
             "parts": {name: {"role": p.role, "bus": BUS_OF_ROLE[p.role], "level_db": p.level_db,
                              "patch": p.patch.get("plugin", "")} for name, p in self.parts.items()},
             "chords": self.chord_plan, "lyrics": self.lyrics,
+            "vocal_duck": dict(zip(("depth_db", "presence_db"), self.vocal_ducking())) if self.vocals else None,
         }
 
     def save(self, path: str, vocal_cache: str | None = None) -> str:

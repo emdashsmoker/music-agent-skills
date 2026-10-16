@@ -130,7 +130,7 @@ def build(voice: str, output: str, beat: str = "hard", harmony_voice: str | None
     if hard:
         fx.saturator(bass.chain, drive=2.5, character=0.4)                            # a little grit on the sequenced bass
     song.sidechain("kick", ["bass", "music"], depth_db=6)
-    song.duck_for_vocals(1.5, presence_db=3.0)
+    # The music bus is ducked under every sung lead line by default (compose.VOCAL_DUCK_DB, VOCAL_PRESENCE_DB).
     song.sweep("arp", "intro", 8, 500, 9000)
     song.sweep("pad", "intro", 8, 400, 8000)
     song.sweep("music", ("outro", 8), 8, 12000, 500, rest_hz=500)
