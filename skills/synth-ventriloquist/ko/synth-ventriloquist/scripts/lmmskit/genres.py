@@ -12,6 +12,8 @@ Fields
   swing      0-0.5 share of a 16th that off-steps are delayed
   scale      usual tonality
   levels     role levels in LU against the kick that replace compose.LEVEL_OF_ROLE for this style (roles not named keep the default)
+  vocal_duck optional (depth_db, presence_db) of the music-bus ducking under sung lead lines, replacing
+             compose.VOCAL_DUCK_DB / VOCAL_PRESENCE_DB for this style; a song script's duck_for_vocals call beats both
   bands      shifts of mix.BAND_TARGETS centre in dB (how bright / bass-heavy the master is)
   form       section template as (name, bars) - one common arrangement, sized for a full track
   kit        drum patches that fit: kick, snare/clap, closed hat, open hat
