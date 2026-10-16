@@ -44,7 +44,7 @@ def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs
     stems = stems or mix.render_stems(project_path, os.path.join(out_dir, "stems"))
     findings = lint_tools.lint(project, plan)
     findings += mix.check_master(x, rate, genre, target_lufs)
-    findings += mix.check_stems(stems, roles, genre)
+    findings += mix.check_stems(stems, roles, genre, plan)
     findings += mix.check_sections(x, rate, plan)
     vocal_file = os.path.splitext(project_path)[0] + compose.VOCALS_SUFFIX
     if vocals and os.path.exists(vocal_file):

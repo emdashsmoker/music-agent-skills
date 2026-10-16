@@ -92,7 +92,6 @@ def build(voice: str, output: str, method: str = "auto") -> str:
                 vocal.line((section, repeat * 4 + index * 2), text, melody, kind="chorus")
     vocal.harmony("low vocal", steps=-2, only_kind="chorus", level_db=1)
 
-    song.duck_for_vocals(1.5)
     song.sweep("guitar", "riff1", 4, 600, 8000)
     song.fade("music", ("outro", 4), 4, 0, -14, rest_db=-60)
     song.fade("bass", ("outro", 6), 2, 0, -12, rest_db=-60)
