@@ -66,7 +66,7 @@ Clean comes before loud. A limiter asked for 8 or 10 dB pumps the whole mix and 
 - `part_levels`: each part's loudness against its target, and its peak. No drum except the kick should peak above the kick.
 - `section_energy`: loudness and brightness per section. Compare it with the intended energy curve: the chorus or drop should be the loudest, a breakdown clearly lower.
 - `band_owners`: the two strongest parts in each frequency band. Two parts at nearly the same level in one band mask each other.
-- `kick_presence`, `drums_vs_rest`, `vocal_body`, `vocal_consonants`: how the foreground elements sit against everything else.
+- `kick_presence`, `drums_vs_rest`, `vocal_body`, `vocal_consonants`: how the foreground elements sit against everything else. The two vocal findings carry a table of per-section values next to the whole-song value and mark the section whose backing is densest (usually a chorus). A sparse verse lifts the whole-song value; the chorus value says how well the vocal is really heard.
 
 ## Findings and fixes
 
@@ -92,9 +92,9 @@ Clean comes before loud. A limiter asked for 8 or 10 dB pumps the whole mix and 
 | `kick_hiss` | The kick carries noise or distortion for its whole length, heard as hiss or fuzz on every beat | Choose a cleaner kick. Expected and fine for a deliberately distorted hardcore or industrial kick |
 | `kick_presence` low | The kick is buried in 40 to 120 Hz | Deeper sidechain, shorter bass notes on the kick, high-pass the bass a little higher |
 | `drums_vs_rest` outside −7 to +5 LU | Beat buried, or beat swamping the music | Shift the drum or music parts with `level_db` |
-| `vocal_body` below 0 dB | The voice is covered between 300 and 3400 Hz | `song.duck_for_vocals(2.5)`, lower pads and leads under the vocal, or raise the vocal `level_db` |
-| `vocal_consonants` below +2 dB | The 1.3 to 5 kHz band of the voice does not clear the backing: words will be hard to follow | The warning says what covers the consonants. Music parts: raise `presence_db` in `song.duck_for_vocals` by the amount it names. Drums (hats, claps, snares): raise the vocal's `level_db` by the amount it names or thin out the bright drums under the vocal. Do not sidechain the vocal reverb to the kick: that chops consonant tails |
-| vocal margins above +9 dB | The vocal towers over the track | Lower the vocal `level_db` |
+| `vocal_body` below 0 dB | The voice is covered between 300 and 3400 Hz | Deepen the ducking first (`song.duck_for_vocals(4.0, presence_db=6.0)`; the defaults are 2.5 and 6.0). Then lower or rest the pads and leads under the vocal. Raising the vocal `level_db` is the last resort: it spends limiter headroom and invites the ceiling warning in the chorus |
+| `vocal_consonants` below +2 dB | The 1.3 to 5 kHz band of the voice does not clear the backing: words will be hard to follow | The warning says what covers the consonants. Music parts: raise `presence_db` in `song.duck_for_vocals` above the default 6.0 by the amount it names. Drums (hats, claps, snares): thin out the bright drums under the vocal or raise the vocal's `level_db` by the amount it names. Do not sidechain the vocal reverb to the kick: that chops consonant tails |
+| vocal margin above +9 dB in the densest section | The vocal towers over the track. Judged on the value of the section whose backing is densest in the per-section table | Reduce the ducking depth or lower the vocal `level_db`. No warning is raised when only the whole-song value is above 9 and the densest section is not |
 | `leading_silence`, `tail_cut` | Silence at the start, or sound cut off at the end | Check the first section, raise `song.tail_bars` |
 | `not_repeatable` | A second render of the finished project differs audibly from the first (60 dB under the mix or closer) | Run `lint` and replace what its `unrepeatable_*` findings name. `repeatable` (info) confirms identical renders, and `nearly_repeatable` (info) a residue too small to hear |
 
@@ -105,6 +105,7 @@ When the same three or more warnings survive two rounds of fixes, stop and show 
 ## Mixing moves in the song script
 
 - Level intent: `level_db` on `song.add(...)`.
+- Room under the vocal: in every song with a vocal part the music bus drops 2.5 dB and loses 6 dB in the consonant band while a lead line is sung, by default. `song.duck_for_vocals(depth_db, presence_db)` changes that and `song.duck_for_vocals(0)` turns it off. A genre profile's `vocal_duck` pair replaces the default when present.
 - Space: `sends={"reverb": 0.3, "delay": 0.2}`. Dry and close means small sends, far away means large sends plus a lower level.
 - Stereo: `pan` on parts. Keep kick, sub, bass and lead vocal in the centre. Spread hats, plucks, doubles and harmonies.
 - Tone: `fx.eq(part.chain, ...)`, or change the patch filter.
