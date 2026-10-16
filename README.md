@@ -56,7 +56,7 @@ skills/synth-ventriloquist/
 - Speech voices turned into singing sound synthetic, and some words may come out mispronounced.
 - The terms of each voice model or voicebank also apply to the sung audio. Some allow non-commercial use only.
 - Every skill needs a code execution environment and network access.
-- Making a single song uses a large number of tokens. The model reads the long instructions and reference pages of each stage. To judge audio it cannot hear, the model repeats rounds of rendering, measuring and looking at figures.
+- Making a single song uses a large number of tokens. This is because the model reads the long instructions and reference pages of each stage. Because it cannot hear, the model checks the measurements and figures of a new render after each fix. Check the usage limits or token pricing of the service you use before you start.
 - `synth-ventriloquist` works where LMMS is installed. The LMMS integration was tested with LMMS 1.2.2 on Linux.
 
 ## Disclaimer
@@ -125,7 +125,7 @@ skills/synth-ventriloquist/
 - 음성 합성 목소리로 부른 노래에는 기계음이 섞입니다. 일부 단어는 발음이 틀릴 수 있습니다.
 - 음성 모델과 보이스뱅크의 이용 조건은 노래한 오디오에도 적용됩니다. 비상업 전용인 모델도 있습니다.
 - 모든 스킬은 코드 실행 환경과 네트워크 연결이 있어야 작동합니다.
-- 곡 하나를 완성하는 데 토큰이 많이 소모됩니다. 모델은 단계마다 긴 스킬 지침과 참고 문서를 읽습니다. 소리를 들을 수 없는 모델은 렌더링, 측정, 그림 확인을 여러 차례 반복해 결과물을 판단합니다.
+- 곡 하나를 완성하는 데 토큰이 많이 듭니다. 모델이 단계마다 긴 스킬 지침과 참고 문서를 읽기 때문입니다. 모델은 소리를 듣지 못해서 곡을 고칠 때마다 렌더링 결과의 측정값과 그림을 다시 확인합니다. 작업을 시작하기 전에 이용 중인 서비스의 토큰 한도나 요금을 살펴보기를 권장합니다.
 - `synth-ventriloquist`는 LMMS가 설치된 환경에서 작동합니다. LMMS 연동은 Linux의 LMMS 1.2.2에서 테스트했습니다.
 
 ## 면책 고지
