@@ -56,6 +56,7 @@ skills/synth-ventriloquist/
 - Speech voices turned into singing sound synthetic, and some words may come out mispronounced.
 - The terms of each voice model or voicebank also apply to the sung audio. Some allow non-commercial use only.
 - Every skill needs a code execution environment and network access.
+- Making a single song uses a large number of tokens.
 - `synth-ventriloquist` works where LMMS is installed. The LMMS integration was tested with LMMS 1.2.2 on Linux.
 
 ## Disclaimer
@@ -124,6 +125,7 @@ skills/synth-ventriloquist/
 - 음성 합성 목소리로 부른 노래에는 기계음이 섞입니다. 일부 단어는 발음이 틀릴 수 있습니다.
 - 음성 모델과 보이스뱅크의 이용 조건은 노래한 오디오에도 적용됩니다. 비상업 전용인 모델도 있습니다.
 - 모든 스킬은 코드 실행 환경과 네트워크 연결이 있어야 작동합니다.
+- 곡 하나를 완성하는 데 토큰이 많이 소모됩니다.
 - `synth-ventriloquist`는 LMMS가 설치된 환경에서 작동합니다. LMMS 연동은 Linux의 LMMS 1.2.2에서 테스트했습니다.
 
 ## 면책 고지
