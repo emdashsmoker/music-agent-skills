@@ -141,7 +141,7 @@ Use this when a line is flagged, and for every chorus before building the arrang
        "We are signal fires" "See the signal fires" "Signal fires are high" --out work/candidates
    ```
 
-   The result lists, per candidate, what the recogniser heard, the score (0 to 1, the median of three passes) and how steadily the last note is voiced. `--out` keeps a WAV of each.
+   The result lists, per candidate, what the recogniser heard, the score (0 to 1, the second-best of several passes) and how steadily the last note is voiced. `--out` keeps a WAV of each.
 4. Prefer the candidate that keeps the meaning and scores clearly higher. A difference under about 0.1 is noise.
 5. Show the user the table and the audio of the top candidates when the wording matters to them. Their approved lyric wins even if another candidate scores higher.
 6. If no wording helps, change the notes: longer notes on the words that are lost, a lower key, or a slower rhythm for that line. If that fails too, tell the user and offer another voice as an option.
@@ -215,7 +215,7 @@ Ask for the user's verdict on the words before polishing the mix around them.
 
 - A speech voice made to sing keeps its speech timbre. It will not pass for a trained singer. Say so before the user expects otherwise, and offer the voicebank route.
 - Very fast syllables (under about 110 ms), wide leaps inside a word, and melodies far above the speaking pitch degrade first.
-- The recogniser is unsteady on sung audio. The same take can score a few tenths apart depending on silence around it, which is why scores are the median of three passes and why small differences mean nothing. It also "repairs" words from context, so a high score is not proof of clarity. A low score on a line the user finds clear should be ignored.
+- The recogniser is unsteady on sung audio. The same take can score a few tenths apart depending on silence around it, and a failed pass is an empty or invented transcript, not a different hearing of the words, so the score is the second-best pass (three passes when they agree within 0.1, six more when they do not): one good pass is luck, two are evidence. Small differences mean nothing. It also "repairs" words from context, so a high score is not proof of clarity. A low score on a line the user finds clear should be ignored.
 - Speech models report when each sound starts, and those times run late against the audio by an amount that differs per engine, voice and line (roughly 40 ms for the Kokoro voices and near 0 for the Piper voices tested). The toolkit measures this lag on every line from the audio itself and reports it as `lag_ms`. A value far from those, or a line whose syllables land audibly off the beat, points to a line the alignment misread: reword it or split it.
 - The repair fixes the last syllable only. A whole line spoken too softly needs different words or another voice.
 - Rendering is slow compared to the instruments: plan about 3 to 10 s per line for speech voices and 10 to 20 s for a voicebank on two CPU cores. Lines are cached.
