@@ -215,6 +215,7 @@ class Song:
         self.vocal_reports: list[dict] = []
         self.vocal_duck_db: float | None = None          # None until decided: the script's call, else the genre, else the default
         self.vocal_presence_db: float | None = None
+        self.vocal_presence_octaves: float | None = None     # None: VOCAL_PRESENCE_OCTAVES
         self.tail_bars = 2
         for bus in BUS_ORDER:
             self._buses[bus] = self.mixer.add_channel(bus.upper())
@@ -344,15 +345,20 @@ class Song:
         self.vocals.append(wrapper)
         return wrapper
 
-    def duck_for_vocals(self, depth_db: float, presence_db: float = 0.0) -> None:
+    def duck_for_vocals(self, depth_db: float, presence_db: float = 0.0, presence_octaves: float | None = None) -> None:
         """Set how much room the music bus makes while a lead vocal line is sung (automation written from the line timings).
 
         Every song with a vocal part is ducked without this call: VOCAL_DUCK_DB and VOCAL_PRESENCE_DB, or the
         genre profile's 'vocal_duck' pair. Call it to choose the numbers yourself; duck_for_vocals(0) turns the
         ducking off. depth_db lowers the whole bus a little. presence_db dips only the band where consonants live
         (around 1.3-5 kHz), which clears the words without thinning the music as a level dip that deep would.
+        presence_octaves widens or narrows that dip to suit the production the user wants (default
+        VOCAL_PRESENCE_OCTAVES, 1.5). A wide dip such as 3.0 also pulls the music's highs down under every line, so
+        it is not recommended and stays off unless the user asks for that sound.
         """
         self.vocal_duck_db, self.vocal_presence_db = abs(depth_db), abs(presence_db)
+        if presence_octaves is not None:
+            self.vocal_presence_octaves = abs(presence_octaves)
 
     def vocal_ducking(self) -> tuple[float, float]:
         """(depth_db, presence_db) that will be written: the script's call wins, then the genre profile, then the default."""
@@ -428,7 +434,8 @@ class Song:
         chain = self.mixer.fx(self._buses["music"])
         if not hasattr(self, "_vocal_duck_amp"):
             self._vocal_duck_amp = fx.gain(chain, 100.0)
-            self._vocal_presence_eq = fx.eq(chain, peaks=[(VOCAL_PRESENCE_HZ, 0.0, VOCAL_PRESENCE_OCTAVES)])
+            octaves = self.vocal_presence_octaves if self.vocal_presence_octaves is not None else VOCAL_PRESENCE_OCTAVES
+            self._vocal_presence_eq = fx.eq(chain, peaks=[(VOCAL_PRESENCE_HZ, 0.0, octaves)])
         low = FULL_VOLUME_PERCENT * fx.db_to_gain(-depth_db)
         seconds_per_beat = 60.0 / self.bpm
         spans = sorted((row["audio_start_s"] / seconds_per_beat, row["audio_end_s"] / seconds_per_beat)
@@ -591,7 +598,9 @@ class Song:
             "parts": {name: {"role": p.role, "bus": BUS_OF_ROLE[p.role], "level_db": p.level_db,
                              "patch": p.patch.get("plugin", "")} for name, p in self.parts.items()},
             "chords": self.chord_plan, "lyrics": self.lyrics,
-            "vocal_duck": dict(zip(("depth_db", "presence_db"), self.vocal_ducking())) if self.vocals else None,
+            "vocal_duck": {**dict(zip(("depth_db", "presence_db"), self.vocal_ducking())),
+                           "presence_octaves": self.vocal_presence_octaves if self.vocal_presence_octaves is not None else VOCAL_PRESENCE_OCTAVES}
+            if self.vocals else None,
         }
 
     def save(self, path: str, vocal_cache: str | None = None) -> str:

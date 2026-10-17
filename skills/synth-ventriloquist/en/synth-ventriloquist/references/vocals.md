@@ -90,7 +90,7 @@ vocal.line(("verse1", 0), "Empty roads below a paper sky", "E4/0.5 E4/0.5 G4/0.5
 vocal.line(("chorus1", 0), "See the signal fires", "A4/1 A4/1 F4/1 A4/1 B4/3", kind="chorus")
 vocal.harmony("harmony vocal", steps=2, only_kind="chorus", pan=20)      # a third above, kept off chord clashes
 vocal.double("double vocal", only_kind="chorus", pan=-20)                # second take for width
-song.duck_for_vocals(4.0, presence_db=6.0)                               # only to change the ducking under sung lines; the defaults 2.5 and 6.0 apply without a call
+song.duck_for_vocals(4.0, presence_db=6.0)                               # only to change the ducking under sung lines; the defaults 2.5 and 6.0 apply without a call. presence_octaves changes the dip width to suit the production the user wants (default 1.5; wide values are not recommended, so off by default)
 ```
 
 - `line(at, text, melody, kind=None, beats=0.0)`: `at` is where the first melody token starts. `beats=-1` starts a pickup one beat before the bar.
