@@ -69,7 +69,9 @@ ACTIVE_WINDOW_DB = 12.0                   # a part 'sounds' in frames within thi
 VOICE_FLOOR_DB = 40.0                     # a voice 'sounds' in frames where its body band is within this of its loudest frame
 TAIL_CUT_DB = -45.0
 STFT_SIZE, STFT_HOP = 2048, 512
-ROLE_KEYWORDS = [("vocal_bg", ("harmony", "backing", "choir", "bgv")), ("vocal", ("vocal", "vox", "voice", "sing")),
+# "double" before the lead words: a doubled take is a backing part, and balancing it as a second lead raised it 16 dB in a
+# project that had no plan file.
+ROLE_KEYWORDS = [("vocal_bg", ("harmony", "backing", "choir", "bgv", "double")), ("vocal", ("vocal", "vox", "voice", "sing")),
                  ("kick", ("kick", "bd", "bassdrum")), ("snare", ("snare", "sd")), ("clap", ("clap",)),
                  ("hat", ("hat", "hh", "shaker", "cabasa", "maracas")), ("cymbal", ("crash", "ride", "cymbal")),
                  ("perc", ("perc", "tom", "rim", "conga", "bongo", "clave", "cowbell", "tamb")),
