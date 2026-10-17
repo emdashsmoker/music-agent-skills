@@ -26,6 +26,16 @@ DOWNLOAD_TRIES = 3
 ANALYSIS_FRAME_S = world.FRAME_S
 LAG_SEARCH_S = 0.15
 VOICING_ENERGY_FLOOR_DB = -45.0
+# The lag is the shift at which the vowels the engine reported fall on periodic frames of the audio: the thing singing
+# needs, since the held note is built from the middle of each reported vowel. Matching a voiced/unvoiced pattern
+# instead (the earlier rule) was fooled by loud fricatives, which the pitch tracker voices: a line opening with
+# "share" got the full 150 ms and the stretch landed on the "sh". A mild preference for the usual lag keeps a flat
+# objective from wandering to the edge of the search.
+PERIODIC_BAND_HZ = 4000.0              # periodicity is read from WORLD's aperiodicity below this
+LAG_PRIOR_S = 0.04                     # the usual lag of the Kokoro voices
+LAG_PRIOR_WEIGHT = 0.5                 # periodicity given up per second of distance from the prior
+VOWEL_EDGE_SHARE = 0.2                 # of a vowel's span left out at each end when its periodicity is read
+TIMING_VERSION = 4                  # part of the unit cache key: units saved with an older lag rule are re-spoken
 KOKORO_SAMPLE_RATE = 24000
 KOKORO_FRAME_SAMPLES = 600                      # one duration unit of the timestamped model
 KOKORO_REVISION = "dd4401a9add81ac692d20e240d22ec9dda82cc29"
@@ -58,6 +68,7 @@ class Unit:
     phones: list[Phone]
     text: str
     lag: float = 0.0                                # how late the engine's own timing ran, in seconds
+    analysis: tuple | None = None                   # WORLD (f0, envelope, aperiodicity) of the audio, made with the lag
 
     @property
     def phoneme_text(self) -> str:
@@ -119,6 +130,32 @@ def voicing_track(audio: np.ndarray, sr: int, f0: np.ndarray | None = None) -> n
     energy = np.array([np.sqrt(np.mean(audio[i * hop:(i + 1) * hop] ** 2) + 1e-12) for i in range(frames)])
     loud = 20 * np.log10(energy / (energy.max() + 1e-12)) > VOICING_ENERGY_FLOOR_DB
     return ((f0[:frames] > 0) & loud).astype(float)
+
+
+def vowel_periodicity(phones: list[Phone], periodic: np.ndarray, shift: float) -> float:
+    """Mean periodicity of the middles of the vowels in `phones`, read `shift` seconds earlier than reported."""
+    values = []
+    for phone in phones:
+        if not phone.vowel:
+            continue
+        first, last = int((phone.start - shift) / ANALYSIS_FRAME_S), int((phone.end - shift) / ANALYSIS_FRAME_S)
+        edge = max(1, int((last - first) * VOWEL_EDGE_SHARE))
+        low, high = max(0, first + edge), min(len(periodic), max(last - edge, first + edge + 1))
+        if high > low:
+            values.append(float(periodic[low:high].mean()))
+    return float(np.mean(values)) if values else 0.0
+
+
+def measure_lag_by_periodicity(phones: list[Phone], aperiodicity: np.ndarray, f0: np.ndarray, sr: int) -> float | None:
+    """The lag that puts the reported vowels on the most periodic frames; None when the line has no voiced vowel."""
+    bins = aperiodicity.shape[1]
+    low = max(1, int(bins * PERIODIC_BAND_HZ / (sr / 2)))
+    periodic = np.where(f0 > 0, 1 - aperiodicity[:, :low].mean(axis=1), 0.0)
+    if not any(p.vowel for p in phones) or not (periodic > 0).any():
+        return None
+    shifts = np.arange(-LAG_SEARCH_S, LAG_SEARCH_S + 1e-9, ANALYSIS_FRAME_S)
+    scores = [vowel_periodicity(phones, periodic, shift) - LAG_PRIOR_WEIGHT * abs(shift - LAG_PRIOR_S) for shift in shifts]
+    return float(shifts[int(np.argmax(scores))])
 
 
 def measure_lag(audio: np.ndarray, sr: int, phones: list[Phone], f0: np.ndarray | None = None) -> float:
@@ -240,8 +277,11 @@ class PiperBackend:
 
 def _finish_unit(audio: np.ndarray, sr: int, phones: list[Phone], text: str) -> Unit:
     total = len(audio) / sr
-    lag = measure_lag(audio, sr, phones)
-    return Unit(audio, sr, apply_lag(phones, lag, total), text, lag)
+    f0, envelope, aperiodicity = world.analyze(audio, sr)
+    lag = measure_lag_by_periodicity(phones, aperiodicity, f0, sr)
+    if lag is None:
+        lag = measure_lag(audio, sr, phones, f0)
+    return Unit(audio, sr, apply_lag(phones, lag, total), text, lag, (f0, envelope, aperiodicity))
 
 
 _backends: dict[str, object] = {}
@@ -263,21 +303,26 @@ def backend(voice: str, lang: str | None = None):
 
 # -- unit cache -------------------------------------------------------------------------------------------
 def unit_key(identity: str, text: str, speed: float, seed: int) -> str:
-    return hashlib.sha1(json.dumps([identity, text, round(speed, 4), seed]).encode("utf-8")).hexdigest()[:20]
+    return hashlib.sha1(json.dumps([identity, text, round(speed, 4), seed, TIMING_VERSION]).encode("utf-8")).hexdigest()[:20]
 
 
 def save_unit(path: str, unit: Unit) -> None:
+    extra = {}
+    if unit.analysis is not None:
+        f0, envelope, aperiodicity = unit.analysis
+        extra = {"f0": f0, "envelope": envelope.astype(np.float32), "aperiodicity": aperiodicity.astype(np.float32)}
     np.savez_compressed(path, audio=unit.audio.astype(np.float32), sr=unit.sr, lag=unit.lag, text=unit.text,
                         symbols=np.array([p.symbol for p in unit.phones]), starts=np.array([p.start for p in unit.phones]),
                         ends=np.array([p.end for p in unit.phones]), words=np.array([p.word for p in unit.phones]),
-                        stressed=np.array([p.stressed for p in unit.phones]))
+                        stressed=np.array([p.stressed for p in unit.phones]), **extra)
 
 
 def load_unit(path: str) -> Unit:
     data = np.load(path, allow_pickle=False)
     phones = [Phone(str(s), float(a), float(b), int(w), bool(x)) for s, a, b, w, x in
               zip(data["symbols"], data["starts"], data["ends"], data["words"], data["stressed"])]
-    return Unit(data["audio"].astype(np.float64), int(data["sr"]), phones, str(data["text"]), float(data["lag"]))
+    analysis = (data["f0"], data["envelope"].astype(np.float64), data["aperiodicity"].astype(np.float64)) if "f0" in data else None
+    return Unit(data["audio"].astype(np.float64), int(data["sr"]), phones, str(data["text"]), float(data["lag"]), analysis)
 
 
 def speak(voice: str, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED, cache: str | None = None) -> Unit:

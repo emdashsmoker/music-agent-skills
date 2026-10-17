@@ -22,7 +22,7 @@ python <스킬>/examples/signal_fires_futurepop/song.py kokoro:af_heart signal_f
 python <스킬>/scripts/lmms_tool.py produce signal_fires.mmp -o out_signal_fires
 ```
 
-보컬 곡은 첫 인자로 목소리를 받으며(선택지는 `references/vocals.md`) 처음 쓸 때 음성 모델을 내려받는다. CPU 코어 2개에서 트랜스 곡의 produce는 약 15분, 나머지는 5-10분 걸린다.
+보컬 곡은 첫 인자로 목소리를 받으며(선택지는 `references/vocals.md`) 처음 쓸 때 TTS 모델을 내려받는다. CPU 코어 2개에서 트랜스 곡의 produce는 약 15분, 나머지는 5-10분 걸린다.
 
 ## 본보기로 쓰기
 

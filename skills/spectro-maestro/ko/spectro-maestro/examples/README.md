@@ -21,5 +21,5 @@
 ## 저작권과 라이선스
 - 음악, 가사, 곡 파일 : Copyright (C) 2026 Em Dash Smoker
 - 이 스킬의 일부로서 AGPL-3.0-or-later로 제공 (`../LICENSE`)
-- Signal Fires와 Last Tram의 보컬은 렌더할 때 Kokoro-82M 음성 모델(Apache-2.0)로 합성됨
+- Signal Fires와 Last Tram의 보컬은 렌더할 때 Kokoro-82M TTS 모델(Apache-2.0)로 합성됨
 - 자세한 고지는 `../THIRD-PARTY-NOTICES.md`
