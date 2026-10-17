@@ -78,6 +78,15 @@ VOWEL_FILL_BREATH_HZ = 2000.0             # breath noise above this is thinned o
 VOWEL_FILL_BREATH_SHARE = 0.5             # share of that noise removed at strength 1
 FORMANT_SHIFT_THRESHOLD_ST, FORMANT_SHIFT_SHARE = 5.0, 0.0   # measured: moving formants with the pitch did not help
 TARGET_PEAK = 0.7
+# The engine's phone times are off by a few tens of milliseconds now and then, most often on the first word of a line:
+# the span reported as the vowel then covers the consonant before it, and the stretch holds noise ("share" came out
+# as a long "sh"). Before planning, each vowel whose reported span is mostly unvoiced is moved onto the nearest run
+# of voiced, periodic frames inside its own syllable and the halves of the consonants that touch it.
+SETTLE_PERIODIC_BAND_HZ = 4000.0        # periodicity is read from WORLD's aperiodicity below this
+SETTLE_MIN_PERIODICITY = 0.5            # a frame below this is breath or noise, whatever the pitch tracker says
+SETTLE_GOOD_SHARE = 0.6                 # a vowel whose middle is this voiced is left where the engine put it
+SETTLE_REACH_S = 0.08                   # how far past a reported edge the search may go
+SETTLE_MIN_RUN_S = 0.03                 # shorter voiced runs are transitions, not a vowel
 
 
 @dataclass
@@ -271,11 +280,74 @@ def _warp_envelope(envelope: np.ndarray, ratio: float) -> np.ndarray:
     return envelope[:, low] * (1 - weight) + envelope[:, high] * weight
 
 
+def _settle_nuclei(syllables: list[Syllable], f0: np.ndarray, aperiodicity: np.ndarray, sr: int) -> int:
+    """Move each badly placed vowel onto the voiced frames near it, in place on the phones. Returns how many moved.
+
+    The search runs from half-way into the consonant before the vowel to SETTLE_REACH_S past its reported end, but
+    never into a neighbouring syllable's vowel: a breathy schwa next to a full vowel is breathy, not misplaced, and
+    taking the neighbour's frames would sing that vowel twice. Of the voiced runs found, the one nearest the reported
+    span is taken, trimmed to the reported length; the consonants that touch the vowel follow its new edges.
+    """
+    bins = aperiodicity.shape[1]
+    low = max(1, int(bins * SETTLE_PERIODIC_BAND_HZ / (sr / 2)))
+    voiced = (f0 > 0) & (1 - aperiodicity[:, :low].mean(axis=1) >= SETTLE_MIN_PERIODICITY)
+    frames = len(voiced)
+    moved = 0
+    for position, syllable in enumerate(syllables):
+        if not syllable.nucleus:
+            continue
+        first, last = syllable.nucleus[0], syllable.nucleus[-1]
+        a, b = int(first.start / FRAME_S), max(int(last.end / FRAME_S), int(first.start / FRAME_S) + 1)
+        edge = max(1, (b - a) // 5)
+        middle = voiced[min(a + edge, frames):min(max(b - edge, a + edge + 1), frames)]
+        if len(middle) and middle.mean() >= SETTLE_GOOD_SHARE:
+            continue
+        before = syllable.onset[-1] if syllable.onset else None
+        start = first.start - (min(SETTLE_REACH_S, 0.5 * before.duration) if before else SETTLE_REACH_S)
+        end = last.end + SETTLE_REACH_S
+        previous = next((s for s in reversed(syllables[:position]) if s.nucleus), None)
+        following = next((s for s in syllables[position + 1:] if s.nucleus), None)
+        if previous is not None:
+            start = max(start, previous.nucleus[-1].end)
+        if following is not None:
+            end = min(end, following.nucleus[0].start)
+        lo, hi = max(0, int(start / FRAME_S)), min(frames, int(end / FRAME_S))
+        runs, run_start = [], None
+        for index in range(lo, hi + 1):
+            if index < hi and voiced[index]:
+                run_start = index if run_start is None else run_start
+            elif run_start is not None:
+                runs.append((run_start, index))
+                run_start = None
+        runs = [r for r in runs if (r[1] - r[0]) * FRAME_S >= SETTLE_MIN_RUN_S]
+        if not runs:
+            continue
+        nearest = min(runs, key=lambda r: max(0, r[0] - b, a - r[1]))
+        length = max(b - a, int(SETTLE_MIN_RUN_S / FRAME_S))
+        new_start = nearest[0] * FRAME_S if nearest[0] > a else max(nearest[0], min(a, nearest[1] - length)) * FRAME_S
+        new_end = min(nearest[1] * FRAME_S, new_start + length * FRAME_S)
+        if len(syllable.nucleus) > 1:                       # a diphthong keeps its inner split in proportion
+            scale = (new_end - new_start) / max(last.end - first.start, 1e-6)
+            for phone in syllable.nucleus:
+                phone.start, phone.end = new_start + (phone.start - first.start) * scale, new_start + (phone.end - first.start) * scale
+        first.start, last.end = new_start, new_end
+        if before is not None:
+            before.end = max(before.start, new_start)
+        shift = new_end
+        for phone in syllable.coda:                          # the coda follows the vowel, keeping its lengths
+            duration = phone.duration
+            phone.start, phone.end = shift, shift + duration
+            shift += duration
+        moved += 1
+    return moved
+
+
 def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, analysis=None) -> SungLine:
     """Sing a spoken line. groups holds one list of notes per sung syllable (several notes = a slur)."""
     style = style or Style()
     syllables = assign(unit, groups)
     f0, envelope, aperiodicity = analysis if analysis is not None else world.analyze(unit.audio, unit.sr)
+    _settle_nuclei(syllables, f0, aperiodicity, unit.sr)
     segments, lead_in, layout = _plan(syllables, groups)
     total = segments[-1].out_end + PHRASE_FADE_OUT_S
     frames = int(np.ceil(total / FRAME_S))

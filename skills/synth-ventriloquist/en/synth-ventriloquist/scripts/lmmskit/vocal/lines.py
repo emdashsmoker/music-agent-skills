@@ -146,6 +146,8 @@ def speak_line(voice: str, text: str, speed: float = 1.0, seed: int = 0, cache: 
 
 
 def _analysis(unit: tts.Unit, cache: str | None, key: str):
+    if unit.analysis is not None:                   # made with the unit, to measure its lag
+        return unit.analysis
     if cache is None:
         return world.analyze(unit.audio, unit.sr)
     path = os.path.join(cache, key + ".world.npz")
