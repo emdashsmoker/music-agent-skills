@@ -111,7 +111,7 @@ Builders in `lmmskit.fx` add an effect to a chain and return it. A part's mix ch
 | `fx.reverb(chain, decay_s, room, damp_hz, predelay_ms)` | Space. Defaults to fully wet for a send bus |
 | `fx.delay(chain, bpm, left_16ths, right_16ths, feedback)` | Tempo-synced echo |
 | `fx.chorus`, `fx.phaser`, `fx.flanger` | Width and motion |
-| `fx.deesser`, `fx.exciter`, `fx.bass_boost` | Vocal sibilance, synthetic highs, low lift. The de-esser of LMMS 1.2 cuts everything above its split frequency whatever the threshold, so it is not in the standard vocal strip; check the stem spectrum if you add it |
+| `fx.deesser`, `fx.exciter`, `fx.bass_boost` | Vocal sibilance, synthetic highs, low lift. The de-esser of LMMS 1.2 cuts everything above its split frequency whatever the threshold, so it is not in the standard vocal strip. Add it only when the user asks for it, with `song.vocal(..., deesser={})`, and check the stem spectrum |
 | `fx.stereo_width`, `fx.mono` | Widen, or collapse to mono (kick and sub) |
 | `fx.filter_sweep(chain, cutoff, resonance, kind)` | A filter meant for automation |
 | `fx.ladspa(chain, "file:Label", {"Port name": value})` | Any of the 225 bundled LADSPA plugins. `fx.catalog()` lists them with port names, ranges and defaults |
