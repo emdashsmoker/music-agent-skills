@@ -92,7 +92,7 @@ vox:
     + `lint` lists the line-end sounds (`lyrics.rhymes`), so check that the intended pairs match
 - Bright consonants
     + Carry a line on voiced consonants (m, n, l, d, b, g, w, r) and open vowels; t, k, p, s, z and sh are seasoning, about one per word and not right before a held note
-    + On the speech voices those sounds spit and hiss, and their bursts are the loudest peaks of a line (up to 13 dB above the vowel body) with a metallic edge, so a line built on them pokes out of the mix and works the limiter first (`lyrics.bright_consonants`)
+    + On the speech voices those sounds spit and hiss, and their bursts are the loudest peaks of a line (up to 13 dB above the vowel body) with a metallic edge, so a line built on them pokes out of the mix and works the limiter first (`lyrics.bright_consonants`: three bright sounds in five syllables, a cluster such as st or sk counting twice, or three syllables in a row)
 - Held ee vowels and weak function words
     + Held ee words (he, she, we, see, me, be, free) come out thin: the vowel has little body and the stretch keeps it so, so the word sits under its neighbours and what is left rings metallic, quiet and sharp at the same time (on seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
     + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes (`lyrics.held_ee`), or fill the vowel with `style: {vowel_body: 1}`
