@@ -47,6 +47,7 @@ skills/synth-ventriloquist/
 - A `.skill` file is a zip archive of the skill folder. Where only `.zip` uploads are accepted, rename the extension to `.zip`.
 - To install from source, copy the folder named after the skill (for example `ko/synth-ventriloquist/`) into your agent's skills folder.
 - The Korean and English editions of a skill share one skill name. Install one of the two.
+- On claude.ai with access to outside addresses such as GitHub and Hugging Face blocked, or on a closed network, the skills cannot install their dependencies at run time. In that case, use [`offline-deps-builder`](https://github.com/emdashsmoker/biz-agent-skills/tree/main/skills/offline-deps-builder) in an environment with network access to build a dependency skill that holds the required files. Then load the dependency skill together with the original skill.
 
 ## Limitations
 
@@ -117,6 +118,7 @@ skills/synth-ventriloquist/
 - `.skill` 파일은 스킬 폴더를 묶은 zip 파일입니다. `.zip` 파일만 업로드할 수 있는 환경에서는 확장자를 `.zip`으로 변경한 후 업로드합니다.
 - 소스로 설치할 때는 스킬 이름과 같은 폴더(예를 들어 `ko/synth-ventriloquist/`)를 에이전트의 스킬 폴더에 복사합니다.
 - 한국어판과 영어판은 같은 스킬 이름을 사용합니다. 둘 중 하나만 설치합니다.
+- claude.ai처럼 GitHub, Hugging Face 등 외부 주소의 접근이 차단된 환경이나 폐쇄망에서는 스킬이 실행 중에 의존성을 설치할 수 없습니다. 이 경우 네트워크를 사용할 수 있는 환경에서 [`offline-deps-builder`](https://github.com/emdashsmoker/biz-agent-skills/tree/main/skills/offline-deps-builder)로 필요한 파일을 포함한 의존성 스킬을 사전에 생성합니다. 생성한 의존성 스킬은 원래 스킬과 함께 로드합니다.
 
 ## 한계
 
