@@ -146,7 +146,7 @@ Use this when a line is flagged, and for every chorus before building the arrang
 5. Show the user the table and the audio of the top candidates when the wording matters to them. Their approved lyric wins even if another candidate scores higher.
 6. If no wording helps, change the notes: longer notes on the words that are lost, a lower key, or a slower rhythm for that line. If that fails too, tell the user and offer another voice as an option.
 
-After the song is built, `produce` scores each different lead line once and lists the weak ones (`weak_line`, score under 0.85) with possible causes. Lines that come through clearly produce no lyric warnings, whatever the craft rules say.
+After the song is built, `produce` scores each different lead line once and lists the weak ones (`weak_line`, score under 0.85) with possible causes. Backing parts (harmonies, doubles) get no recognition score or pitch error, but they do get the `ROUGH` and `ending_dies` checks: a harmony syllable that comes out nearly silent leaves a hole under the lead that no lead check can see. The remedy for that warning is to rest the backing on that word or lower the part. Lines that come through clearly produce no lyric warnings, whatever the craft rules say.
 
 The same check measures two more things per line. They appear in the `vocal_scores` table next to each line's score, and every line in `out/vocals.json` carries them as `pitch_error_cents` and `rough`.
 

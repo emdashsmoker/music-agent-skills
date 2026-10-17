@@ -158,14 +158,15 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
     """Recognition score, pitch error, rough syllables and a dying ending for every different line of a rendered lead part,
     with lyric-craft hints for the weak ones.
 
-    Repeats of a line (same words, same notes) are scored once. Backing parts sing the lead's words and are not
-    scored. Craft hints are attached only to lines the recogniser stumbles on: a line that comes through clearly
-    needs no rewriting, whatever the rules say. With figure_dir, every weak or rough line gets a vocal_line
+    Repeats of a line (same words, same notes) are scored once. Backing parts (harmonies, doubles) sing the lead's
+    words, so they get no recognition score or pitch error, but their vowels and endings are checked: a harmony's
+    syllable that comes out nearly silent leaves a hole under the lead that no lead check can see. Craft hints are
+    attached only to lines the recogniser stumbles on: a line that comes through clearly needs no rewriting,
+    whatever the rules say. With figure_dir, every weak or rough line gets a vocal_line
     figure there (spectrogram with syllable marks over the sung pitch on the written notes).
     """
     name, voice, lang = rendered["part"], rendered["voice"], rendered.get("lang", "en")
-    if rendered.get("role", "vocal") != "vocal":
-        return []
+    backing = rendered.get("role", "vocal") != "vocal"
     found = []
     stem, rate = sf.read(rendered["stem"])
     speech_voice = engines.engine_of(voice) in TTS_ENGINES
@@ -182,9 +183,9 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
         # or the recogniser hears the first sound of the next line as an extra word.
         following = next((start for start in starts if start > row["audio_start_s"]), row["audio_end_s"])
         piece = stem[int(row["audio_start_s"] * rate):int(min(row["audio_end_s"], following) * rate)]
-        row["asr"] = asr.score_line(piece, rate, row["text"], asr_model, language=lang)
         notes = line_tools.melody_in_seconds(row["melody"], bpm, row["first_note_s"])
-        row["pitch_error_cents"] = pitch_error_cents(piece, rate, notes, row["audio_start_s"])
+        row["asr"] = None if backing else asr.score_line(piece, rate, row["text"], asr_model, language=lang)
+        row["pitch_error_cents"] = None if backing else pitch_error_cents(piece, rate, notes, row["audio_start_s"])
         row["rough"] = rough_syllables(stem, rate, row["syllables"], notes)
         seen[key] = {"row": row, "asr": row["asr"], "count": 1, "piece": piece, "notes": notes}
     for entry in seen.values():
@@ -192,9 +193,11 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
         label = f"[{name}] line {row['index'] + 1} '{row['text']}'" + (f" (sung {entry['count']} times)" if entry["count"] > 1 else "")
         if row["rough"]:
             listed = ", ".join(f"'{r['syllable']}' ({r['problem']}, periodicity {r['periodicity']}, {r['level_db']:+g} dB)" for r in row["rough"])
-            found.append(finding("warn", "rough_syllables", f"{label}: sung vowels came out as noise or nearly silent: {listed}. Look at the "
-                                 "line's figure; if the vowel shows a smudge instead of stripes, lengthen its note, choose a word with fewer "
-                                 "consonants around it, or try another voice", line=row["index"], rough=row["rough"]))
+            advice = ("this backing part leaves a hole under the lead there: rest it on that word, lower the part, or try another voice"
+                      if backing else "Look at the line's figure; if the vowel shows a smudge instead of stripes, lengthen its note, choose a word "
+                      "with fewer consonants around it, or try another voice")
+            found.append(finding("warn", "rough_syllables", f"{label}: sung vowels came out as noise or nearly silent: {listed}. {advice}",
+                                 line=row["index"], rough=row["rough"]))
         ending = report.get("ending") or {}
         state = ending.get("after", ending)                 # the state after the repair when one was made
         if state.get("dying"):
@@ -203,13 +206,13 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
                                  + f" ({state.get('voiced_share', 0.0) * 100:.0f}% voiced, {state.get('level_vs_line_db', 0.0):+.1f} dB against the line's vowels). "
                                  "Its held note will be heard as breath or hiss: end the line on an open vowel or diphthong, give the last word a "
                                  "shorter note, or try another voice", line=row["index"], ending=state))
-        if figure_dir and (scored["weak"] or row["rough"] or state.get("dying")):
+        if figure_dir and ((scored and scored["weak"]) or row["rough"] or state.get("dying")):
             from .. import visual
             os.makedirs(figure_dir, exist_ok=True)
             labels = [(item["start_s"], item["text"]) for item in row["syllables"]]
             row["figure"] = visual.vocal_line(entry["piece"], rate, os.path.join(figure_dir, f"{name.replace(' ', '_')}_line{row['index'] + 1:02d}.png"),
                                               row["audio_start_s"], entry["notes"], labels, title=label)
-        if scored["weak"]:
+        if scored and scored["weak"]:
             hints = []
             if speech_voice:
                 natural = theory.note(report["natural_pitch"]) if report.get("natural_pitch") else None
@@ -224,7 +227,7 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
             found.append(finding("info", "soft_ending", f"{label}: the last vowel fades in the spoken take and could not be repaired"))
         if report.get("raised_semitones"):
             found.append(finding("info", "raised", f"{label} was sung {report['raised_semitones']} semitones lower and raised afterwards (melody above the voice's clean range)"))
-    scores = [entry["asr"]["score"] for entry in seen.values()]
+    scores = [entry["asr"]["score"] for entry in seen.values() if entry["asr"]]
     if scores:
         flagged = sum(1 for entry in seen.values() if entry["asr"]["weak"])
         table = [f"line {e['row']['index'] + 1:2d} score {e['asr']['score']:.2f} pitch error {_cents_text(e['row']['pitch_error_cents'])}"
