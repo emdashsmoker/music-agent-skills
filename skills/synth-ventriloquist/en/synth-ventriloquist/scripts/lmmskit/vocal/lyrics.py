@@ -32,6 +32,13 @@ BRIGHT_CLUSTER_WEIGHT = 2          # a cluster of two bright sounds (st, sk, ts,
 BRIGHT_MIN_SYLLABLES = 4
 BRIGHT_RUN = 3                     # consecutive syllables on bright consonants
 EE_SYMBOLS = {"i"}                 # the ee vowel: thin and sharp when held (the length mark is stripped first)
+# Reduced vowels (the schwa of the, to, a, the first syllable of upon) and the tiny ɪ of it, its, sit: a spoken schwa lasts
+# a few tens of milliseconds, so a note has almost nothing to hold. In a probe line a schwa held for half a second came out
+# 18-22 dB under the line and 'the' sang as breath (periodicity 0.4); 'it' on a beat becomes the burst of its t.
+REDUCED_VOWELS = set("əɐᵻɚ")
+SHORT_LAX_VOWELS = {"ɪ"}
+STRONG_BEAT_WEIGHT = 3             # downbeat or beat three (see METRIC_WEIGHTS)
+EXPOSED_NOTE_S = 0.5               # a reduced or tiny vowel held this long is heard dying; shorter notes pass as in speech
 PERIOD_SEARCH = 0.05
 BEATS_PER_BAR = 4.0                # assumed when the caller does not know the song's meter
 METRIC_WEIGHTS = ((4.0, 4), (2.0, 3), (1.0, 2), (0.5, 1))   # (beat grid, strength): downbeat, beat three, beats two and four, off-beats
@@ -148,6 +155,16 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
             found.append(finding("warn", "stop_words_in_a_row", f"{label}: two stop-ended syllables on notes of a beat or more ('{syllable.text}', '{syllables[index + 1].text}')"))
     weights = [_metric_weight((line.start_beat + lead_beats + group[0].start / seconds_per_beat) % beats_per_bar) for group in groups]
     found += _stress_findings(label, words, syllables, weights, durations)
+    for index, syllable in enumerate(syllables):
+        exposed = durations[index] >= EXPOSED_NOTE_S or (weights[index] >= STRONG_BEAT_WEIGHT and beats[index] >= SHORT_NOTE_BEATS)
+        if not exposed or not syllable.nucleus:
+            continue
+        nucleus = syllable.nucleus[0].symbol.replace(LENGTH_MARK, "")
+        where = "a strong beat" if weights[index] >= STRONG_BEAT_WEIGHT else f"{durations[index]:.2f} s"
+        if nucleus in REDUCED_VOWELS and not syllable.diphthong and not (weak[index] and beats[index] >= LONG_NOTE_BEATS):
+            found.append(finding("warn", "reduced_vowel_on_beat", f"{label}: '{syllable.text}' puts a reduced vowel (the a of about, the e of the) on {where}; the speech voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat"))
+        if nucleus in SHORT_LAX_VOWELS and syllable.coda and syllable.coda[-1].symbol[0] in BRIGHT_CONSONANTS:
+            found.append(finding("warn", "short_vowel_on_beat", f"{label}: '{syllable.text}' (it, its, sit) sits on {where}; its vowel lasts a few tens of milliseconds, so the note becomes the burst of its consonant. Give it a short off-beat note or a word with a long vowel"))
     if weak and weak[0]:
         found.append(finding("info", "weak_opening", f"{label}: opens on the weak word '{words[0]}'; recognisers and listeners catch a line better from a content word"))
     run = 0

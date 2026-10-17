@@ -97,6 +97,7 @@ vox:
     + ee 단어(he, she, we, see, me, be, free)를 길게 끌면 얇게 나옴, 이 모음은 몸통 성분이 적고 늘리기가 그 성질을 그대로 두므로 이웃보다 작게 들리고 남은 소리는 쇳소리로 울려 작으면서 날카롭게 들림 (Kokoro 목소리의 7곡 측정에서 ee 음절의 몸통 대역이 그 줄보다 9 dB 낮음)
     + ee 단어는 짧은 음에 두고 길게 끄는 음에는 열린 모음(ah, oh, oo, ay)을 배치(`lyrics.held_ee`), 또는 `style: {vowel_body: 1}`로 모음을 채움
     + 약한 기능어(to, the, a)도 같은 이유로 긴 음에서 묻힘
+    + 약한 모음(the, to, a의 슈와, upon과 about의 첫 음절)과 it, its, sit의 짧은 ɪ는 붙들 모음이 거의 없음, 슈와를 반 초 끌면 줄보다 18-22 dB 아래로 나오고 "the"는 숨소리로 불림, 짧은 뒷박 음에 두고 박은 내용어에 맡김 (`lyrics.reduced_vowel_on_beat`, `lyrics.short_vowel_on_beat`, `lyrics.weak_word_on_long_note`)
 
 ## 전달이 약해지는 유형
 | 유형 | 실제 관측 예시 | 처방 |
