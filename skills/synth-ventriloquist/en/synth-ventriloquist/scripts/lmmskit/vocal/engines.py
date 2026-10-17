@@ -19,6 +19,7 @@ import os
 import numpy as np
 
 from . import lines as line_tools
+from . import tts
 from .singing import OUTPUT_SR, Style, SungLine, SungNote
 
 METHODS = ("auto", "stretched", "held")
@@ -89,7 +90,6 @@ def render_line(voice: str, line: line_tools.Line, bpm: float, *, key: str | Non
 
 def describe_voice(voice: str) -> dict:
     """What an agent should tell the user about a voice before using it."""
-    from . import tts
     engine = engine_of(voice)
     if engine == "diffsinger":
         from . import diffsinger
