@@ -138,8 +138,8 @@
 | Dark mix | `slope` low | Open the filters of lead and pluck, add hi-hats; master EQ is the last resort |
 | The vocal is buried | `vocal_body_db` low | Remove parts in the same register during vocal passages, raise the vocal's `gain_db` |
 | The words are masked | `vocal_consonant_db` low | Reduce lead and hi-hat during vocal passages, deepen `vocal_carve`, boost the vocal at 3-4 kHz |
-| Consonants sting (t, s, z) | Listen to each vocal line first; the numbers do not show it | `style: {consonant_ceiling: -6}`, then confirm the match with `vocal-check` |
-| An ee word drops under its neighbours | Listen; `ROUGH` can miss it | Change the lyric or shorten its note; a level boost raises the hiss with it |
+| Consonants sting (t, s, z: peaks, a metallic edge) | Listen to each vocal line first; `limiter_p95_db` may rise, the other numbers do not show it | `style: {consonant_ceiling: -6}`, then confirm the match with `vocal-check` |
+| An ee word drops under its neighbours or rings metallic | Listen; `ROUGH` can miss it | Change the lyric or shorten its note; a level boost raises the hiss with it |
 | The vocal sits apart from the backing | `vocal_body_db` high | Lower the vocal's `gain_db`, add vocal reverb |
 | The drop is weak | `energy_rank_correlation` low | Empty the section before the drop and add parts to the drop |
 | The limiter is overworked | `limiter_p95_db` high | Lower the target `lufs`, lower the loudest bus |
