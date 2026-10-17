@@ -111,7 +111,7 @@ vocal = song.vocal("lead vocal", "kokoro:af_heart")           # 또는 piper:<�
 vocal.line(("verse", 0), "Empty roads below a paper sky", "E4/0.5 E4/0.5 G4/0.5 G4/0.5 A4/2 A4/0.5 G4/0.5 F4/0.5 E4/2")
 vocal.harmony("harmony vocal", steps=2, only_kind="chorus", pan=20)
 vocal.double("double vocal", only_kind="chorus", pan=-20)
-song.duck_for_vocals(4.0, presence_db=6.0)     # 선택 사항. 보컬이 있는 곡은 호출 없이도 2.5와 6.0으로 더킹된다
+song.duck_for_vocals(4.0, presence_db=6.0)     # 선택 사항. 보컬이 있는 곡은 호출 없이도 2.5와 6.0으로 더킹된다. presence_octaves는 사용자가 원하는 연출에 따라 딥 폭을 바꾸는 옵션(기본 1.5옥타브, 넓은 값은 비권장)
 ```
 
 멜로디는 부르는 음절마다 토큰 하나를 가진다. 목소리, 표기법, 가사 쓰기, 점검에 관한 모든 내용은 `vocals.md`에 있다. 가사를 쓰기 전에 읽는다.
