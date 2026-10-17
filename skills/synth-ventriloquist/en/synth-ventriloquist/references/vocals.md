@@ -164,6 +164,7 @@ A speech voice lets the last word of a sentence die away: quieter, breathy, ofte
 - Switch it off for a part with `song.vocal(..., fix_ending=False)` or for one test line with `sing --no-ending-fix`, for example when the fading ending is the effect the user wants.
 - The carrier word is defined per language in `CARRIER_WORDS` (`scripts/lmmskit/vocal/ending.py`). A language without an entry is not repaired. To add one, pick a short unstressed word that naturally continues a sentence and starts with a consonant, then confirm with the before-and-after test below.
 - Singer voicebanks do not need the repair and are not touched by it.
+- When the ending still dies after the repair (or the repair could not be applied), `produce` raises an `ending_dies` warning and draws that line's figure. The criteria are the ones of the repair judgement. Change the last word to one ending on an open vowel or diphthong, give it a shorter note, or try another voice. `ROUGH` averages over the whole vowel and can miss this fault, so read both warnings together.
 
 What not to do about dying endings: do not boost the ending with a compressor or volume automation (it raises the hiss), do not add a comma or an exclamation mark to the lyric to force emphasis (it changes the rhythm and timing of the whole line), and do not cut the last note short to hide the problem.
 
