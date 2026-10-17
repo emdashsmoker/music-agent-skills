@@ -204,8 +204,9 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
         if beats[index] >= LONG_NOTE_BEATS and weak[index - 1] and weak[index - 2] and beats[index - 1] <= SHORT_NOTE_BEATS and beats[index - 2] <= SHORT_NOTE_BEATS:
             found.append(finding("warn", "weak_pickup", f"{label}: two short weak words lead into the long note on '{syllables[index].text}'"))
     found += _bright_findings(label, syllables)
+    speech_voice = not voice.startswith("diffsinger:")       # a voicebank shapes its vowels; the thin held ee is a speech-voice fault
     for index, syllable in enumerate(syllables):
-        if beats[index] >= LONG_NOTE_BEATS and syllable.nucleus and not syllable.diphthong and syllable.nucleus[0].symbol.replace(LENGTH_MARK, "") in EE_SYMBOLS:
+        if speech_voice and beats[index] >= LONG_NOTE_BEATS and syllable.nucleus and not syllable.diphthong and syllable.nucleus[0].symbol.replace(LENGTH_MARK, "") in EE_SYMBOLS:
             found.append(finding("info", "held_ee", f"{label}: '{syllable.text}' holds {beats[index]:g} beats on an ee vowel, which the speech voices sing thin and sharp; a word with ah, oh, oo or ay holds fuller, or fill it with Style(vowel_body=1)"))
     final = syllables[-1]
     if beats[-1] >= LONG_NOTE_BEATS and final.coda and final.coda[-1].symbol[0] in NASALS:
