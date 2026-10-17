@@ -27,7 +27,8 @@ VOICE_RANGE_SEMITONES = 9          # comfortable distance of a melody from the v
 CHORUS_MAX_SYLLABLES = 7
 # Bright consonants spit, hiss and peak on the speech voices (see singing.py); a line built on them sounds spitty.
 BRIGHT_CONSONANTS = set("tkpszʃʒʧʤ")
-BRIGHT_SHARE = 0.6                 # of the syllables starting or ending on one, in a line of BRIGHT_MIN_SYLLABLES or more (3 in 5)
+BRIGHT_SHARE = 0.6                 # bright sounds per syllable, in a line of BRIGHT_MIN_SYLLABLES or more (3 in 5)
+BRIGHT_CLUSTER_WEIGHT = 2          # a cluster of two bright sounds (st, sk, ts, ks) counts this much: it spits the most
 BRIGHT_MIN_SYLLABLES = 4
 BRIGHT_RUN = 3                     # consecutive syllables on bright consonants
 EE_SYMBOLS = {"i"}                 # the ee vowel: thin and sharp when held (the length mark is stripped first)
@@ -77,22 +78,29 @@ def _stress_findings(label: str, words: list[str], syllables: list, weights: lis
     return found
 
 
+def _bright_weight(syllable) -> int:
+    """How many bright sounds a syllable carries at its edges, a cluster (st, sk, ts) counting as BRIGHT_CLUSTER_WEIGHT."""
+    edges = sum(1 for p in syllable.onset + syllable.coda if p.symbol[0] in BRIGHT_CONSONANTS)
+    return min(edges, BRIGHT_CLUSTER_WEIGHT)
+
+
 def _is_bright(syllable) -> bool:
-    return bool(syllable.onset and syllable.onset[0].symbol[0] in BRIGHT_CONSONANTS) or bool(syllable.coda and syllable.coda[-1].symbol[0] in BRIGHT_CONSONANTS)
+    return _bright_weight(syllable) > 0
 
 
 def _bright_findings(label: str, syllables: list) -> list[dict]:
-    """A line carried by t, k, p, s, z, sh: half its syllables or more start or end on one, or three in a row do."""
-    flags = [_is_bright(s) for s in syllables]
+    """A line carried by t, k, p, s, z, sh: three bright sounds in five syllables (a cluster counts twice), or three syllables in a row."""
+    weights = [_bright_weight(s) for s in syllables]
+    flags = [w > 0 for w in weights]
     run, longest = 0, 0
     for flag in flags:
         run = run + 1 if flag else 0
         longest = max(longest, run)
-    crowded = len(flags) >= BRIGHT_MIN_SYLLABLES and sum(flags) >= BRIGHT_SHARE * len(flags)
+    crowded = len(flags) >= BRIGHT_MIN_SYLLABLES and sum(weights) >= BRIGHT_SHARE * len(flags)
     if not crowded and longest < BRIGHT_RUN:
         return []
-    where = f"{sum(flags)} of {len(flags)} syllables" if crowded else f"{longest} syllables in a row"
-    return [finding("warn", "bright_consonants", f"{label}: {where} start or end on t, k, p, s, z or sh; the speech voices spit, hiss and peak there. Carry the line on voiced consonants (m, n, l, d, b, g, w, r) and keep those sounds to about one per word")]
+    where = f"{sum(weights)} bright sounds over {len(flags)} syllables (st, sk, ts clusters count twice)" if crowded else f"{longest} syllables in a row"
+    return [finding("warn", "bright_consonants", f"{label}: {where} on t, k, p, s, z or sh; the speech voices spit, hiss and peak there. Carry the line on voiced consonants (m, n, l, d, b, g, w, r) and keep those sounds to about one per word")]
 
 
 def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | None = None, role: str = "verse",
