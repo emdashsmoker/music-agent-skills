@@ -27,6 +27,8 @@ from .singing import LEGATO_GAP_S, OUTPUT_SR, Style, SungLine, SungNote, _finish
 
 HEAD_SECONDS, TAIL_SECONDS = 0.5, 0.35
 DEFAULT_STEPS = 20
+DEFAULT_MAX_DEPTH = 0.6            # when dsconfig.yaml does not state max_depth
+DEPTH_STEP_SCALE = 1000            # older exports count shallow-diffusion depth in steps out of 1000
 SILENCE, BREATH = "SP", "AP"
 VOWEL_TYPE = "vowel"
 MIN_PHONE_FRAMES = 1
@@ -269,6 +271,22 @@ class Voicebank:
         wanted = {i.name for i in session.get_inputs()}
         return session.run(None, {k: v for k, v in feed.items() if k in wanted and v is not None})
 
+    def _acceleration(self, session, steps: int) -> dict:
+        """Sampling-acceleration feed for the acoustic model in the units its export declares.
+        Recent exports take the shallow-diffusion depth as a float fraction next to steps or speedup. Older ones
+        take an int64 step count out of 1000; the speedup is then chosen so that the requested number of sampling
+        steps fits inside that depth, and the depth is rounded down to a multiple of it (as OpenUtau does)."""
+        inputs = {i.name: i.type for i in session.get_inputs()}
+        max_depth = float(self.acoustic.config.get("max_depth", DEFAULT_MAX_DEPTH))
+        speedup = max(1, DEPTH_STEP_SCALE // max(steps, 1))
+        if "int" not in inputs.get("depth", ""):
+            return {"steps": np.array(steps, dtype=np.int64), "speedup": np.array(speedup, dtype=np.int64),
+                    "depth": np.array(max_depth, dtype=np.float32)}
+        depth_steps = int(round(max_depth if max_depth > 1 else max_depth * DEPTH_STEP_SCALE))
+        speedup = max(1, depth_steps // max(steps, 1))
+        return {"depth": np.array(max(speedup, depth_steps // speedup * speedup), dtype=np.int64),
+                "speedup": np.array(speedup, dtype=np.int64)}
+
     def sing(self, text: str, groups: list[list[SungNote]], *, lang: str = "en", voice: str | None = None, style: Style | None = None,
              steps: int = DEFAULT_STEPS, gender: float = 0.0, velocity: float = 1.0, tension: float = 0.0, breathiness: float = 0.0,
              expressiveness: float = 1.0, own_pitch: bool = True) -> tuple[SungLine, dict]:
@@ -338,9 +356,7 @@ class Voicebank:
             "breathiness": (curves["breathiness"] + breathiness).astype(np.float32), "voicing": curves["voicing"].astype(np.float32),
             "tension": (curves["tension"] + tension).astype(np.float32), "energy": curves["energy"].astype(np.float32),
             "gender": np.full((1, frames_total), gender, dtype=np.float32), "velocity": np.full((1, frames_total), velocity, dtype=np.float32),
-            "spk_embed": self._speaker(self.acoustic, voice, frames_total), "steps": np.array(steps, dtype=np.int64),
-            "speedup": np.array(max(1, 1000 // max(steps, 1)), dtype=np.int64),
-            "depth": np.array(float(self.acoustic.config.get("max_depth", 0.6)), dtype=np.float32)})[0]
+            "spk_embed": self._speaker(self.acoustic, voice, frames_total), **self._acceleration(acoustic, steps)})[0]
         vocoder = self._session(None, "", os.path.join(self.vocoder_folder, self.vocoder_config["model"]))
         audio = self._run(vocoder, {"mel": mel.astype(np.float32), "f0": f0})[0][0].astype(np.float64)
 
