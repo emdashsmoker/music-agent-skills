@@ -66,7 +66,7 @@ vox:
 - Which voices a rule is for
     + Singing craft for any voice, a human included : stress on the strong beats, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats
     + Habits of model voices, speech voices and singer voicebanks alike : consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak
-    + Repairs for speech voices only : `vowel_body`, `consonant_ceiling` for stinging consonants, the line-ending repair, the strong-form spelling
+    + Repairs for speech voices only : the thin held ee and `vowel_body`, `consonant_ceiling` for stinging consonants, the line-ending repair, the strong-form spelling
     + With a voicebank, write by the first two tiers and read the third as background; `lint` runs the first two on DiffSinger tracks as well
 - Order of writing
     + Fix the rhythm of the melody first
@@ -98,10 +98,12 @@ vox:
 - Bright consonants
     + Carry a line on voiced consonants (m, n, l, d, b, g, w, r) and open vowels; t, k, p, s, z and sh are seasoning, about one per word and not right before a held note
     + On the speech voices those sounds spit and hiss, and their bursts are the loudest peaks of a line (up to 13 dB above the vowel body) with a metallic edge, so a line built on them pokes out of the mix and works the limiter first (`lyrics.bright_consonants`: three bright sounds in five syllables, a cluster such as st or sk counting twice, or three syllables in a row)
-- Held ee vowels and weak function words
-    + Held ee words (he, she, we, see, me, be, free) come out thin: the vowel has little body and the stretch keeps it so, so the word sits under its neighbours and what is left rings metallic, quiet and sharp at the same time (on seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
+- Held ee vowels (speech voices only)
+    + A speech voice stretched onto a note sings a held ee (he, she, we, see, me, be, free) thin: the spoken vowel has little body and the stretch keeps it so, so the word sits under its neighbours and what is left rings metallic, quiet and sharp at the same time (on seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
     + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes (`lyrics.held_ee`), or fill the vowel with `style: {vowel_body: 1}`
-    + Weak function words (to, the, a) go quiet on long notes for the same reason
+    + A singer voicebank shapes the vowel itself, so this rule and `lyrics.held_ee` do not apply to it
+- Reduced vowels and weak function words (any voice)
+    + Weak function words (to, the, a) go quiet on long notes: the vowel is reduced in speech and a singer has to open it on purpose
     + Reduced vowels (the schwa of the, to, a and the first syllable of upon, about) and the tiny ɪ of it, its, sit have almost no vowel to hold: a schwa held for half a second came out 18-22 dB under its line and "the" sang as breath; give them short off-beat notes and let a content word take the beat (`lyrics.reduced_vowel_on_beat`, `lyrics.short_vowel_on_beat`, `lyrics.weak_word_on_long_note`)
     + When such a word must sit on a held note, spell its strong form for the voice (too for to, thee for the, ay for a): a singer holds the strong form anyway and the voice then speaks a full vowel; listen for the meaning and keep the ordinary spelling in the lyrics file
 
@@ -114,7 +116,7 @@ vox:
 | A weak syllable at the head of a line | someone is singing | Put a word that starts with a strong consonant first (voices are singing) |
 | A plosive after a long note | hold the light | Replace with a word ending in an open vowel or a nasal |
 | Several t, s, z sounds in one line (spit, peaks, a metallic edge) | tests at last | Spread them out or use words with voiced consonants (m, n, l, d) |
-| A held ee word (thin, rings metallic) | we will see | Move it to a short note or use a word with an open vowel |
+| A held ee word on a speech voice (thin, rings metallic) | we will see | Move it to a short note or use a word with an open vowel |
 | A word with an unstable syllable count | fire, hour | Change the note layout or use another word |
 | A melody outside the voice's range | A line where only breath is left on the low notes | Move the key or the octave |
 - This table is a list of risk factors

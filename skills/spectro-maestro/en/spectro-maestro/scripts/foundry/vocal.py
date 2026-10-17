@@ -587,8 +587,8 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                     issue("warn", "lyrics.short_vowel_on_beat", where,
                           f"/{phonetics.syllable_text(plist, syllable)}/ (it, its, sit) sits on {spot}; its vowel lasts a few tens of milliseconds, so the "
                           f"note becomes the burst of its consonant. Give it a short off-beat note or a word with a long vowel")
-            for index, syllable in enumerate(syllables):
-                if lengths[index] >= 2 * spb and len(syllable.nucleus) == 1 and plist[syllable.nucleus[0]].symbol.replace("ː", "") in EE_SYMBOLS:
+            for index, syllable in enumerate(syllables):     # a voicebank shapes its vowels; the thin held ee is a speech-voice fault
+                if bank is None and lengths[index] >= 2 * spb and len(syllable.nucleus) == 1 and plist[syllable.nucleus[0]].symbol.replace("ː", "") in EE_SYMBOLS:
                     issue("info", "lyrics.held_ee", where,
                           f"/{phonetics.syllable_text(plist, syllable)}/ holds {lengths[index] / spb:g} beats on an ee vowel, which the speech voices "
                           f"sing thin and sharp; a word with ah, oh, oo or ay holds fuller, or fill it with style vowel_body: 1")
