@@ -83,6 +83,7 @@ Call these from Python when the standard figures raise a question. All are in `l
 | What happens in these bars? | `spectrogram(wav, out, start=seconds, end=seconds, marks=[(seconds, "label")])` |
 | Did my change do what I wanted? | `compare_spectrograms([("before", a.wav), ("after", b.wav)], out, start, end)` |
 | Is this vocal line voiced to the end? | `compare_spectrograms` on the dry vocal lines, `fmax=5000` |
+| Is this vocal line really sung (harmonics in every vowel, pitch on the notes, syllables in place)? | `vocal_line(piece, rate, out, origin=seconds of the first sample, notes=lines.melody_in_seconds(melody, bpm, first_note_s), labels=[(seconds, "syllable")])`. `produce` draws it for weak and `ROUGH` lines as `out/vocals/<part>_lineNN.png` |
 | Which notes are outside the key? | `piano_roll(project, out, start_bar, bars, tracks=[...], scale_pitch_classes=set(theory.scale_pitch_classes(key)))` |
 | How do these sounds differ? | `lmms_tool.py sounds a b c --out folder` writes `sounds.png`, one small spectrogram per sound |
 | What does this automation or ducking curve look like? | `curves({"name": (times, values)}, out, ylabel)` |
@@ -90,6 +91,8 @@ Call these from Python when the standard figures raise a question. All are in `l
 Seconds from bars: `song.seconds(bar)`, or bars × 4 × 60 ÷ BPM in 4/4.
 
 Render only the part in question when the mix hides it: the stems from the last `produce` are in `out/stems/`, one WAV per part.
+
+`vocal_line` has two panels. The top is a spectrogram to 6 kHz with an orange mark at every syllable: check that the marks line up with where the sound starts and that horizontal stripes run through every vowel to its end; a smudge instead of stripes is a whispered or noisy vowel. The bottom lays the sung pitch (dark line) over the written notes (pale bars). The line should sit on the bars. A line running parallel to a bar nearly a semitone away is a pitch error; short spikes at the note edges are consonants and the move between notes, ignore them; a line that breaks in the middle of a vowel is a voice that went unvoiced there.
 
 ## Reading spectrograms
 

@@ -16,8 +16,9 @@ import numpy as np
 from matplotlib import font_manager
 from scipy import signal
 
-from . import audio, settings
+from . import audio, settings, theory
 from .project import TRACK_INSTRUMENT, Project
+from .vocal import world
 
 MAIN, ACCENT, INK, FAINT = "#6B8EC2", "#F5A962", "#1F2A44", "#DCE5F2"
 SPECTROGRAM_CMAP = "Blues"
@@ -25,6 +26,13 @@ DYNAMIC_RANGE_DB = 70.0
 FREQ_MIN, FREQ_MAX = 30.0, 16000.0
 FREQ_TICKS = [50, 100, 250, 500, 1000, 2000, 5000, 10000]
 DPI = 110
+VOCAL_TOP_HZ = 6000.0                # a voice's harmonics are read as stripes up to here; above is consonant noise
+VOCAL_STFT_N, VOCAL_STFT_HOP = 1024, 128
+VOCAL_DYNAMIC_RANGE_DB = 65.0
+SYLLABLE_LABEL_ROWS = 3              # neighbouring syllable labels alternate over this many rows so fast lines stay readable
+IPA_FALLBACK_FONT = "DejaVu Sans"    # ships with matplotlib and has the IPA letters (ə ɪ ɚ ...) that the Korean-first fonts lack
+NOTE_BAR_WIDTH = 7
+PITCH_MARGIN_SEMITONES = 3
 
 
 def _style() -> None:
@@ -131,6 +139,45 @@ def spectrogram(wav_path: str, out_path: str, start: float = 0.0, end: float | N
     for position, label in marks or []:
         spec.text(position, FREQ_MAX * 0.75, label, color=ACCENT, ha="left", va="top", fontsize=12)
     spec.set_xlabel("seconds")
+    return _save(fig, out_path)
+
+
+def vocal_line(audio_data: np.ndarray, rate: int, out_path: str, origin: float = 0.0, notes: list[tuple[float, float, float]] | None = None,
+               labels: list[tuple[float, str]] | None = None, top_hz: float = VOCAL_TOP_HZ, title: str = "") -> str:
+    """Is this line really sung: harmonic stripes through every vowel, pitch on the notes, words in place?
+    Ported from Spectro Maestro's plots.vocal_line (same author, AGPL-3.0-or-later).
+
+    Top: linear-frequency spectrogram to top_hz with a syllable mark at every label. Bottom: the sung pitch
+    (Harvest) as a line over the written notes as bars. `notes` are (start_s, duration_s, midi) and `labels`
+    (time_s, text), both on the clock where `origin` is the time of the first sample (lines.melody_in_seconds()
+    puts a melody on the song clock; rendered parts store the syllable spans on it already).
+    """
+    _style()
+    mono = audio.to_mono(audio_data).astype(np.float64)
+    fig, (spec, pitch) = plt.subplots(2, 1, figsize=(15, 8.5), sharex=True, gridspec_kw={"height_ratios": [1.5, 1], "hspace": 0.08})
+    freqs, times, stft = signal.stft(mono, rate, nperseg=VOCAL_STFT_N, noverlap=VOCAL_STFT_N - VOCAL_STFT_HOP)
+    level = 20 * np.log10(np.abs(stft) + 1e-7)
+    keep = freqs <= top_hz
+    spec.pcolormesh(times + origin, freqs[keep], level[keep], cmap=SPECTROGRAM_CMAP, vmin=level.max() - VOCAL_DYNAMIC_RANGE_DB,
+                    vmax=level.max(), shading="auto", rasterized=True)
+    spec.set_ylabel("Hz")
+    spec.set_title(title, loc="left")
+    for index, (when, text) in enumerate(labels or []):
+        spec.axvline(when, color=ACCENT, linewidth=0.8, alpha=0.7)
+        spec.text(when, top_hz * (0.96 - 0.07 * (index % SYLLABLE_LABEL_ROWS)), " " + text, color=ACCENT, fontsize=12, va="top",
+                  fontfamily=[*plt.rcParams["font.family"], IPA_FALLBACK_FONT])
+    f0, frame_times = world.harvest_f0(mono, rate)
+    sung_midi = np.where(f0 > 0, 69 + 12 * np.log2(np.maximum(f0, 1e-6) / 440.0), np.nan)
+    for start, duration, midi in notes or []:
+        pitch.plot([start, start + duration], [midi, midi], color=FAINT, linewidth=NOTE_BAR_WIDTH, solid_capstyle="butt")
+    pitch.plot(frame_times + origin, sung_midi, color=INK, linewidth=1.6)
+    shown = [midi for _, _, midi in notes or []] or [m for m in sung_midi if not np.isnan(m)]
+    if shown:
+        pitch.set_ylim(min(shown) - PITCH_MARGIN_SEMITONES, max(shown) + PITCH_MARGIN_SEMITONES)
+        ticks = np.arange(int(min(shown)) - 2, int(max(shown)) + 3, 2)
+        pitch.set_yticks(ticks, [theory.name(int(p)) for p in ticks])
+    pitch.set_ylabel("pitch: sung (line) on notes (bars)")
+    pitch.set_xlabel("seconds")
     return _save(fig, out_path)
 
 

@@ -26,6 +26,9 @@ WEAK_RUN = 3
 VOICE_RANGE_SEMITONES = 9          # comfortable distance of a melody from the voice's speaking pitch
 CHORUS_MAX_SYLLABLES = 7
 PERIOD_SEARCH = 0.05
+BEATS_PER_BAR = 4.0                # assumed when the caller does not know the song's meter
+METRIC_WEIGHTS = ((4.0, 4), (2.0, 3), (1.0, 2), (0.5, 1))   # (beat grid, strength): downbeat, beat three, beats two and four, off-beats
+GRID_TOLERANCE_BEATS = 1e-6
 
 
 def _words(text: str) -> list[str]:
@@ -40,11 +43,41 @@ def line_syllables(voice: str, text: str, wanted: int | None = None):
     return fold_weak_syllables(syllables, wanted) if wanted is not None else syllables
 
 
-def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | None = None, role: str = "verse") -> list[dict]:
-    """Findings for one line. natural_pitch (MIDI) enables the range check; role 'chorus' adds chorus rules."""
+def _metric_weight(beat_in_bar: float) -> int:
+    """How strong a position in the bar is: downbeat 4, beat three 3, other beats 2, off-beats 1, 16th places and finer 0."""
+    for grid, weight in METRIC_WEIGHTS:
+        if abs(beat_in_bar / grid - round(beat_in_bar / grid)) < GRID_TOLERANCE_BEATS:
+            return weight
+    return 0
+
+
+def _stress_findings(label: str, words: list[str], syllables: list, weights: list[int], durations: list[float]) -> list[dict]:
+    """A word whose stressed syllable sits on a weaker beat than one of its unstressed syllables (and on no longer note)
+    is heard mis-accented; the stress comes from the engine's own pronunciation dictionary.
+    Ported from Spectro Maestro's vocal.lint_lyrics stress rule (same author, AGPL-3.0-or-later)."""
+    found = []
+    by_word: dict[int, list[int]] = {}
+    for index, syllable in enumerate(syllables):
+        by_word.setdefault(syllable.word, []).append(index)
+    for word, indices in by_word.items():
+        for stressed in (i for i in indices if syllables[i].stressed):
+            rival = next((i for i in indices if not syllables[i].stressed and weights[i] > weights[stressed]
+                          and durations[i] >= durations[stressed]), None)
+            if rival is not None:
+                found.append(finding("warn", "stress_on_weak_beat", f"{label}: stressed syllable '{syllables[stressed].text}' of "
+                                     f"'{words[word] if word < len(words) else '?'}' sits on a weaker beat than unstressed "
+                                     f"'{syllables[rival].text}'; the word will sound mis-accented. Move the word so the stressed syllable "
+                                     "lands on the stronger beat, or give it the longer note"))
+    return found
+
+
+def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | None = None, role: str = "verse",
+              beats_per_bar: float = BEATS_PER_BAR) -> list[dict]:
+    """Findings for one line. natural_pitch (MIDI) enables the range check; role 'chorus' adds chorus rules.
+    line.start_beat and beats_per_bar place the notes in their bars for the stress check."""
     found = []
     words = _words(line.text)
-    groups, _, _ = lines.note_groups(line.melody, bpm)
+    groups, lead_beats, _ = lines.note_groups(line.melody, bpm)
     seconds_per_beat = 60.0 / bpm
     spoken = line_syllables(voice, line.text)
     syllables = fold_weak_syllables(spoken, len(groups))
@@ -81,6 +114,8 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
         if (index + 1 < len(syllables) and beats[index] >= STRONG_NOTE_BEATS and beats[index + 1] >= STRONG_NOTE_BEATS
                 and ends_in_stop and syllables[index + 1].coda and syllables[index + 1].coda[-1].symbol[0] in PLOSIVES):
             found.append(finding("warn", "stop_words_in_a_row", f"{label}: two stop-ended syllables on notes of a beat or more ('{syllable.text}', '{syllables[index + 1].text}')"))
+    weights = [_metric_weight((line.start_beat + lead_beats + group[0].start / seconds_per_beat) % beats_per_bar) for group in groups]
+    found += _stress_findings(label, words, syllables, weights, durations)
     if weak and weak[0]:
         found.append(finding("info", "weak_opening", f"{label}: opens on the weak word '{words[0]}'; recognisers and listeners catch a line better from a content word"))
     run = 0

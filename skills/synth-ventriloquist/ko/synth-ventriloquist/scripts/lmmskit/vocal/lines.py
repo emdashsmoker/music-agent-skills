@@ -68,6 +68,16 @@ def note_groups(melody: str, bpm: float, transpose: int = 0) -> tuple[list[list[
     return groups, first, cursor
 
 
+def melody_in_seconds(melody: str, bpm: float, first_note_s: float, transpose: int = 0) -> list[tuple[float, float, int]]:
+    """Every note of a melody as (start_s, duration_s, midi) on the song clock, given when its first sung note falls.
+
+    render_part() records that moment per line as first_note_s, so the notes land on the same clock as the part's
+    stem and the syllable spans, which is what the pitch checks and the vocal_line figure compare them with.
+    """
+    groups, _lead_beats, _total = note_groups(melody, bpm, transpose)
+    return [(first_note_s + note.start, note.duration, note.pitch) for group in groups for note in group]
+
+
 def _clear_of_chord(pitch: int, lead: int, tones: set[int], steps: int) -> int:
     """A harmony pitch a semitone away from a chord tone grinds against the chord: move it onto the nearest chord
     tone that is not the lead's own note, looking first in the direction the harmony moves."""
