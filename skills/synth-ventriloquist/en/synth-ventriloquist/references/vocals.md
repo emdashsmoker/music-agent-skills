@@ -118,13 +118,15 @@ Sung words are harder to follow than spoken ones, and a model voice has less to 
 - Start lines on a content word. Content words on the long and strong notes, small words (the, of, to, and) on short weak ones.
 - End lines on an open vowel or a diphthong: day, go, you, sky, low, away. A line that ends on a held stop consonant (night, stop, made) has nothing to sustain.
 - Give every syllable at least about 110 ms. At 132 BPM a 16th note is 114 ms, which is the practical floor. Consonant clusters (str, ndz, lds) need a half beat or more.
+- At 150 BPM and above, avoid runs of eighth-note syllables and start from one syllable per beat. Once a syllable gets shorter than about 200 ms (an eighth at 150 BPM is 200 ms), consonants start to blur even in a singer voicebank.
+- Put the stressed syllable of a multi-syllable word on the stronger beat. Beat strength runs: the downbeat, beat three, beats two and four, the off-beats, then 16th places. When a word's stressed syllable sits on a weaker beat than one of its unstressed syllables, on a note that is not longer, `stress_on_weak_beat` warns (the stress comes from the voice's pronunciation dictionary).
 - Avoid three weak words in a row, and two short weak words running into a long note.
 - Chorus lines: 5 to 7 syllables, a held last note, and the title in the first or last line.
 - Keep the melody within about an octave above the speech voice's natural pitch (the line report shows `natural_pitch`). A singer voicebank has its own comfortable range.
 - Leave air between lines: one or two beats of rest so the reverb tail and the listener can catch up.
 - Rhyme by vowel sound. Spelling is no guide (move and love do not rhyme).
 
-`python scripts/lmms_tool.py lyric-lint --voice <id> --text "..." --melody "..." --bpm 132` checks a line against these habits before anything is sung.
+`python scripts/lmms_tool.py lyric-lint --voice <id> --text "..." --melody "..." --bpm 132` checks a line against these habits before anything is sung. When the line does not start on the downbeat, give its starting beat within the bar (`--start-beat 0.5`) so the stress check sees the right beat strengths.
 
 ## Word-choice procedure
 
@@ -145,6 +147,12 @@ Use this when a line is flagged, and for every chorus before building the arrang
 6. If no wording helps, change the notes: longer notes on the words that are lost, a lower key, or a slower rhythm for that line. If that fails too, tell the user and offer another voice as an option.
 
 After the song is built, `produce` scores each different lead line once and lists the weak ones (`weak_line`, score under 0.85) with possible causes. Lines that come through clearly produce no lyric warnings, whatever the craft rules say.
+
+The same check measures two more things per line. They appear in the `vocal_scores` table next to each line's score, and every line in `out/vocals.json` carries them as `pitch_error_cents` and `rough`.
+
+- Pitch error (`pitch_error_cents`): the median distance in cents between the sung pitch and the written notes, measured in the vowels away from the note edges. 10 to 15 cents is normal; above 25 the line is heard as out of tune. When half or more of the different lines (at least two) are above 25 cents, `off_pitch_lines` appears: the melody lies outside the range this voice holds cleanly, so transpose the part toward its natural pitch or choose another voice.
+- Rough syllables (`rough_syllables`, `ROUGH` in the report): vowels that came out as noise (periodicity under 0.6, `noise`) or swallowed, 9 dB under the line's typical vowel (`quiet`). This catches a different fault from the score: the score finds lines whose words come out wrong, `ROUGH` finds syllables that grate although the words are understood, so a line scoring 1.00 can still be rough. Check both. A syllable that is mostly consonant by design on a short note is not judged.
+- Weak and `ROUGH` lines get a figure in `out/vocals/<part>_lineNN.png`. A smudge where the vowel should show stripes is a real fault: lengthen the note, choose a word with fewer consonants around the syllable, or try another voice and check again. `references/visual-qa.md` explains the figure.
 
 ## Line-ending repair
 

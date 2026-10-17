@@ -26,11 +26,18 @@ def pyworld():
     return module
 
 
+def harvest_f0(audio: np.ndarray, sr: int, f0_floor: float = F0_FLOOR, f0_ceil: float = F0_CEIL) -> tuple[np.ndarray, np.ndarray]:
+    """(f0 in Hz, frame times in seconds) on the 5 ms grid from Harvest alone. Harvest is slower than DIO but far
+    steadier; the pitch checks and the vocal_line figure need this track and no envelope."""
+    x = np.ascontiguousarray(audio, dtype=np.float64)
+    return pyworld().harvest(x, sr, f0_floor=f0_floor, f0_ceil=f0_ceil, frame_period=FRAME_S * 1000)
+
+
 def analyze(audio: np.ndarray, sr: int, f0_floor: float = F0_FLOOR, f0_ceil: float = F0_CEIL):
-    """(f0, spectral envelope, aperiodicity) on the 5 ms grid. Harvest is slower than DIO but far steadier."""
+    """(f0, spectral envelope, aperiodicity) on the 5 ms grid."""
     pw = pyworld()
     x = np.ascontiguousarray(audio, dtype=np.float64)
-    f0, times = pw.harvest(x, sr, f0_floor=f0_floor, f0_ceil=f0_ceil, frame_period=FRAME_S * 1000)
+    f0, times = harvest_f0(x, sr, f0_floor, f0_ceil)
     fft_size = pw.get_cheaptrick_fft_size(sr, f0_floor)       # both estimators must share one spectrum size
     envelope = pw.cheaptrick(x, f0, times, sr, f0_floor=f0_floor, fft_size=fft_size)
     aperiodicity = pw.d4c(x, f0, times, sr, fft_size=fft_size)

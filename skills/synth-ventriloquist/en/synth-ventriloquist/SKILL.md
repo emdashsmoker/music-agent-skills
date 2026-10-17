@@ -86,7 +86,7 @@ Check: every part is audible in the excerpt's measurements, and no patch is sile
 
 Read `references/vocals.md` first. In short: write lines as whole sentences with one melody token per syllable, sing them alone before the mix, run the word-choice procedure on weak lines, and give the user the dry vocal and the lyrics for approval. With a singer voicebank, read its terms with the user before the first render and credit it as required.
 
-Check: the lead vocal's lines are approved by the user, or flagged lines are listed with what the recogniser heard.
+Check: the lead vocal's lines are approved by the user, or flagged lines are listed with what the recogniser heard, their pitch error in cents and their `ROUGH` syllables.
 
 ### Stage 5: Mix and master
 

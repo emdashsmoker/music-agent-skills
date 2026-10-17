@@ -54,7 +54,8 @@ def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs
         folder = os.path.dirname(os.path.abspath(project_path))
         for item in rendered:
             item["stem"] = os.path.join(folder, item["stem"])          # stored relative to the project
-            findings += vocal_part.check_part(item, project.bpm)
+            findings += vocal_part.check_part(item, project.bpm, figure_dir=os.path.join(out_dir, "vocals") if figures else None,
+                                              beats_per_bar=project.beats_per_bar)
         vocal_part.save_report(os.path.join(out_dir, "vocals.json"), rendered)
     figure_paths = {}
     if figures:
