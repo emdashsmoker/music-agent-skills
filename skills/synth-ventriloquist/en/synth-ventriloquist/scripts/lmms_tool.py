@@ -224,7 +224,7 @@ def cmd_compare(args) -> None:
 def cmd_lyric_lint(args) -> None:
     from lmmskit.findings import format_findings
     from lmmskit.vocal import lines, lyrics
-    print(format_findings(lyrics.lint_line(args.voice, lines.Line(args.text, args.melody), args.bpm, role=args.kind)) or "no findings")
+    print(format_findings(lyrics.lint_line(args.voice, lines.Line(args.text, args.melody, args.start_beat), args.bpm, role=args.kind)) or "no findings")
 
 
 def _selftest_song(folder: str, vocal: bool) -> str:
@@ -339,7 +339,8 @@ def main() -> None:
         (("--no-ending-fix",), {"action": "store_true", "help": "speech voices: leave the last syllable as spoken"}))
     add("compare", cmd_compare, voice, melody, bpm, method, lang, cache, (("texts",), {"nargs": "+", "help": "candidate wordings"}),
         (("--out",), {"default": None, "help": "folder for the candidate WAVs"}))
-    add("lyric-lint", cmd_lyric_lint, voice, melody, bpm, (("--text",), {"required": True}), (("--kind",), {"default": "verse"}))
+    add("lyric-lint", cmd_lyric_lint, voice, melody, bpm, (("--text",), {"required": True}), (("--kind",), {"default": "verse"}),
+        (("--start-beat",), {"type": float, "default": 0.0, "help": "beat in the bar where the melody starts (0 = downbeat), for the stress check"}))
     args = parser.parse_args()
     args.run(args)
 
