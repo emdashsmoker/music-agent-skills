@@ -112,7 +112,7 @@ vox:
 |---|---|---|
 | 짧은 음에 자음이 몰림 | 128 bpm 한 박 음의 "fields of snow", 156 bpm 8분음표의 "only snow" | 음을 늘리거나 자음이 적은 단어로 교체 (hills of snow) |
 | 빠른 음절의 연속 | 156 bpm에서 8분음표로 이어지는 벌스 전체 | 한 박에 한 음절로 리듬을 다시 작성 |
-| 약한 기능어가 연달아 놓임 | come what may | 내용어가 섞인 표현으로 교체 (anyway) |
+| 약한 기능어가 연달아 놓이거나 줄을 시작함 (`lyrics.weak_words_in_a_row`, `lyrics.weak_opening`) | come what may | 내용어가 섞인 표현으로 교체 (anyway) |
 | 줄 첫머리가 약한 음절 | someone is singing | 강한 자음으로 시작하는 단어를 앞에 배치 (voices are singing) |
 | 긴 음 뒤의 파열음 | hold the light | 열린 모음이나 비음으로 끝나는 단어로 교체 |
 | 한 줄에 몰린 t, s, z (침 튀는 소리, 피크, 쇳소리) | tests at last | 소리를 흩어 놓거나 유성 자음(m, n, l, d)이 있는 단어로 교체 |
