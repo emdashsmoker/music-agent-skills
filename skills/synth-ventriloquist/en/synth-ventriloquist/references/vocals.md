@@ -131,7 +131,7 @@ Not every rule is about speech voices. Three tiers: singing craft that holds for
 - Leave air between lines: one or two beats of rest so the reverb tail and the listener can catch up.
 - Rhyme by vowel sound. Spelling is no guide (move and love do not rhyme).
 
-`python scripts/lmms_tool.py lyric-lint --voice <id> --text "..." --melody "..." --bpm 132` checks a line against these habits before anything is sung. When the line does not start on the downbeat, give its starting beat within the bar (`--start-beat 0.5`) so the stress check sees the right beat strengths.
+`python scripts/lmms_tool.py lyric-lint --voice <id> --text "..." --melody "..." --bpm 132` checks a line against these habits before anything is sung; run it on each line as you write it, and `lint song.mmp` repeats the same checks on every lead line once the project exists (`lyrics_*` findings). When the line does not start on the downbeat, give its starting beat within the bar (`--start-beat 0.5`) so the stress check sees the right beat strengths.
 
 ## Word-choice procedure
 

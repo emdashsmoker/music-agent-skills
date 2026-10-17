@@ -136,3 +136,4 @@ The melody has one token per sung syllable. Everything about voices, the notatio
 | `monotony` | A part repeats unchanged for a long stretch | Add variation every 4 or 8 bars, or automate a filter |
 | `unrepeatable_automation`, `unrepeatable_peak_controller`, `unrepeatable_drumsynth`, and on systems without one-core rendering `unrepeatable_kicker_noise` | Something LMMS renders differently on each run | Use the repeatable alternative named in the message (see `sounds-effects.md`) |
 | `section_density` (info) | How many parts play in each section | Compare with the intended energy curve |
+| `lyrics_*` | The lyric craft findings of `lyric-lint`, run on every lead line of the vocals file | See `vocals.md`; reword the line or move the word, then run the script again |

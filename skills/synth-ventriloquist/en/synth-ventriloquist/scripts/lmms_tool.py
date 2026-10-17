@@ -113,7 +113,14 @@ def cmd_lint(args) -> None:
     from lmmskit import compose, lint
     from lmmskit.findings import format_findings
     from lmmskit.project import Project
-    found = lint.lint(Project.load(args.project), compose.load_plan(args.project), key=args.key)
+    plan = compose.load_plan(args.project)
+    found = lint.lint(Project.load(args.project), plan, key=args.key)
+    vocals_path = os.path.splitext(args.project)[0] + compose.VOCALS_SUFFIX
+    if plan and os.path.exists(vocals_path):
+        import json
+        with open(vocals_path, encoding="utf-8") as handle:
+            timesig = plan.get("timesig") or [4, 4]
+            found += lint.check_lyrics(json.load(handle), plan["bpm"], beats_per_bar=float(timesig[0]))
     print(format_findings(found))
 
 
