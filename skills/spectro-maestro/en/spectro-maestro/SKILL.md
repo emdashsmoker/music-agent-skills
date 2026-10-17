@@ -158,6 +158,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + Lyrics the user wrote or approved are not changed because of a warning alone: present the original and the candidate clips and let the user choose
 - When given a DiffSinger voicebank, run `studio diffsinger-inspect <path>` first
     + Read the terms-of-use files and give the user a summary
+    + Apply the lyric rules by their tiers (`references/vocals.md`): the singing craft and the model-voice habits hold for the bank, the speech-voice repairs do not; `lint` runs the first two on its lines
 - After changing the voice, check the vocal and the mix numbers again
 
 ## Step 5 Render and review
