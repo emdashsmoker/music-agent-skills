@@ -1,6 +1,6 @@
 ---
 name: synth-ventriloquist
-description: LMMS(무료 DAW)를 창 없이 조종해 전자음악 완성곡을 작곡, 편곡, 가창, 믹싱, 마스터링하고 ogg, mp3, wav, MIDI, DAWproject, LMMS 프로젝트로 내보내는 음악 제작 스킬 '신스-복화술사'. 기존 LMMS 프로젝트(.mmp, .mmpz)의 분석, 조언, 수정, 내보내기도 지원한다. 사용자가 곡, 노래, 트랙, 비트, 연주곡, 데모, 루프의 제작을 요청하거나 하우스, 테크노, 트랜스, 업리프팅 트랜스, 싸이트랜스, 드럼앤베이스, EBM, 인더스트리얼, 퓨처팝, 신스팝, 신스웨이브, 두머, 개버, 힙합, 앰비언트 같은 전자음악 장르를 언급하거나, 합성 보컬이나 가창을 원하거나, LMMS를 언급하면 스킬 이름을 말하지 않아도 반드시 사용할 것. 각 단계에 들어가기 전에 해당 참조 문서를 반드시 읽을 것 - references/setup.md(환경 점검과 설치), references/composing.md(곡 스크립트 문법, 편곡, lint), references/genres.md(장르별 어법), references/sounds-effects.md(음색, 이펙트, 재현성), references/vocals.md(목소리, 가사, 전달력), references/mixing.md(produce, 리포트, 조치), references/visual-qa.md(그림 검수), references/lmms-projects.md(기존 프로젝트, 내보내기 형식).
+description: LMMS를 창 없이 조종해 전자음악 완성곡을 작곡, 편곡, 가창, 믹싱, 마스터링하고 ogg, mp3, wav, MIDI, DAWproject, LMMS 프로젝트로 내보내는 음악 제작 스킬 '신스-복화술사'. 기존 LMMS 프로젝트(.mmp, .mmpz)의 분석, 조언, 수정, 내보내기도 지원한다. 사용자가 곡, 노래, 트랙, 비트, 연주곡, 데모, 루프의 제작을 요청하거나 하우스, 테크노, 트랜스, 업리프팅 트랜스, 싸이트랜스, 드럼앤베이스, EBM, 인더스트리얼, 퓨처팝, 신스팝, 신스웨이브, 두머, 개버, 힙합, 앰비언트 같은 전자음악 장르를 언급하거나, 합성 보컬이나 가창을 원하거나, LMMS를 언급하면 스킬 이름을 말하지 않아도 반드시 사용할 것. 각 단계에 들어가기 전에 해당 참조 문서를 반드시 읽을 것 - references/setup.md(환경 점검과 설치), references/composing.md(곡 스크립트 문법, 편곡, lint), references/genres.md(장르별 어법), references/sounds-effects.md(음색, 이펙트, 재현성), references/vocals.md(목소리, 가사, 전달력), references/mixing.md(produce, 리포트, 조치), references/visual-qa.md(그림 검수), references/lmms-projects.md(기존 프로젝트, 내보내기 형식).
 license: AGPL-3.0-or-later
 ---
 
