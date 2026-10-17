@@ -32,12 +32,13 @@ The project archives of the LMMS demos open in LMMS 1.2 or newer. `HOW_TO_OPEN.t
 
 ## Installation
 
-Each skill folder holds the install packages, the source folders and the demo songs.
+Each skill folder holds the install packages, a checksum file, the source folders and the demo songs.
 
 ```
 skills/synth-ventriloquist/
 ├── synth-ventriloquist-ko.skill    Korean install package
 ├── synth-ventriloquist-en.skill    English install package
+├── SHA256SUMS.txt                  SHA-256 checksums of the packages
 ├── ko/synth-ventriloquist/         Korean source
 ├── en/synth-ventriloquist/         English source
 └── demo/                           demo songs
@@ -101,12 +102,13 @@ LMMS 데모의 프로젝트 압축 파일은 LMMS 1.2 이상에서 열 수 있�
 
 ## 설치
 
-스킬 폴더마다 설치용 패키지, 소스 폴더, 데모 곡이 들어 있습니다.
+스킬 폴더마다 설치용 패키지, 체크섬 파일, 소스 폴더, 데모 곡이 들어 있습니다.
 
 ```
 skills/synth-ventriloquist/
 ├── synth-ventriloquist-ko.skill    한국어판 설치용 패키지
 ├── synth-ventriloquist-en.skill    영어판 설치용 패키지
+├── SHA256SUMS.txt                  설치용 패키지 SHA-256 체크섬
 ├── ko/synth-ventriloquist/         한국어판 소스
 ├── en/synth-ventriloquist/         영어판 소스
 └── demo/                           데모 곡
