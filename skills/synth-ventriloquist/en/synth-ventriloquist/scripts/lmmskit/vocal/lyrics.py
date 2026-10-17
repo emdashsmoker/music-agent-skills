@@ -14,7 +14,7 @@ import numpy as np
 
 from ..findings import finding
 from . import asr, lines, tts
-from .phones import PLOSIVES, AFFRICATES, NASALS, UNSTABLE_WORDS, VOWELS, WEAK_WORDS, fold_weak_syllables, merge_tokens, syllabify
+from .phones import AFFRICATES, LENGTH_MARK, NASALS, PLOSIVES, UNSTABLE_WORDS, VOWELS, WEAK_WORDS, fold_weak_syllables, merge_tokens, syllabify
 from .singing import OUTPUT_SR, Style
 
 MIN_NOTE_S = 0.110                 # shorter notes smear consonants (a 16th at 140 bpm is 107 ms)
@@ -25,6 +25,12 @@ CLUSTER_SIZE = 2
 WEAK_RUN = 3
 VOICE_RANGE_SEMITONES = 9          # comfortable distance of a melody from the voice's speaking pitch
 CHORUS_MAX_SYLLABLES = 7
+# Bright consonants spit, hiss and peak on the speech voices (see singing.py); a line built on them sounds spitty.
+BRIGHT_CONSONANTS = set("tkpszʃʒʧʤ")
+BRIGHT_SHARE = 0.6                 # of the syllables starting or ending on one, in a line of BRIGHT_MIN_SYLLABLES or more (3 in 5)
+BRIGHT_MIN_SYLLABLES = 4
+BRIGHT_RUN = 3                     # consecutive syllables on bright consonants
+EE_SYMBOLS = {"i"}                 # the ee vowel: thin and sharp when held (the length mark is stripped first)
 PERIOD_SEARCH = 0.05
 BEATS_PER_BAR = 4.0                # assumed when the caller does not know the song's meter
 METRIC_WEIGHTS = ((4.0, 4), (2.0, 3), (1.0, 2), (0.5, 1))   # (beat grid, strength): downbeat, beat three, beats two and four, off-beats
@@ -69,6 +75,24 @@ def _stress_findings(label: str, words: list[str], syllables: list, weights: lis
                                      f"'{syllables[rival].text}'; the word will sound mis-accented. Move the word so the stressed syllable "
                                      "lands on the stronger beat, or give it the longer note"))
     return found
+
+
+def _is_bright(syllable) -> bool:
+    return bool(syllable.onset and syllable.onset[0].symbol[0] in BRIGHT_CONSONANTS) or bool(syllable.coda and syllable.coda[-1].symbol[0] in BRIGHT_CONSONANTS)
+
+
+def _bright_findings(label: str, syllables: list) -> list[dict]:
+    """A line carried by t, k, p, s, z, sh: half its syllables or more start or end on one, or three in a row do."""
+    flags = [_is_bright(s) for s in syllables]
+    run, longest = 0, 0
+    for flag in flags:
+        run = run + 1 if flag else 0
+        longest = max(longest, run)
+    crowded = len(flags) >= BRIGHT_MIN_SYLLABLES and sum(flags) >= BRIGHT_SHARE * len(flags)
+    if not crowded and longest < BRIGHT_RUN:
+        return []
+    where = f"{sum(flags)} of {len(flags)} syllables" if crowded else f"{longest} syllables in a row"
+    return [finding("warn", "bright_consonants", f"{label}: {where} start or end on t, k, p, s, z or sh; the speech voices spit, hiss and peak there. Carry the line on voiced consonants (m, n, l, d, b, g, w, r) and keep those sounds to about one per word")]
 
 
 def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | None = None, role: str = "verse",
@@ -126,6 +150,10 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
     for index in range(2, len(syllables)):
         if beats[index] >= LONG_NOTE_BEATS and weak[index - 1] and weak[index - 2] and beats[index - 1] <= SHORT_NOTE_BEATS and beats[index - 2] <= SHORT_NOTE_BEATS:
             found.append(finding("warn", "weak_pickup", f"{label}: two short weak words lead into the long note on '{syllables[index].text}'"))
+    found += _bright_findings(label, syllables)
+    for index, syllable in enumerate(syllables):
+        if beats[index] >= LONG_NOTE_BEATS and syllable.nucleus and not syllable.diphthong and syllable.nucleus[0].symbol.replace(LENGTH_MARK, "") in EE_SYMBOLS:
+            found.append(finding("info", "held_ee", f"{label}: '{syllable.text}' holds {beats[index]:g} beats on an ee vowel, which the speech voices sing thin and sharp; a word with ah, oh, oo or ay holds fuller, or fill it with Style(vowel_body=1)"))
     final = syllables[-1]
     if beats[-1] >= LONG_NOTE_BEATS and final.coda and final.coda[-1].symbol[0] in NASALS:
         found.append(finding("info", "nasal_line_end", f"{label}: the last long note closes on a nasal (second-best to an open vowel)"))

@@ -91,11 +91,11 @@ vox:
 - Rhyme
     + `lint` lists the line-end sounds (`lyrics.rhymes`), so check that the intended pairs match
 - Bright consonants
-    + Speech voices spit on t, k, p bursts and hiss on s, z, sh; one in a word is fine, several in one line (tests, lasts, sits) or one right before a held note sounds spitty; the bursts are also the loudest peaks of a line (up to 13 dB above the vowel body) with a metallic edge, so they poke out of the mix and work the limiter first
-    + Spread them out, or pick a word with a voiced consonant (m, n, l, d) at that spot
+    + Carry a line on voiced consonants (m, n, l, d, b, g, w, r) and open vowels; t, k, p, s, z and sh are seasoning, about one per word and not right before a held note
+    + On the speech voices those sounds spit and hiss, and their bursts are the loudest peaks of a line (up to 13 dB above the vowel body) with a metallic edge, so a line built on them pokes out of the mix and works the limiter first (`lyrics.bright_consonants`)
 - Held ee vowels and weak function words
     + Held ee words (he, she, we, see, me, be, free) come out thin: the vowel has little body and the stretch keeps it so, so the word sits under its neighbours and what is left rings metallic, quiet and sharp at the same time (on seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
-    + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes, or fill the vowel with `style: {vowel_body: 1}`
+    + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes (`lyrics.held_ee`), or fill the vowel with `style: {vowel_body: 1}`
     + Weak function words (to, the, a) go quiet on long notes for the same reason
 
 ## Patterns that weaken intelligibility

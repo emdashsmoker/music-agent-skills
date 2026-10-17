@@ -402,6 +402,20 @@ def _metric_weight(beat_in_bar: float) -> int:
     return 0
 
 
+# Bright consonants spit, hiss and peak on the speech voices (see singing.py); a line built on them sounds spitty.
+BRIGHT_CONSONANTS = set("tkpszʃʒʧʤ")
+BRIGHT_SHARE = 0.6                 # of the syllables starting or ending on one, in a line of BRIGHT_MIN_SYLLABLES or more (3 in 5)
+BRIGHT_MIN_SYLLABLES = 4
+BRIGHT_RUN = 3                     # consecutive syllables on bright consonants
+EE_SYMBOLS = {"i"}                 # the ee vowel: thin and sharp when held (the length mark is stripped first)
+
+
+def _bright_syllable(plist: list, syllable) -> bool:
+    first = plist[syllable.onset[0]].symbol[0] if syllable.onset else ""
+    last = plist[syllable.coda[-1]].symbol[0] if syllable.coda else ""
+    return first in BRIGHT_CONSONANTS or last in BRIGHT_CONSONANTS
+
+
 def lint_lyrics(project: dict, models: str | None = None) -> list:
     """Check every lyric line against the engine's own pronunciation, without synthesising audio."""
     settings.override("models_dir", models)
@@ -492,6 +506,22 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
             short = [g for g in groups if g[1] - g[0] < 0.11]
             if short:
                 issue("warn", "lyrics.short_notes", where, f"{len(short)} notes shorter than 110 ms; syllables there will smear")
+            bright = [_bright_syllable(plist, s) for s in syllables]
+            longest, run = 0, 0
+            for flag in bright:
+                run = run + 1 if flag else 0
+                longest = max(longest, run)
+            crowded = len(bright) >= BRIGHT_MIN_SYLLABLES and sum(bright) >= BRIGHT_SHARE * len(bright)
+            if crowded or longest >= BRIGHT_RUN:
+                count = f"{sum(bright)} of {len(bright)} syllables" if crowded else f"{longest} syllables in a row"
+                issue("warn", "lyrics.bright_consonants", where,
+                      f"{count} start or end on t, k, p, s, z or sh; the speech voices spit, hiss and peak there. Carry the line on "
+                      f"voiced consonants (m, n, l, d, b, g, w, r) and keep those sounds to about one per word")
+            for index, syllable in enumerate(syllables):
+                if lengths[index] >= 2 * spb and len(syllable.nucleus) == 1 and plist[syllable.nucleus[0]].symbol.replace("ː", "") in EE_SYMBOLS:
+                    issue("info", "lyrics.held_ee", where,
+                          f"/{phonetics.syllable_text(plist, syllable)}/ holds {lengths[index] / spb:g} beats on an ee vowel, which the speech voices "
+                          f"sing thin and sharp; a word with ah, oh, oo or ay holds fuller, or fill it with style vowel_body: 1")
             pitches = [n[2] for n in line["notes"]]
             low, high = min(low, min(pitches)), max(high, max(pitches))
         if endings:
