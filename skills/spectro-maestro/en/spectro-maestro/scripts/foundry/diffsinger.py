@@ -404,6 +404,24 @@ def _per_frame(values, durations: np.ndarray) -> np.ndarray:
     return np.repeat(np.asarray(values), durations, axis=0)
 
 
+DEPTH_STEP_SCALE = 1000                 # older exports count shallow-diffusion depth in steps out of 1000
+
+
+def _depth_feed(acoustic: Stage, settings: dict) -> dict:
+    """The acoustic model's shallow-diffusion depth in the unit its export declares.
+    Recent exports take a fraction (float, max_depth <= 1); older ones take an int64 step count that has to be
+    a multiple of the speedup, so the fraction is converted and rounded down to such a multiple."""
+    inputs = {item.name: item.type for item in acoustic.session("acoustic").get_inputs()}
+    if "depth" not in inputs:
+        return {}
+    max_depth = float(acoustic.config.get("max_depth", 1.0))
+    if "int" not in inputs["depth"]:
+        return {"depth": np.array(min(float(settings["depth"]), max_depth), dtype=np.float32)}
+    speedup = int(acoustic.steps_feed(settings["steps"]).get("speedup", 1))
+    steps = min(int(float(settings["depth"]) * DEPTH_STEP_SCALE), int(max_depth))
+    return {"depth": np.array(max(speedup, steps // speedup * speedup), dtype=np.int64)}
+
+
 def sing_phrase(bank: Voicebank, groups: list, word_cut: list, notes: list, settings: dict, lang: str) -> tuple:
     """Render one phrase. `groups` and `word_cut` come from syllable_groups, `notes` are (start_s, dur_s, midi, tie)
     relative to the phrase start. Returns (audio, seconds of audio before the phrase start, sample rate, info)."""
@@ -499,8 +517,7 @@ def sing_phrase(bank: Voicebank, groups: list, word_cut: list, notes: list, sett
              "durations": durations[None, :], "f0": f0,
              "gender": np.full((1, n_frames), float(settings["gender"]), dtype=np.float32),
              "velocity": np.full((1, n_frames), float(settings["velocity"]), dtype=np.float32),
-             "depth": np.array(min(float(settings["depth"]), float(acoustic.config.get("max_depth", 1.0))), dtype=np.float32),
-             **acoustic.steps_feed(settings["steps"])}
+             **_depth_feed(acoustic, settings), **acoustic.steps_feed(settings["steps"])}
     offsets = {"breathiness": settings["breathiness"], "voicing": settings["voicing"], "tension": settings["tension"]}
     for name in wanted:
         low, high = (-10.0, 10.0) if name == "tension" else (-96.0, 0.0)
