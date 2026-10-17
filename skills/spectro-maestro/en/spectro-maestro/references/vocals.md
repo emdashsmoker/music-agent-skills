@@ -112,7 +112,7 @@ vox:
 |---|---|---|
 | Consonants crowded onto short notes | "fields of snow" on one-beat notes at 128 bpm, "only snow" on eighth notes at 156 bpm | Lengthen the notes or use a word with fewer consonants (hills of snow) |
 | A run of fast syllables | A whole verse in eighth notes at 156 bpm | Rewrite the rhythm as one syllable per beat |
-| Weak function words in a row | come what may | Replace with a phrase that includes a content word (anyway) |
+| Weak function words in a row, or opening the line (`lyrics.weak_words_in_a_row`, `lyrics.weak_opening`) | come what may | Replace with a phrase that includes a content word (anyway) |
 | A weak syllable at the head of a line | someone is singing | Put a word that starts with a strong consonant first (voices are singing) |
 | A plosive after a long note | hold the light | Replace with a word ending in an open vowel or a nasal |
 | Several t, s, z sounds in one line (spit, peaks, a metallic edge) | tests at last | Spread them out or use words with voiced consonants (m, n, l, d) |
