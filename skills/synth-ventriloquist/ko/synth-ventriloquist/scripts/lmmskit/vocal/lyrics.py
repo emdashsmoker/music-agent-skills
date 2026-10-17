@@ -14,7 +14,8 @@ import numpy as np
 
 from ..findings import finding
 from . import asr, lines, tts
-from .phones import AFFRICATES, LENGTH_MARK, NASALS, PLOSIVES, UNSTABLE_WORDS, VOWELS, WEAK_WORDS, fold_weak_syllables, merge_tokens, syllabify
+from .phones import (AFFRICATES, IPA_TO_ARPABET, LENGTH_MARK, NASALS, PLOSIVES, UNSTABLE_WORDS, VOWELS, WEAK_WORDS, Phone, Syllable,
+                     fold_weak_syllables, merge_tokens, syllabify)
 from .singing import OUTPUT_SR, Style
 
 MIN_NOTE_S = 0.110                 # shorter notes smear consonants (a 16th at 140 bpm is 107 ms)
@@ -49,11 +50,38 @@ def _words(text: str) -> list[str]:
     return [w.strip(".,!?;:\"()").lower() for w in text.split() if w.strip(".,!?;:\"()")]
 
 
+ARPABET_TO_IPA = {}
+for _ipa, _arpabet in IPA_TO_ARPABET.items():            # the first IPA listed for a symbol is the one the rules read
+    ARPABET_TO_IPA.setdefault(_arpabet, _ipa)
+
+
+def _bank_symbol(symbol: str) -> str:
+    """A voicebank's own phoneme (such as 'en/ah' or 'IY1') as the IPA symbol the lyric rules are written in."""
+    bare = symbol.split("/")[-1].lower().rstrip("012")
+    return ARPABET_TO_IPA.get(bare, bare)
+
+
+def _voicebank_syllables(voice: str, text: str) -> list[Syllable]:
+    """Syllables of a line as a DiffSinger voicebank pronounces it, with IPA symbols so the same rules apply.
+    Bank dictionaries carry no stress, so the stress rules stay quiet for these voices."""
+    from . import diffsinger
+    folder = voice.split(":", 1)[1].partition("#")[0]
+    rows = diffsinger.voicebank(folder).syllables(text)
+    out = []
+    for row in rows:
+        make = lambda symbols: [Phone(_bank_symbol(s), 0.0, 0.0, row["word"], False) for s in symbols]
+        out.append(Syllable(make(row["onset"]), make([row["vowel"]]) if row["vowel"] else [], make(row["coda"]), row["word"]))
+    return out
+
+
 def line_syllables(voice: str, text: str, wanted: int | None = None):
     """Syllables of a line as the engine pronounces it (folded toward `wanted` if given), without synthesizing."""
-    phonemes = tts.backend(voice).phonemize(text)
-    symbols = list(phonemes)
-    syllables = syllabify(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols)))
+    if voice.startswith("diffsinger:"):
+        syllables = _voicebank_syllables(voice, text)
+    else:
+        phonemes = tts.backend(voice).phonemize(text)
+        symbols = list(phonemes)
+        syllables = syllabify(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols)))
     return fold_weak_syllables(syllables, wanted) if wanted is not None else syllables
 
 
@@ -162,7 +190,7 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
         nucleus = syllable.nucleus[0].symbol.replace(LENGTH_MARK, "")
         where = "a strong beat" if weights[index] >= STRONG_BEAT_WEIGHT else f"{durations[index]:.2f} s"
         if nucleus in REDUCED_VOWELS and not syllable.diphthong and not (weak[index] and beats[index] >= LONG_NOTE_BEATS):
-            found.append(finding("warn", "reduced_vowel_on_beat", f"{label}: '{syllable.text}' puts a reduced vowel (the a of about, the e of the) on {where}; the speech voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat"))
+            found.append(finding("warn", "reduced_vowel_on_beat", f"{label}: '{syllable.text}' puts a reduced vowel (the a of about, the e of the) on {where}; the speech voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat, or spell the strong form for the voice (too, thee, ay)"))
         if nucleus in SHORT_LAX_VOWELS and syllable.coda and syllable.coda[-1].symbol[0] in BRIGHT_CONSONANTS:
             found.append(finding("warn", "short_vowel_on_beat", f"{label}: '{syllable.text}' (it, its, sit) sits on {where}; its vowel lasts a few tens of milliseconds, so the note becomes the burst of its consonant. Give it a short off-beat note or a word with a long vowel"))
     if weak and weak[0]:
