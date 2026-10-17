@@ -31,7 +31,8 @@ MIN_FADER = 0.01
 BB_DEFAULT_NAME = "beat/bassline"
 PRESENCE_HZ, PRESENCE_OCTAVES = 2600.0, 3.0      # centre and width of the vocal presence lift
 MAX_PRESENCE_LIFT_DB = 6.0
-PRESENCE_BAND_SHARE = 0.65                      # measured: a 6 dB dip at the centre lowers the 1.3-5 kHz band by 3.9 dB
+PRESENCE_BAND_SHARE = 0.45                      # measured on arp and pad stems: the 1.5-octave dip of 6 dB at the centre
+                                                # lowers the 1.3-5 kHz band by 2.5-2.7 dB (the earlier 3-octave dip: 0.55-0.65)
 PRESENCE_SAFETY_DB = 1.0                        # aim a little above the required margin
 INAUDIBLE_RESIDUAL_DB = -60.0         # a difference between two renders this far under the mix cannot be heard
 BURIED_LU = 20.0                      # a part this far under the loudest one is practically inaudible

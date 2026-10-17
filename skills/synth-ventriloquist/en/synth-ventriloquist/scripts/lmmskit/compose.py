@@ -55,7 +55,9 @@ DUCK_CURVE_STEPS = 4
 TICK_BEATS = 1.0 / 48.0
 SWEEP_POINTS = 24
 MASTER_CEILING_DB = -1.0
-VOCAL_PRESENCE_HZ, VOCAL_PRESENCE_OCTAVES = 2600.0, 3.0   # centre and width of the dip that clears sung consonants
+VOCAL_PRESENCE_HZ, VOCAL_PRESENCE_OCTAVES = 2600.0, 1.5   # centre and width of the dip that clears sung consonants
+# 1.5 octaves spans about 1.5-4.5 kHz, the consonant band. The earlier 3 octaves reached 0.9-7.3 kHz and took
+# about 6 dB out of the music up to 9 kHz under every sung line, which made choruses sound covered.
 # Ducking of the music bus under every sung lead line, applied to any song with a vocal part unless the script calls
 # duck_for_vocals itself or the genre profile carries its own pair. Chosen over a louder vocal: in the test songs
 # +1.5 LU of vocal sounded the same as this dip, but cost 1.2 dB of limiter headroom and kept the vocal near its
@@ -394,11 +396,16 @@ class Song:
                 line.harmony = 0
 
     def _vocal_strip(self, part: Part, voice: str) -> None:
-        """Standard vocal channel: tone shaping, levelling compression, de-essing; extra air for band-limited speech voices."""
+        """Standard vocal channel: tone shaping and levelling compression; extra air for band-limited speech voices.
+
+        No de-esser: the Calf Deesser bundled with LMMS 1.2 cuts everything above its split frequency whatever its
+        threshold and ratio (measured on a sung stem: 9-16 kHz -7 dB, 5-9 kHz -2 dB with the threshold at 0 dBFS),
+        which took back the air this strip adds and left speech voices dull. Sibilance is handled by the voices'
+        own band limit (Kokoro renders at 24 kHz) and by the master limiter.
+        """
         speech_voice = voice.split(":", 1)[0] in ("kokoro", "piper")
         fx.eq(part.chain, peaks=[(280.0, -2.0, 1.0), (3200.0, 2.5, 1.2)], high_shelf=(9000.0, 3.0 if speech_voice else 1.5))
         fx.compressor(part.chain, threshold_db=-22.0, ratio=3.0, attack_ms=8.0, release_ms=120.0, makeup_db=3.0)
-        fx.deesser(part.chain, threshold_db=-24.0, ratio=3.0, split_hz=6500.0)
 
     def _write_vocal_ducking(self) -> None:
         """Automation on the music bus for the time a lead line is sung: a small level dip and a presence-band dip."""

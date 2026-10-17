@@ -155,8 +155,8 @@ def rough_syllables(stem: np.ndarray, rate: int, syllables: list[dict], notes: l
 
 def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_dir: str | None = None,
                beats_per_bar: float = lyrics.BEATS_PER_BAR) -> list[dict]:
-    """Recognition score, pitch error and rough syllables for every different line of a rendered lead part, with
-    lyric-craft hints for the weak ones.
+    """Recognition score, pitch error, rough syllables and a dying ending for every different line of a rendered lead part,
+    with lyric-craft hints for the weak ones.
 
     Repeats of a line (same words, same notes) are scored once. Backing parts sing the lead's words and are not
     scored. Craft hints are attached only to lines the recogniser stumbles on: a line that comes through clearly
@@ -195,7 +195,15 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
             found.append(finding("warn", "rough_syllables", f"{label}: sung vowels came out as noise or nearly silent: {listed}. Look at the "
                                  "line's figure; if the vowel shows a smudge instead of stripes, lengthen its note, choose a word with fewer "
                                  "consonants around it, or try another voice", line=row["index"], rough=row["rough"]))
-        if figure_dir and (scored["weak"] or row["rough"]):
+        ending = report.get("ending") or {}
+        state = ending.get("after", ending)                 # the state after the repair when one was made
+        if state.get("dying"):
+            found.append(finding("warn", "ending_dies", f"{label}: the last vowel still dies away"
+                                 + (" after the line-ending repair" if ending.get("repaired") else " and the line-ending repair could not be applied")
+                                 + f" ({state.get('voiced_share', 0.0) * 100:.0f}% voiced, {state.get('level_vs_line_db', 0.0):+.1f} dB against the line's vowels). "
+                                 "Its held note will be heard as breath or hiss: end the line on an open vowel or diphthong, give the last word a "
+                                 "shorter note, or try another voice", line=row["index"], ending=state))
+        if figure_dir and (scored["weak"] or row["rough"] or state.get("dying")):
             from .. import visual
             os.makedirs(figure_dir, exist_ok=True)
             labels = [(item["start_s"], item["text"]) for item in row["syllables"]]
