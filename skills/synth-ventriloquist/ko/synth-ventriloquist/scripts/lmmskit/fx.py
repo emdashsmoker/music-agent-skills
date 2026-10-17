@@ -130,6 +130,9 @@ def limiter(chain: EffectChain, *, ceiling_db: float = -1.0, input_gain_db: floa
 
 
 def deesser(chain: EffectChain, *, threshold_db: float = -24.0, ratio: float = 3.0, split_hz: float = 6000.0) -> ET.Element:
+    """Calf Deesser in split mode. In LMMS 1.2 it attenuates everything above split_hz regardless of threshold and ratio
+    (measured -7 dB at 9-16 kHz with the threshold at 0 dBFS), so it is not part of the standard vocal strip; use it only
+    when a voice really hisses and check the stem spectrum afterwards."""
     return ladspa(chain, "calf:Deesser", {"Bypass": 0, "Detection": 0, "Mode": 1, "Threshold": db_to_gain(threshold_db),
                                           "Ratio": ratio, "Laxity": 15, "Makeup": 1, "Split": split_hz, "Peak": split_hz,
                                           "Gain": 1, "Level": 1, "Peak Q": 1, "S/C-Listen": 0})
