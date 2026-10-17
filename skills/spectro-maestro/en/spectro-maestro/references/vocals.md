@@ -90,10 +90,10 @@ vox:
 - Rhyme
     + `lint` lists the line-end sounds (`lyrics.rhymes`), so check that the intended pairs match
 - Bright consonants
-    + Speech voices spit on t, k, p bursts and hiss on s, z, sh; one in a word is fine, several in one line (tests, lasts, sits) or one right before a held note sounds spitty
+    + Speech voices spit on t, k, p bursts and hiss on s, z, sh; one in a word is fine, several in one line (tests, lasts, sits) or one right before a held note sounds spitty; the bursts are also the loudest peaks of a line (up to 13 dB above the vowel body) with a metallic edge, so they poke out of the mix and work the limiter first
     + Spread them out, or pick a word with a voiced consonant (m, n, l, d) at that spot
 - Held ee vowels and weak function words
-    + Held ee words (he, she, we, see, me, be, free) come out thin: the vowel has little body and the stretch keeps it so, so the word sits under its neighbours and hisses (on seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
+    + Held ee words (he, she, we, see, me, be, free) come out thin: the vowel has little body and the stretch keeps it so, so the word sits under its neighbours and what is left rings metallic, quiet and sharp at the same time (on seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
     + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes
     + Weak function words (to, the, a) go quiet on long notes for the same reason
 
@@ -105,8 +105,8 @@ vox:
 | Weak function words in a row | come what may | Replace with a phrase that includes a content word (anyway) |
 | A weak syllable at the head of a line | someone is singing | Put a word that starts with a strong consonant first (voices are singing) |
 | A plosive after a long note | hold the light | Replace with a word ending in an open vowel or a nasal |
-| Several t, s, z sounds in one line | tests at last | Spread them out or use words with voiced consonants (m, n, l, d) |
-| A held ee word | we will see | Move it to a short note or use a word with an open vowel |
+| Several t, s, z sounds in one line (spit, peaks, a metallic edge) | tests at last | Spread them out or use words with voiced consonants (m, n, l, d) |
+| A held ee word (thin, rings metallic) | we will see | Move it to a short note or use a word with an open vowel |
 | A word with an unstable syllable count | fire, hour | Change the note layout or use another word |
 | A melody outside the voice's range | A line where only breath is left on the low notes | Move the key or the octave |
 - This table is a list of risk factors
