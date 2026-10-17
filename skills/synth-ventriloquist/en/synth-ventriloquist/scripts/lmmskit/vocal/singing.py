@@ -60,6 +60,22 @@ SIBILANCE_MARGIN_S = 0.01                # taken before the phone span, so the c
 SIBILANCE_TAIL_S = 0.02                  # taken after it: a burst spills into the first frames of the vowel
 SIBILANCE_FRAME_S = 0.01                 # an 's' is judged by its loudest 10 ms, which is what the ear picks out
 HIGHPASS_HZ = 70.0
+# Held "ee" vowels (he, she, we, see) come out thin. Measured on the dry lead stems of seven finished songs (1,655
+# syllables): an ee syllable's 300-1300 Hz body sat 9 dB under the median body of its line while its energy above
+# 1.3 kHz matched the body, so the word is quiet and sharp at once. The vowel has little body to begin with (first
+# formant near 300 Hz, second above 2 kHz) and the stretch keeps it so; a singer opens the vowel toward "ih" on a held
+# note to fill it. The fill does the equivalent on the spectral envelope: it raises the 400-1200 Hz region of ee
+# frames toward the body level of the line's other vowels, and thins the breath noise above 2 kHz that makes the hiss.
+# Off by default (Style.vowel_body = 0) until the listening tests settle the strength.
+VOWEL_FILL_SYMBOLS = {"i"}                # the ee vowel; the length mark is stripped before the test
+VOWEL_FILL_MIN_S = 0.2                    # shorter vowels are mostly transition and are left alone
+VOWEL_FILL_BODY_HZ = (300.0, 1300.0)      # the body band: the deficit is measured here and the fill covers it
+VOWEL_FILL_FLAT_HZ = (400.0, 1100.0)      # the fill is flat here and ramps to nothing at the body band's edges
+VOWEL_FILL_UNDER_DB = 3.0                 # the fill aims this far under the other vowels: ee is a lighter vowel by nature
+VOWEL_FILL_LIMIT_DB = 10.0                # the deficit of a sung ee is about 10 dB on the envelope; more would remake the vowel
+VOWEL_FILL_EDGE_S = 0.03                  # ramps at the vowel's ends so transitions keep their shape
+VOWEL_FILL_BREATH_HZ = 2000.0             # breath noise above this is thinned on filled frames
+VOWEL_FILL_BREATH_SHARE = 0.5             # share of that noise removed at strength 1
 FORMANT_SHIFT_THRESHOLD_ST, FORMANT_SHIFT_SHARE = 5.0, 0.0   # measured: moving formants with the pitch did not help
 TARGET_PEAK = 0.7
 
@@ -79,6 +95,7 @@ class Style:
     drift: float = 1.0                  # random pitch wander
     evenness: float = LEVEL_STRENGTH    # 0 keeps speech dynamics, 1 makes every syllable equally loud
     sibilance: float = 0.0              # largest cut (dB above 5 kHz) of an 's', 't' or 'k' that stands out of the line; 0 (default) leaves them alone
+    vowel_body: float = 0.0             # 1 gives held ee vowels the body of the line's other vowels (at most 6 dB); 0 (default) leaves them thin
     seed: int = 0
 
 
@@ -293,6 +310,7 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
     gain_curve = np.interp(np.arange(frames), centres, gains_db) if len(centres) > 1 else np.full(frames, gains_db[0])
     sung_envelope *= (10 ** (gain_curve / 10))[:, None]
     sung_envelope *= (10 ** (_sustain_gain_db(sung_envelope, layout, style.evenness) / 10))[:, None]
+    _fill_vowel_body(sung_envelope, sung_aperiodicity, syllables, layout, unit.sr, style.vowel_body)
 
     target = pitch_curve(groups, lead_in, frames, style)
     voiced_source = f0[f0 > 0]
@@ -332,6 +350,54 @@ def _sustain_gain_db(sung_envelope: np.ndarray, layout: list[dict], strength: fl
         taper[-edge:] = np.linspace(1.0, 0.0, edge)
         gain[first:last] = lift * taper
     return gain
+
+
+def _flat_top_window(frequencies: np.ndarray, band: tuple[float, float], flat: tuple[float, float]) -> np.ndarray:
+    """1 inside `flat`, 0 outside `band`, half-cosine ramps between them on a log-frequency axis."""
+    window = np.zeros(len(frequencies))
+    ramp_in = (frequencies > band[0]) & (frequencies < flat[0])
+    ramp_out = (frequencies > flat[1]) & (frequencies < band[1])
+    window[(frequencies >= flat[0]) & (frequencies <= flat[1])] = 1.0
+    window[ramp_in] = 0.5 - 0.5 * np.cos(np.pi * (np.log(frequencies[ramp_in]) - np.log(band[0])) / (np.log(flat[0]) - np.log(band[0])))
+    window[ramp_out] = 0.5 + 0.5 * np.cos(np.pi * (np.log(frequencies[ramp_out]) - np.log(flat[1])) / (np.log(band[1]) - np.log(flat[1])))
+    return window
+
+
+def _fill_vowel_body(sung_envelope: np.ndarray, sung_aperiodicity: np.ndarray, syllables: list[Syllable], layout: list[dict],
+                     sr: int, strength: float) -> None:
+    """Give held ee vowels the 400-1200 Hz body of the line's other vowels, in place (see VOWEL_FILL_* above).
+
+    The deficit is each ee vowel's median body level against the median body level of the line's other vowels less
+    VOWEL_FILL_UNDER_DB; the
+    lift is that deficit times `strength`, capped, flat over the middle of the body band with cosine ramps to its
+    edges, and ramped in time at the vowel's ends. Breath noise above 2 kHz is thinned on the same frames.
+    """
+    if strength <= 0:
+        return
+    bins = sung_envelope.shape[1]
+    frequencies = np.arange(bins) * sr / (2 * (bins - 1))
+    body = (frequencies >= VOWEL_FILL_BODY_HZ[0]) & (frequencies < VOWEL_FILL_BODY_HZ[1])
+    level = 10 * np.log10(sung_envelope[:, body].sum(axis=1) + 1e-30)
+    window = _flat_top_window(frequencies, VOWEL_FILL_BODY_HZ, VOWEL_FILL_FLAT_HZ)
+    breath = frequencies >= VOWEL_FILL_BREATH_HZ
+    spans = [(int(item["vowel_start"] / FRAME_S), min(len(level), int(item["vowel_end"] / FRAME_S))) for item in layout]
+    is_ee = [bool(s.nucleus) and not s.diphthong and s.nucleus[0].symbol.replace(LENGTH_MARK, "") in VOWEL_FILL_SYMBOLS for s in syllables]
+    others = np.concatenate([level[a:b] for (a, b), ee in zip(spans, is_ee) if not ee and b > a] or [np.array([])])
+    if not len(others):
+        return
+    reference = float(np.median(others))
+    edge = int(VOWEL_FILL_EDGE_S / FRAME_S)
+    for (first, last), ee in zip(spans, is_ee):
+        if not ee or (last - first) * FRAME_S < VOWEL_FILL_MIN_S:
+            continue
+        lift = float(np.clip((reference - VOWEL_FILL_UNDER_DB - np.median(level[first:last])) * strength, 0.0, VOWEL_FILL_LIMIT_DB))
+        if lift <= 0:
+            continue
+        taper = np.ones(last - first)
+        taper[:edge] = np.linspace(0.0, 1.0, edge)
+        taper[-edge:] = np.linspace(1.0, 0.0, edge)
+        sung_envelope[first:last] *= 10 ** (lift * taper[:, None] * window[None, :] / 10)
+        sung_aperiodicity[first:last, breath] *= 1 - VOWEL_FILL_BREATH_SHARE * strength * taper[:, None]
 
 
 def _restore_consonants(audio: np.ndarray, unit: Unit, segments: list[_Segment], gain_curve: np.ndarray) -> np.ndarray:
