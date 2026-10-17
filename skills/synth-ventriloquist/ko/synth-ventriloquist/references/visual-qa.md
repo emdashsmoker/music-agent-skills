@@ -83,6 +83,7 @@
 | 이 마디들에서 무슨 일이 일어나는가? | `spectrogram(wav, out, start=초, end=초, marks=[(초, "라벨")])` |
 | 내 변경이 의도대로 되었는가? | `compare_spectrograms([("before", a.wav), ("after", b.wav)], out, start, end)` |
 | 이 보컬 줄이 끝까지 유성음인가? | 드라이 보컬 줄에 `compare_spectrograms`, `fmax=5000` |
+| 이 보컬 줄이 정말 불렸는가(모음마다 배음, 음표 위의 음정, 제자리의 음절)? | `vocal_line(piece, rate, out, origin=첫 샘플의 초, notes=lines.melody_in_seconds(melody, bpm, first_note_s), labels=[(초, "음절")])`. `produce`는 약한 줄과 `ROUGH` 줄에 대해 `out/vocals/<파트>_lineNN.png`로 자동으로 그린다 |
 | 어떤 음이 조성 밖인가? | `piano_roll(project, out, start_bar, bars, tracks=[...], scale_pitch_classes=set(theory.scale_pitch_classes(key)))` |
 | 이 소리들은 어떻게 다른가? | `lmms_tool.py sounds a b c --out 폴더`가 소리마다 작은 스펙트로그램이 있는 `sounds.png`를 쓴다 |
 | 이 오토메이션이나 더킹 곡선은 어떻게 생겼는가? | `curves({"name": (times, values)}, out, ylabel)` |
@@ -90,6 +91,8 @@
 마디에서 초로: `song.seconds(bar)`, 또는 4/4에서 마디 × 4 × 60 ÷ BPM.
 
 믹스에 가려져 있으면 해당 파트만 본다. 마지막 `produce`의 스템이 `out/stems/`에 파트당 WAV 하나로 있다.
+
+`vocal_line`은 두 단으로 되어 있다. 위쪽은 6 kHz까지의 스펙트로그램에 음절마다 주황 표시선이 있다. 표시선이 실제 소리의 시작과 맞는지, 모음 구간에 가로 줄무늬가 끝까지 이어지는지 본다. 줄무늬 대신 얼룩이면 그 모음은 속삭임이나 잡음이다. 아래쪽은 부른 피치(짙은 선)를 작성 음표(옅은 막대) 위에 겹친 것이다. 선이 막대 위에 놓여야 한다. 선이 막대와 평행하게 반음 가까이 떨어져 있으면 음정 오차이고, 음표 가장자리의 짧은 튐은 자음과 음 이동이므로 무시하며, 모음 한가운데서 선이 끊기면 거기서 목소리가 무성음이 된 것이다.
 
 ## 스펙트로그램 읽기
 
