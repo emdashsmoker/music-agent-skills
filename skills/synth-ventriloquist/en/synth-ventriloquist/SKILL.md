@@ -84,7 +84,7 @@ Check: every part is audible in the excerpt's measurements, and no patch is sile
 
 ### Stage 4: Vocals (only when the song has them)
 
-Read `references/vocals.md` first. In short: write lines as whole sentences with one melody token per syllable, sing them alone before the mix, run the word-choice procedure on weak lines, and give the user the dry vocal and the lyrics for approval. With a singer voicebank, read its terms with the user before the first render and credit it as required.
+Read `references/vocals.md` first. In short: write lines as whole sentences with one melody token per syllable, check each line with `lyric-lint` as you write it and settle its warnings before it goes into the script (saving the script sings the lines, so a fault caught earlier costs nothing), sing them alone before the mix, run the word-choice procedure on weak lines, and give the user the dry vocal and the lyrics for approval. `lint` repeats the lyric checks on every lead line once the project exists. With a singer voicebank, read its terms with the user before the first render and credit it as required, and apply the lyric rules by their tiers: the singing craft and the model-voice habits hold, the speech-voice repairs do not.
 
 Check: the lead vocal's lines are approved by the user, or flagged lines are listed with what the recogniser heard, their pitch error in cents and their `ROUGH` syllables.
 

@@ -131,7 +131,7 @@ song.duck_for_vocals(4.0, presence_db=6.0)                               # 부�
 - 줄 사이에 숨 쉴 틈을 둔다. 리버브 잔향과 듣는 사람이 따라올 수 있도록 1-2박의 쉼을 둔다.
 - 각운은 모음 소리로 맞춘다. 철자는 기준이 되지 못한다(move와 love는 각운이 맞지 않는다).
 
-`python scripts/lmms_tool.py lyric-lint --voice <id> --text "..." --melody "..." --bpm 132`는 부르기 전에 줄을 이 습관들에 비추어 점검한다. 줄이 마디 첫 박에서 시작하지 않으면 `--start-beat 0.5`처럼 마디 안의 시작 박을 주어야 강세 검사가 맞는 박 세기를 본다.
+`python scripts/lmms_tool.py lyric-lint --voice <id> --text "..." --melody "..." --bpm 132`는 부르기 전에 줄을 이 습관들에 비추어 점검한다. 줄을 쓸 때마다 돌리고, 프로젝트가 만들어진 뒤에는 `lint song.mmp`가 모든 리드 줄에 같은 검사를 되풀이한다(`lyrics_*` 발견 사항). 줄이 마디 첫 박에서 시작하지 않으면 `--start-beat 0.5`처럼 마디 안의 시작 박을 주어야 강세 검사가 맞는 박 세기를 본다.
 
 ## 단어 선택 절차
 

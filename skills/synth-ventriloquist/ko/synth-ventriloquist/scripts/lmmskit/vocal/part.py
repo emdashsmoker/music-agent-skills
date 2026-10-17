@@ -213,12 +213,13 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
             row["figure"] = visual.vocal_line(entry["piece"], rate, os.path.join(figure_dir, f"{name.replace(' ', '_')}_line{row['index'] + 1:02d}.png"),
                                               row["audio_start_s"], entry["notes"], labels, title=label)
         if scored and scored["weak"]:
-            hints = []
-            if speech_voice:
-                natural = theory.note(report["natural_pitch"]) if report.get("natural_pitch") else None
+            natural = theory.note(report["natural_pitch"]) if speech_voice and report.get("natural_pitch") else None
+            try:
                 hints = [f["message"].split(": ", 1)[-1] for f in
                          lyrics.lint_line(voice, line_tools.Line(row["text"], row["melody"], row["start_beat"]), bpm, natural_pitch=natural,
                                           role=row["kind"], beats_per_bar=beats_per_bar)]
+            except Exception:                                   # a bank the lint cannot read: the score still stands
+                hints = []
             found.append(finding("warn", "weak_line", f"{label} is recognised as '{scored['heard']}' (score {scored['score']}). Listen to the line; "
                                  "if it really is unclear, compare other wordings on the same notes or change the notes"
                                  + (". Possible causes: " + "; ".join(hints) if hints else ""), line=row["index"], score=scored["score"], hints=hints))
