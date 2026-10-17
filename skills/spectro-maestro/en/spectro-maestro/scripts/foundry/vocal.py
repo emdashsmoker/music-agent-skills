@@ -426,6 +426,16 @@ WEAK_WORDS = {"a", "an", "the", "of", "in", "to", "at", "on", "for", "and", "or"
               "upon", "into", "onto", "about", "above", "across", "against", "along", "among", "around"}
 
 
+def _bank_ipa(bank, line: dict, lang: str) -> str:
+    """A DiffSinger line's phonemes as an IPA string, so the craft rules written for speech voices apply to it."""
+    from . import diffsinger
+    to_ipa = {}
+    for ipa, arpabet in diffsinger.IPA_TO_ARPABET:
+        to_ipa.setdefault(arpabet, ipa)
+    words = diffsinger.line_words(bank, line, lang)
+    return " ".join("".join(to_ipa.get(s.split("/")[-1].lower().rstrip("012"), s.split("/")[-1].lower()) for s in word) for word in words)
+
+
 def _bright_weight(plist: list, syllable) -> int:
     """How many bright sounds a syllable carries at its edges, a cluster (st, sk, ts) counting as BRIGHT_CLUSTER_WEIGHT."""
     edges = sum(1 for i in syllable.onset + syllable.coda if plist[i].symbol[0] in BRIGHT_CONSONANTS)
@@ -459,24 +469,41 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                 issue("info", "lyrics.no_breath", f"{track['name']} line {number + 1} {line['text']!r}",
                       f"the next line starts {max(gap, 0):g} beats after this one ends; shorten the last note so the "
                       f"phrase can end and the next line's first consonants have room")
+        backend = bank = None
         if config["engine"] == "diffsinger":
+            # The bank's own lint checks pronunciation and syllable counts; the craft rules below then run on the
+            # bank's phonemes rendered in IPA, since a voicebank blurs short syllables, spits on bright consonants and
+            # swallows weak words much as a speech voice does. Bank dictionaries carry no stress, so the stress rule
+            # stays quiet for them.
             from . import diffsinger
             issues += diffsinger.lint_lines(project, track)
-            continue
-        try:
-            backend = speech.backend_for(config["engine"], config["voice"], config.get("lang"))
-        except Exception as error:                      # missing model or package: say what to do instead of crashing
-            issue("error", "vocal.engine", track["name"], f"cannot load {config['engine']}:{config['voice']} ({error})")
-            continue
+            try:
+                bank = diffsinger.voicebank(diffsinger._settings(track)["voice"])
+            except Exception:
+                continue
+        else:
+            try:
+                backend = speech.backend_for(config["engine"], config["voice"], config.get("lang"))
+            except Exception as error:                  # missing model or package: say what to do instead of crashing
+                issue("error", "vocal.engine", track["name"], f"cannot load {config['engine']}:{config['voice']} ({error})")
+                continue
         endings, low, high = [], 127, 0
         for number, line in enumerate(track.get("lines", [])):
             where = f"{track['name']} line {number + 1} {line['text']!r}"
-            phones = line.get("phonemes") or backend.phonemize(line["text"])
+            if bank is not None:
+                try:
+                    phones = _bank_ipa(bank, line, config.get("lang") or "en")
+                except Exception:
+                    continue
+            else:
+                phones = line.get("phonemes") or backend.phonemize(line["text"])
             symbols = ["^"] + list(phones) + ["$"]
             plist = phonetics.phones_from_tokens(symbols, [0.05] * len(symbols))
             syllables = phonetics.syllabify(plist)
             groups = singing.note_groups(_line_seconds(line, spb))
             if len(syllables) != len(groups):
+                if backend is None:                     # the bank's own lint has reported it with the bank's spelling
+                    continue
                 words = []
                 for word in line["text"].split():
                     alone = backend.phonemize(word)
