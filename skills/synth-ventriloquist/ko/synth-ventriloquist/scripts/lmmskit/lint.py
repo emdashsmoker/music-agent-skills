@@ -301,6 +301,30 @@ def check_repeatability(project: Project) -> list[dict]:
     return found
 
 
+def check_lyrics(vocals: list[dict], bpm: float, beats_per_bar: float = 4.0) -> list[dict]:
+    """The lyric craft findings for every lead line of the vocals file, the same checks `lyric-lint` runs on one line.
+
+    spectro-maestro's `lint` reads the lyrics from its song file; here they only exist once the song script has run and
+    written `<name>.vocals.json`, so the project lint reads that file. Backing parts repeat the lead's words and are
+    skipped; a voice the lint cannot pronounce (a bank without the dictionary) is reported once, not per line.
+    """
+    from .vocal import lines as line_tools, lyrics
+    found = []
+    for part in vocals:
+        if part.get("role") != "vocal":
+            continue
+        for row in part.get("lines", []):
+            try:
+                hits = lyrics.lint_line(part["voice"], line_tools.Line(row["text"], row["melody"], row.get("start_beat", 0.0)), bpm,
+                                        role=row.get("kind", "verse"), beats_per_bar=beats_per_bar)
+            except Exception as error:                          # pronunciation failure: say so once and move on
+                found.append(finding("warn", "lyrics_unchecked", f"{part['part']}: lyric checks skipped ({error})"))
+                break
+            for hit in hits:
+                found.append(finding(hit["severity"], "lyrics_" + hit["code"], f"{part['part']} line {row['index'] + 1} {hit['message']}"))
+    return found
+
+
 def lint(project: Project, plan: dict | None = None, key: str | None = None, roles: dict[str, str] | None = None) -> list[dict]:
     """Run every check. key and roles default to the plan file, then to detection/guessing."""
     if roles is None:
