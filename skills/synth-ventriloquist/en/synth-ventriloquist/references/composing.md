@@ -111,7 +111,7 @@ vocal = song.vocal("lead vocal", "kokoro:af_heart")           # or piper:<voice>
 vocal.line(("verse", 0), "Empty roads below a paper sky", "E4/0.5 E4/0.5 G4/0.5 G4/0.5 A4/2 A4/0.5 G4/0.5 F4/0.5 E4/2")
 vocal.harmony("harmony vocal", steps=2, only_kind="chorus", pan=20)
 vocal.double("double vocal", only_kind="chorus", pan=-20)
-song.duck_for_vocals(4.0, presence_db=6.0)     # optional: a song with vocals is ducked at 2.5 and 6.0 without this call
+song.duck_for_vocals(4.0, presence_db=6.0)     # optional: a song with vocals is ducked at 2.5 and 6.0 without this call; presence_octaves sets the dip width (default 1.5 octaves)
 ```
 
 The melody has one token per sung syllable. Everything about voices, the notation, lyric writing and the checks is in `vocals.md`. Read it before writing any lyric.

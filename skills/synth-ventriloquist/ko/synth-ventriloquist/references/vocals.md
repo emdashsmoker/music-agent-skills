@@ -90,7 +90,7 @@ vocal.line(("verse1", 0), "Empty roads below a paper sky", "E4/0.5 E4/0.5 G4/0.5
 vocal.line(("chorus1", 0), "See the signal fires", "A4/1 A4/1 F4/1 A4/1 B4/3", kind="chorus")
 vocal.harmony("harmony vocal", steps=2, only_kind="chorus", pan=20)      # 3도 위, 코드 충돌을 피함
 vocal.double("double vocal", only_kind="chorus", pan=-20)                # 폭을 위한 두 번째 테이크
-song.duck_for_vocals(4.0, presence_db=6.0)                               # 부르는 줄 아래의 더킹을 바꿀 때만. 기본값 2.5와 6.0은 호출 없이 적용됨
+song.duck_for_vocals(4.0, presence_db=6.0)                               # 부르는 줄 아래의 더킹을 바꿀 때만. 기본값 2.5와 6.0은 호출 없이 적용됨. presence_octaves=3.0은 이전 기본 폭(넓은 딥)을 재현할 때만
 ```
 
 - `line(at, text, melody, kind=None, beats=0.0)`: `at`은 첫 멜로디 토큰이 시작하는 위치다. `beats=-1`은 마디 한 박 앞에서 못갖춘마디로 시작한다.
