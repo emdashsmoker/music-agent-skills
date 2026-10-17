@@ -27,7 +27,8 @@ MODIFIERS = set("ʰʲᵝ")
 WEAK_WORDS = {"a", "an", "the", "of", "in", "to", "at", "on", "for", "and", "or", "but", "is", "it", "its", "as", "by",
               "be", "am", "are", "was", "were", "that", "this", "with", "from", "so", "if", "than", "then", "some",
               "someone", "what", "when", "where", "will", "would", "could", "should", "can", "do", "does", "has", "have",
-              "had", "i", "you", "he", "she", "we", "they", "me", "my", "your", "his", "her", "our", "their", "till", "may"}
+              "had", "i", "you", "he", "she", "we", "they", "me", "my", "your", "his", "her", "our", "their", "till", "may",
+              "upon", "into", "onto", "about", "above", "across", "against", "along", "among", "around"}   # the last row opens on a reduced syllable
 # Words whose syllable count differs between speakers and engines.
 UNSTABLE_WORDS = {"fire", "fires", "hour", "hours", "every", "different", "tower", "towers", "wire", "wires", "factory",
                   "power", "flower", "flowers", "our", "desire", "higher", "liar", "prayer", "real", "really", "family",
