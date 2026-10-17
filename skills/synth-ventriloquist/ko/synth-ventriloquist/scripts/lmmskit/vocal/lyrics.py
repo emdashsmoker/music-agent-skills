@@ -162,7 +162,7 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
         nucleus = syllable.nucleus[0].symbol.replace(LENGTH_MARK, "")
         where = "a strong beat" if weights[index] >= STRONG_BEAT_WEIGHT else f"{durations[index]:.2f} s"
         if nucleus in REDUCED_VOWELS and not syllable.diphthong and not (weak[index] and beats[index] >= LONG_NOTE_BEATS):
-            found.append(finding("warn", "reduced_vowel_on_beat", f"{label}: '{syllable.text}' puts a reduced vowel (the a of about, the e of the) on {where}; the speech voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat"))
+            found.append(finding("warn", "reduced_vowel_on_beat", f"{label}: '{syllable.text}' puts a reduced vowel (the a of about, the e of the) on {where}; the speech voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat, or spell the strong form for the voice (too, thee, ay)"))
         if nucleus in SHORT_LAX_VOWELS and syllable.coda and syllable.coda[-1].symbol[0] in BRIGHT_CONSONANTS:
             found.append(finding("warn", "short_vowel_on_beat", f"{label}: '{syllable.text}' (it, its, sit) sits on {where}; its vowel lasts a few tens of milliseconds, so the note becomes the burst of its consonant. Give it a short off-beat note or a word with a long vowel"))
     if weak and weak[0]:
