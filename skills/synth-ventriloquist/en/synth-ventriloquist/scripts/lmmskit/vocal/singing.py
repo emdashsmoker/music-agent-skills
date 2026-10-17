@@ -87,6 +87,8 @@ SETTLE_MIN_PERIODICITY = 0.5            # a frame below this is breath or noise,
 SETTLE_GOOD_SHARE = 0.6                 # a vowel whose middle is this voiced is left where the engine put it
 SETTLE_REACH_S = 0.08                   # how far past a reported edge the search may go
 SETTLE_MIN_RUN_S = 0.03                 # shorter voiced runs are transitions, not a vowel
+SETTLE_SKIP_VOWELS = set("əɐᵻɚ")        # reduced vowels are breathy by nature: a quiet schwa is the sound, not a misplacement
+GAP_SYMBOL = " "                        # the engines' word gap; when the voice is still sounding in it, the gap belongs to the vowel before
 
 
 @dataclass
@@ -280,9 +282,31 @@ def _warp_envelope(envelope: np.ndarray, ratio: float) -> np.ndarray:
     return envelope[:, low] * (1 - weight) + envelope[:, high] * weight
 
 
-def _settle_nuclei(syllables: list[Syllable], f0: np.ndarray, aperiodicity: np.ndarray, sr: int) -> int:
+def _absorb_voiced_gaps(phones: list[Phone], voiced: np.ndarray) -> int:
+    """Extend a vowel through the word gap after it for as long as the voice keeps sounding, in place. Returns how many.
+
+    The engines report a gap between words that often still holds the end of the vowel; left as a gap it is cut, and
+    the note is built from the vowel's onset instead of its steady middle.
+    """
+    moved = 0
+    for index in range(len(phones) - 1):
+        vowel, gap = phones[index], phones[index + 1]
+        if not vowel.vowel or gap.symbol != GAP_SYMBOL or gap.duration <= 0:
+            continue
+        start, end = int(gap.start / FRAME_S), min(len(voiced), int(gap.end / FRAME_S))
+        run = start
+        while run < end and voiced[run]:
+            run += 1
+        if run > start:
+            vowel.end = gap.start = min(run * FRAME_S, gap.end)
+            moved += 1
+    return moved
+
+
+def _settle_nuclei(syllables: list[Syllable], f0: np.ndarray, aperiodicity: np.ndarray, sr: int, phones: list[Phone] | None = None) -> int:
     """Move each badly placed vowel onto the voiced frames near it, in place on the phones. Returns how many moved.
 
+    Reduced vowels are left alone (see SETTLE_SKIP_VOWELS).
     The search runs from half-way into the consonant before the vowel to SETTLE_REACH_S past its reported end, but
     never into a neighbouring syllable's vowel: a breathy schwa next to a full vowel is breathy, not misplaced, and
     taking the neighbour's frames would sing that vowel twice. Of the voiced runs found, the one nearest the reported
@@ -292,11 +316,13 @@ def _settle_nuclei(syllables: list[Syllable], f0: np.ndarray, aperiodicity: np.n
     low = max(1, int(bins * SETTLE_PERIODIC_BAND_HZ / (sr / 2)))
     voiced = (f0 > 0) & (1 - aperiodicity[:, :low].mean(axis=1) >= SETTLE_MIN_PERIODICITY)
     frames = len(voiced)
-    moved = 0
+    moved = _absorb_voiced_gaps(phones, voiced) if phones is not None else 0
     for position, syllable in enumerate(syllables):
         if not syllable.nucleus:
             continue
         first, last = syllable.nucleus[0], syllable.nucleus[-1]
+        if first.symbol.replace(LENGTH_MARK, "") in SETTLE_SKIP_VOWELS:
+            continue
         a, b = int(first.start / FRAME_S), max(int(last.end / FRAME_S), int(first.start / FRAME_S) + 1)
         edge = max(1, (b - a) // 5)
         middle = voiced[min(a + edge, frames):min(max(b - edge, a + edge + 1), frames)]
@@ -347,7 +373,7 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
     style = style or Style()
     syllables = assign(unit, groups)
     f0, envelope, aperiodicity = analysis if analysis is not None else world.analyze(unit.audio, unit.sr)
-    _settle_nuclei(syllables, f0, aperiodicity, unit.sr)
+    _settle_nuclei(syllables, f0, aperiodicity, unit.sr, unit.phones)
     segments, lead_in, layout = _plan(syllables, groups)
     total = segments[-1].out_end + PHRASE_FADE_OUT_S
     frames = int(np.ceil(total / FRAME_S))

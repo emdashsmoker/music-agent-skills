@@ -98,6 +98,7 @@ vox:
     + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes (`lyrics.held_ee`), or fill the vowel with `style: {vowel_body: 1}`
     + Weak function words (to, the, a) go quiet on long notes for the same reason
     + Reduced vowels (the schwa of the, to, a and the first syllable of upon, about) and the tiny ɪ of it, its, sit have almost no vowel to hold: a schwa held for half a second came out 18-22 dB under its line and "the" sang as breath; give them short off-beat notes and let a content word take the beat (`lyrics.reduced_vowel_on_beat`, `lyrics.short_vowel_on_beat`, `lyrics.weak_word_on_long_note`)
+    + When such a word must sit on a held note, spell its strong form for the voice (too for to, thee for the, ay for a): a singer holds the strong form anyway and the voice then speaks a full vowel; listen for the meaning and keep the ordinary spelling in the lyrics file
 
 ## Patterns that weaken intelligibility
 | Pattern | Observed example | Remedy |

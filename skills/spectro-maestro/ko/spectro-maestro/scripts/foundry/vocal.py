@@ -555,7 +555,7 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                 if exposed and nucleus in REDUCED_VOWELS and not (weak[index] and beats_held >= 2):
                     issue("warn", "lyrics.reduced_vowel_on_beat", where,
                           f"/{phonetics.syllable_text(plist, syllable)}/ puts a reduced vowel (the a of about, the e of the) on {spot}; the speech "
-                          f"voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat")
+                          f"voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat, or spell the strong form for the voice (too, thee, ay)")
                 if exposed and nucleus in SHORT_LAX_VOWELS and syllable.coda and plist[syllable.coda[-1]].symbol[0] in BRIGHT_CONSONANTS:
                     issue("warn", "lyrics.short_vowel_on_beat", where,
                           f"/{phonetics.syllable_text(plist, syllable)}/ (it, its, sit) sits on {spot}; its vowel lasts a few tens of milliseconds, so the "

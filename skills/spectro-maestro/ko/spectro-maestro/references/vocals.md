@@ -98,6 +98,7 @@ vox:
     + ee 단어는 짧은 음에 두고 길게 끄는 음에는 열린 모음(ah, oh, oo, ay)을 배치(`lyrics.held_ee`), 또는 `style: {vowel_body: 1}`로 모음을 채움
     + 약한 기능어(to, the, a)도 같은 이유로 긴 음에서 묻힘
     + 약한 모음(the, to, a의 슈와, upon과 about의 첫 음절)과 it, its, sit의 짧은 ɪ는 붙들 모음이 거의 없음, 슈와를 반 초 끌면 줄보다 18-22 dB 아래로 나오고 "the"는 숨소리로 불림, 짧은 뒷박 음에 두고 박은 내용어에 맡김 (`lyrics.reduced_vowel_on_beat`, `lyrics.short_vowel_on_beat`, `lyrics.weak_word_on_long_note`)
+    + 그런 단어가 긴 음에 꼭 와야 하면 목소리에 넘기는 가사에 강형 철자를 사용(to는 too, the는 thee, a는 ay), 가수도 긴 음에서는 강형을 부르며 목소리는 온전한 모음을 말함, 뜻이 바뀌어 들리지 않는지 듣고 가사 파일에는 원래 철자 유지
 
 ## 전달이 약해지는 유형
 | 유형 | 실제 관측 예시 | 처방 |
