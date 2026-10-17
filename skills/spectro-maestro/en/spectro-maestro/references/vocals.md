@@ -55,6 +55,7 @@ vox:
 | `consonant_ceiling` | -3 | Largest level of an unvoiced consonant (dB, against the vowel level of its line); only t, s, k above it are turned down, by at most 6 dB |
 | `formant` | 0 | Formant shift (semitones); positive gives a thinner, brighter timbre |
 | `breath` | 0 | Share of breath noise (0 to 1) |
+| `vowel_body` | 0 | Fills held ee vowels (he, she, we, see) with the 300-1300 Hz body of the line's other vowels, at most 10 dB, and thins their hiss; 1 is the full fill. Measured on 24 lines it took the median ee body from 8.8 to 6.4 dB under the line and left the recognition scores; the vowel colour moves a little toward ih, so listen |
 - Layers
     + `double` : the same melody sung once more on each side (separate takes with slight pitch and timing differences)
     + `harmony` : a harmony `steps` scale steps above or below; notes that clash with the chord are moved to chord tones
@@ -94,7 +95,7 @@ vox:
     + Spread them out, or pick a word with a voiced consonant (m, n, l, d) at that spot
 - Held ee vowels and weak function words
     + Held ee words (he, she, we, see, me, be, free) come out thin: the vowel has little body and the stretch keeps it so, so the word sits under its neighbours and what is left rings metallic, quiet and sharp at the same time (on seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
-    + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes
+    + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes, or fill the vowel with `style: {vowel_body: 1}`
     + Weak function words (to, the, a) go quiet on long notes for the same reason
 
 ## Patterns that weaken intelligibility
