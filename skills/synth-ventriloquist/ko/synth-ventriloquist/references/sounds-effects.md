@@ -111,7 +111,7 @@ hoover = {"plugin": "tripleoscillator", "role": "lead",
 | `fx.reverb(chain, decay_s, room, damp_hz, predelay_ms)` | 공간. 센드 버스용으로 기본값은 완전 웻 |
 | `fx.delay(chain, bpm, left_16ths, right_16ths, feedback)` | 템포에 동기된 에코 |
 | `fx.chorus`, `fx.phaser`, `fx.flanger` | 폭과 움직임 |
-| `fx.deesser`, `fx.exciter`, `fx.bass_boost` | 보컬 치찰음, 합성 고역, 저역 보강. LMMS 1.2의 디에서는 임계값과 무관하게 분할 주파수 위를 고정으로 깎으므로 기본 보컬 스트립에 없고, 넣었다면 스템 스펙트럼을 확인한다 |
+| `fx.deesser`, `fx.exciter`, `fx.bass_boost` | 보컬 치찰음, 합성 고역, 저역 보강. LMMS 1.2의 디에서는 임계값과 무관하게 분할 주파수 위를 고정으로 깎으므로 기본 보컬 스트립에 없다. 사용자가 명시적으로 요청할 때만 `song.vocal(..., deesser={})`로 켜고 스템 스펙트럼을 확인한다 |
 | `fx.stereo_width`, `fx.mono` | 넓히기, 또는 모노로 모으기(킥과 서브) |
 | `fx.filter_sweep(chain, cutoff, resonance, kind)` | 오토메이션용 필터 |
 | `fx.ladspa(chain, "file:Label", {"포트 이름": 값})` | 내장 LADSPA 플러그인 225개 중 아무것이나. `fx.catalog()`가 포트 이름, 범위, 기본값과 함께 나열한다 |

@@ -15,7 +15,9 @@ import numpy as np
 DEFAULT_MODEL = "base.en"                # larger models are slower and rarely change which lines get flagged
 MULTILINGUAL_MODEL = "base"
 WEAK_LINE_SCORE = 0.85
-PADDINGS_S = (0.0, 0.25, 0.5)             # silence added around a line for the repeated recognition passes
+PADDINGS_S = (0.0, 0.25, 0.5)             # silence added around a line for the first recognition passes
+MORE_PADDINGS_S = tuple(i * 0.0625 for i in range(9) if i not in (0, 4, 8))   # the six extra passes when the first three disagree
+STEADY_SPREAD = 0.1                       # first passes within this of each other need no extra passes
 ASR_SAMPLE_RATE = 16000
 _models: dict[str, object] = {}
 
@@ -67,18 +69,27 @@ def transcribe(audio: np.ndarray, sr: int, model: str | None = None, language: s
 
 
 def score_line(audio: np.ndarray, sr: int, expected: str, model: str | None = None, language: str | None = "en") -> dict:
-    """Recognition score of one sung line: the median over a few amounts of leading and trailing silence.
+    """Recognition score of one sung line: the second-best pass over a few amounts of leading and trailing silence.
 
-    A recogniser's answer on sung audio can flip with a few hundred milliseconds of padding, so a single pass
-    raises false alarms; the median of three is steadier. 'scores' keeps all passes.
+    On a sung line of a few seconds the recogniser's answer flips with a few hundred milliseconds of padding, and on
+    a line near the limit a change of one 16-bit step in the audio moved the median of three passes from 1.00 to
+    0.56. Those failed passes are empty or invented transcripts, not a different hearing of the words, so one good
+    pass is luck and two are evidence: the score is the second-best pass. Three passes decide when they agree
+    within STEADY_SPREAD; otherwise six more paddings are tried first. 'scores' keeps every pass, sorted.
     """
     mono = audio if audio.ndim == 1 else audio.mean(axis=1)
-    passes = []
-    for seconds in PADDINGS_S:
-        silence = np.zeros(int(seconds * sr))
-        heard = transcribe(np.concatenate([silence, mono, silence]), sr, model, language)
-        passes.append((match(expected, heard), heard))
+
+    def run(paddings) -> list[tuple[float, str]]:
+        out = []
+        for seconds in paddings:
+            silence = np.zeros(int(seconds * sr))
+            heard = transcribe(np.concatenate([silence, mono, silence]), sr, model, language)
+            out.append((match(expected, heard), heard))
+        return out
+    passes = run(PADDINGS_S)
+    if max(score for score, _ in passes) - min(score for score, _ in passes) > STEADY_SPREAD:
+        passes += run(MORE_PADDINGS_S)
     passes.sort(key=lambda item: item[0])
-    value, heard = passes[len(passes) // 2]
+    value, heard = passes[-2]
     return {"expected": expected, "heard": heard, "score": round(value, 2), "weak": value < WEAK_LINE_SCORE,
             "scores": [round(score, 2) for score, _ in passes]}

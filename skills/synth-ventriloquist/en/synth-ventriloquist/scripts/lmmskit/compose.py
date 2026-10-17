@@ -63,6 +63,9 @@ VOCAL_PRESENCE_HZ, VOCAL_PRESENCE_OCTAVES = 2600.0, 1.5   # centre and width of 
 # +1.5 LU of vocal sounded the same as this dip, but cost 1.2 dB of limiter headroom and kept the vocal near its
 # +9 dB ceiling, while the dip costs no headroom and leaves the master loudness unchanged.
 VOCAL_DUCK_DB, VOCAL_PRESENCE_DB = 2.5, 6.0
+# Split frequency of the optional de-esser (Song.vocal(deesser=...)). The bundled Calf Deesser cuts everything above
+# its split whatever its threshold, so it is off by default and, when asked for, placed above the sibilance band.
+DEESSER_SPLIT_HZ = 9000.0
 
 
 @dataclass
@@ -322,8 +325,12 @@ class Song:
     # -- vocals -------------------------------------------------------------------------------------
     def vocal(self, name: str, voice: str, *, role: str = "vocal", method: str = "auto", lang: str = "en", speed: float = 1.0,
               style=None, level_db: float = 0.0, pan: float = 0.0, sends: dict[str, float] | None = None,
-              effects: list[tuple[str, dict]] | None = None, **options) -> "SongVocal":
+              effects: list[tuple[str, dict]] | None = None, deesser: dict | None = None, **options) -> "SongVocal":
         """Declare a sung part. voice is kokoro:<voice>, piper:<voice> or diffsinger:<folder>[#colour].
+
+        deesser adds the mixer de-esser after the standard strip, only when the user asks for it: {} for the
+        defaults (split DEESSER_SPLIT_HZ), or fx.deesser arguments such as {"split_hz": 9000, "threshold_db": -20}.
+        Bright consonants that stand out can instead be tamed per phone while the line is sung (Style.sibilance).
 
         Lines are added with .line(at, text, melody); the audio is rendered when the song is saved.
         effects are character effects after the standard vocal strip, as [(fx builder name, arguments)],
@@ -333,7 +340,7 @@ class Song:
         from .vocal.part import VocalPart
         from .vocal.singing import Style
         part = VocalPart(name, voice, role, method, lang, speed, style or Style(), options)
-        wrapper = SongVocal(self, part, level_db, pan, sends, effects)
+        wrapper = SongVocal(self, part, level_db, pan, sends, effects, deesser)
         self.vocals.append(wrapper)
         return wrapper
 
@@ -372,6 +379,8 @@ class Song:
                 audio = self.add_audio(wrapper.part.name, f"{slug}/{file_name}", role=wrapper.part.role, level_db=wrapper.level_db,
                                        pan=wrapper.pan, sends=wrapper.sends)
                 self._vocal_strip(audio, wrapper.part.voice)
+                if wrapper.deesser is not None:
+                    fx.deesser(audio.chain, **{"split_hz": DEESSER_SPLIT_HZ, **wrapper.deesser})
                 for effect_name, arguments in wrapper.effects:
                     getattr(fx, effect_name)(audio.chain, **arguments)
             audio = self.parts[wrapper.part.name]
@@ -616,8 +625,9 @@ class SongVocal:
     """A vocal part bound to its song: positions are given like everywhere else (section name, bar, or (section, bar))."""
 
     def __init__(self, song: Song, part, level_db: float, pan: float, sends: dict[str, float] | None,
-                 effects: list[tuple[str, dict]] | None = None):
+                 effects: list[tuple[str, dict]] | None = None, deesser: dict | None = None):
         self.song, self.part, self.level_db, self.pan, self.sends, self.effects = song, part, level_db, pan, sends, effects or []
+        self.deesser = deesser
 
     def line(self, at, text: str, melody: str, kind: str | None = None, beats: float = 0.0) -> "SongVocal":
         """Add a line whose melody starts at `at` (+ `beats`; negative for a pickup). kind defaults from the section name."""
@@ -631,14 +641,14 @@ class SongVocal:
                 voice: str | None = None) -> "SongVocal":
         """Add a harmony part moving `steps` scale steps from this one (2 = a third above, -3 = a fourth below)."""
         part = self.part.derive(name, harmony=steps, only_kind=only_kind, voice=voice)
-        wrapper = SongVocal(self.song, part, level_db, pan, self.sends, self.effects)
+        wrapper = SongVocal(self.song, part, level_db, pan, self.sends, self.effects, self.deesser)
         self.song.vocals.append(wrapper)
         return wrapper
 
     def double(self, name: str, seed: int | None = None, only_kind: str | None = "chorus", level_db: float = -3.0, pan: float = 0.0) -> "SongVocal":
         """Add a second take of the same lines (different pitch drift and vibrato) to thicken them."""
         part = self.part.derive(name, seed=seed, only_kind=only_kind)
-        wrapper = SongVocal(self.song, part, level_db, pan, self.sends, self.effects)
+        wrapper = SongVocal(self.song, part, level_db, pan, self.sends, self.effects, self.deesser)
         self.song.vocals.append(wrapper)
         return wrapper
 
