@@ -127,7 +127,7 @@ LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py k
 | `lmms_command` | `LMMS_BIN` | LMMS 실행 방법. 경로, 또는 JSON 목록으로 쓴 명령 |
 | `lmms_data_dir` | `LMMS_DATA_DIR` | LMMS 기본 `samples/`와 `presets/`가 있는 폴더 |
 | `ffmpeg` | `LMMSKIT_FFMPEG` | ffmpeg 실행 파일 경로 |
-| `cache_dir` | `LMMSKIT_CACHE` | 내려받은 음성 모델과 보컬 캐시 위치. 기본값은 운영체제의 사용자 캐시 폴더 |
+| `cache_dir` | `LMMSKIT_CACHE` | 내려받은 TTS 모델과 보컬 캐시 위치. 기본값은 운영체제의 사용자 캐시 폴더 |
 | `kit_dir` | `LMMSKIT_KIT_DIR` | 이 컴퓨터에서 만든 드럼 킷의 보관 위치. 기본값은 `cache_dir` 아래 `kit` |
 | `scratch_dir` | `LMMSKIT_SCRATCH` | 임시 렌더 폴더를 만드는 위치. 기본값은 시스템 임시 폴더이며, 샌드박스 안의 LMMS에는 프로젝트 옆 |
 | `pin_cpu` | `LMMSKIT_PIN_CPU` | LMMS 프로세스를 CPU 코어 1개에 묶기: `auto`, `on`, `off` |
@@ -156,9 +156,9 @@ LMMS가 CPU를 쓰는 방식에 따라 정확한 재현성, 속도, 렌더 중 �
 
 ## 모델 다운로드
 
-음성 모델과 인식 모델은 처음 쓸 때 `cache_dir`와 Hugging Face 캐시에 내려받는다.
+TTS 모델과 인식 모델은 처음 쓸 때 `cache_dir`와 Hugging Face 캐시에 내려받는다.
 
-- 타이밍 출력이 있는 Kokoro 음성 모델(고정 리비전): 약 330 MB, 목소리마다 1 MB 미만 추가.
+- 타이밍 출력이 있는 Kokoro TTS 모델(고정 리비전): 약 330 MB, 목소리마다 1 MB 미만 추가.
 - Piper 목소리: 각 60-115 MB.
 - 인식 모델(`base.en`, 다른 언어는 `base`): 약 140 MB.
 
@@ -189,7 +189,7 @@ LMMS가 CPU를 쓰는 방식에 따라 정확한 재현성, 속도, 렌더 중 �
 
 ```bash
 python scripts/lmms_tool.py selftest            # 연주곡 파이프라인, 1분 이내
-python scripts/lmms_tool.py selftest --vocal    # 기본 음성 목소리로 한 줄 가창 추가 (처음에는 모델을 내려받음)
+python scripts/lmms_tool.py selftest --vocal    # 기본 TTS 목소리로 한 줄 가창 추가 (처음에는 모델을 내려받음)
 ```
 
 자가 시험은 드럼 킷이 없으면 만들고, 임시 폴더에 8마디 곡을 만들고, 두 번 렌더하고, 두 렌더가 동일한지, lint와 믹스 점검이 도는지, MIDI, JSON, DAWproject 내보내기가 쓰이고 다시 읽히는지 확인한다. 점검마다 한 줄을 출력하고 `self-test passed` 또는 실패 목록으로 끝난다. 설치 후, 시험하지 못함으로 적힌 실행 방법이나 플랫폼에서, 렌더가 이상하게 동작할 때마다 돌린다.
