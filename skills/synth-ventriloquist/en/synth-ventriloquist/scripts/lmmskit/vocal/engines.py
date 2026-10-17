@@ -29,7 +29,8 @@ def engine_of(voice: str) -> str:
 
 
 def _cache_key(voice: str, line: line_tools.Line, bpm: float, key: str | None, style: Style, speed: float, options: dict) -> str:
-    payload = [voice, line.text, line.melody, line.harmony, round(bpm, 4), key, vars(style), round(speed, 4), sorted(options.items())]
+    payload = [voice, line.text, line.melody, line.harmony, round(bpm, 4), key, vars(style), round(speed, 4), sorted(options.items()),
+               tts.TIMING_VERSION]           # a new timing rule re-sings every cached line
     return hashlib.sha1(json.dumps(payload, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:20]
 
 
