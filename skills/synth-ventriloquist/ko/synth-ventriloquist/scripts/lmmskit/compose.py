@@ -352,8 +352,9 @@ class Song:
         genre profile's 'vocal_duck' pair. Call it to choose the numbers yourself; duck_for_vocals(0) turns the
         ducking off. depth_db lowers the whole bus a little. presence_db dips only the band where consonants live
         (around 1.3-5 kHz), which clears the words without thinning the music as a level dip that deep would.
-        presence_octaves widens or narrows that dip (default VOCAL_PRESENCE_OCTAVES, 1.5); the earlier default was
-        3.0, which also took the music's highs down under every line, so pass 3.0 only to reproduce a song made then.
+        presence_octaves widens or narrows that dip to suit the production the user wants (default
+        VOCAL_PRESENCE_OCTAVES, 1.5). A wide dip such as 3.0 also pulls the music's highs down under every line, so
+        it is not recommended and stays off unless the user asks for that sound.
         """
         self.vocal_duck_db, self.vocal_presence_db = abs(depth_db), abs(presence_db)
         if presence_octaves is not None:
