@@ -63,6 +63,11 @@ vox:
     + Options : `gain_db`, `pan`, `detune` (cents), `delay_ms`
 
 ## Lyric writing rules
+- Which voices a rule is for
+    + Singing craft for any voice, a human included : stress on the strong beats, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats
+    + Habits of model voices, speech voices and singer voicebanks alike : consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak
+    + Repairs for speech voices only : `vowel_body`, `consonant_ceiling` for stinging consonants, the line-ending repair, the strong-form spelling
+    + With a voicebank, write by the first two tiers and read the third as background; `lint` runs the first two on DiffSinger tracks as well
 - Order of writing
     + Fix the rhythm of the melody first
     + Write the lyrics so that stressed syllables fall on the strong beats of that rhythm

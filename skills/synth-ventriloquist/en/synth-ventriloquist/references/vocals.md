@@ -114,6 +114,8 @@ The words are matched to the tokens by syllable, in order. If the counts differ,
 
 Sung words are harder to follow than spoken ones, and a model voice has less to spare than a human singer. These habits raise the odds. They are starting points from measurements on English speech voices, so check them with `compare` instead of trusting them blindly.
 
+Not every rule is about speech voices. Three tiers: singing craft that holds for any voice, a human included (stress on the strong beats, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words kept off the beats); habits of model voices, speech voices and singer voicebanks alike (consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak); and repairs for speech voices only (the thin held ee and `vowel_body`, `sibilance`, the line-ending repair, the timing guards, the strong-form spelling). When the user has chosen a voicebank, write the lyrics by the first two tiers and read the third as background; `lyric-lint` runs the first two for a voicebank voice as well.
+
 - One sentence, one line. A sentence split into separate one-bar fragments ("Day after day" / "the same old sky") scored 0.15 to 0.23 per fragment. The same words sung as one two-bar line scored 1.0. The voice needs the whole phrase to speak it naturally.
 - Start lines on a content word. Content words on the long and strong notes, small words (the, of, to, and) on short weak ones.
 - End lines on an open vowel or a diphthong: day, go, you, sky, low, away. A line that ends on a held stop consonant (night, stop, made) has nothing to sustain.
