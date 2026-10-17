@@ -17,8 +17,9 @@ from dataclasses import dataclass, field
 import numpy as np
 from scipy import signal
 
+from ..audio import bandpass, shelf
 from . import world
-from .phones import DIPHTHONGS, LENGTH_MARK, SINGLE_SYMBOL_DIPHTHONGS, VOICELESS, Phone, Syllable, fold_weak_syllables, syllabify
+from .phones import AFFRICATES, DIPHTHONGS, LENGTH_MARK, SINGLE_SYMBOL_DIPHTHONGS, VOICELESS, Phone, Syllable, fold_weak_syllables, syllabify
 from .tts import Unit
 
 FRAME_S = world.FRAME_S
@@ -41,6 +42,23 @@ LEVEL_BOOST_LIMIT_DB, LEVEL_CUT_LIMIT_DB, LEVEL_STRENGTH = 9.0, -6.0, 0.7
 SUSTAIN_EDGE_S, SUSTAIN_LIFT_LIMIT_DB = 0.03, 8.0
 SPLICE_FADE_S = 0.005
 PHRASE_FADE_IN_S, PHRASE_FADE_OUT_S = 0.008, 0.06
+# Bright consonants that stand out of the line: sibilants (s, z, sh) and the bursts of voiceless plosives and affricates
+# (t, k, p, ch), which the speech voices render as spitty clicks. Measured on five songs (589 bright events, each
+# judged by its loudest 10 ms against the median vowel body of its line): the median event sits 6 dB under the vowels,
+# but 13% rise more than 3 dB above them and 4% more than 6 dB, up to +13 dB, and most of the loudest are 't' and 'k'
+# bursts spilling into the vowel that follows. Only those are touched: a shelf cut above 5 kHz by the excess, at most
+# the cap, on the consonant's own span plus a little of the vowel onset. Off by default (Style.sibilance = 0): on the
+# loudest lines the cap of 4 dB took 2-3 dB off the bursts, left the breathy vowel onsets that own the rest of the loud
+# frames untouched, and moved one line's recognition score, so it is a tool for a voice that sounds spitty, not a default.
+SIBILANTS = set("szʃʒʧʤɕʑʂʐ")
+BRIGHT_CONSONANTS = SIBILANTS | VOICELESS | AFFRICATES
+SIBILANCE_BAND, VOWEL_BODY_BAND = (5000.0, 9000.0), (300.0, 1300.0)
+SIBILANCE_OVER_DB = 3.0                  # an 's' this far above the vowels' body level stands out
+SIBILANCE_CUT_DB = 4.0                   # the cap a script usually asks for (Style(sibilance=4.0))
+SIBILANCE_SHELF_HZ = 5000.0
+SIBILANCE_MARGIN_S = 0.01                # taken before the phone span, so the cut covers its onset
+SIBILANCE_TAIL_S = 0.02                  # taken after it: a burst spills into the first frames of the vowel
+SIBILANCE_FRAME_S = 0.01                 # an 's' is judged by its loudest 10 ms, which is what the ear picks out
 HIGHPASS_HZ = 70.0
 FORMANT_SHIFT_THRESHOLD_ST, FORMANT_SHIFT_SHARE = 5.0, 0.0   # measured: moving formants with the pitch did not help
 TARGET_PEAK = 0.7
@@ -60,6 +78,7 @@ class Style:
     scoop: float = 0.6                  # how far phrase starts slide up into the note (0-1)
     drift: float = 1.0                  # random pitch wander
     evenness: float = LEVEL_STRENGTH    # 0 keeps speech dynamics, 1 makes every syllable equally loud
+    sibilance: float = 0.0              # largest cut (dB above 5 kHz) of an 's', 't' or 'k' that stands out of the line; 0 (default) leaves them alone
     seed: int = 0
 
 
@@ -287,6 +306,7 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
     sung_envelope[silent] = 1e-12
     audio = world.synthesize(sung_f0, sung_envelope, sung_aperiodicity, unit.sr)[:int(total * unit.sr)]
     audio = _restore_consonants(audio, unit, segments, gain_curve)
+    audio = _tame_sibilants(audio, unit.sr, segments, layout, style.sibilance)
     audio = _shape_phrases(audio, unit.sr, layout)
     audio = _finish(audio, unit.sr)
     return SungLine(audio, lead_in, layout, np.where(voiced, target, 0.0), [n for g in groups for n in g])
@@ -334,6 +354,49 @@ def _restore_consonants(audio: np.ndarray, unit: Unit, segments: list[_Segment],
         window[:fade] = np.linspace(0.0, 1.0, fade)
         window[-fade:] = np.linspace(1.0, 0.0, fade)
         result[a:b] = result[a:b] * (1 - window) + piece * window
+    return result
+
+
+def _band_db(piece: np.ndarray, sr: int, band: tuple[float, float], peak: bool = False) -> float:
+    """Level of a band over a piece: its mean, or with peak=True the loudest SIBILANCE_FRAME_S frame."""
+    power = bandpass(piece, sr, *band) ** 2
+    if peak:
+        frame = max(1, int(SIBILANCE_FRAME_S * sr))
+        count = len(power) // frame
+        power = power[:count * frame].reshape(count, frame).mean(axis=1) if count else power
+        return 10 * np.log10(float(power.max()) + 1e-12)
+    return 10 * np.log10(float(np.mean(power)) + 1e-12)
+
+
+def _tame_sibilants(audio: np.ndarray, sr: int, segments: list[_Segment], layout: list[dict], max_cut_db: float) -> np.ndarray:
+    """Shelve down, above SIBILANCE_SHELF_HZ, every bright consonant whose 5-9 kHz level rises more than SIBILANCE_OVER_DB above
+    the line's vowel body level (its loudest 10 ms against the median vowel), by the excess and at most max_cut_db. Works on the sibilant's own span with short
+    fades, so vowels and the other consonants are untouched. A de-esser in the mixer cannot do this: the bundled one
+    cuts the whole band all the time, and no mixer effect knows where the 's' sounds are."""
+    if max_cut_db <= 0:
+        return audio
+    vowels = [_band_db(audio[int(item["vowel_start"] * sr):int(item["vowel_end"] * sr)], sr, VOWEL_BODY_BAND)
+              for item in layout if int(item["vowel_end"] * sr) - int(item["vowel_start"] * sr) >= sr // 50]
+    if not vowels:
+        return audio
+    reference = float(np.median(vowels))
+    fade = int(SPLICE_FADE_S * sr)
+    result = audio.copy()
+    for segment in segments:
+        if segment.kind != "consonant" or segment.phone is None or segment.phone.symbol[0] not in BRIGHT_CONSONANTS:
+            continue
+        a = max(0, int((segment.out_start - SIBILANCE_MARGIN_S) * sr))
+        b = min(len(audio), int((segment.out_end + SIBILANCE_TAIL_S) * sr))
+        if b - a < 2 * fade:
+            continue
+        excess = _band_db(audio[a:b], sr, SIBILANCE_BAND, peak=True) - reference - SIBILANCE_OVER_DB
+        if excess <= 0:
+            continue
+        shelved = shelf(audio[a:b], sr, SIBILANCE_SHELF_HZ, -min(excess, max_cut_db), True)
+        window = np.ones(b - a)
+        window[:fade] = np.linspace(0.0, 1.0, fade)
+        window[-fade:] = np.linspace(1.0, 0.0, fade)
+        result[a:b] = audio[a:b] * (1 - window) + shelved * window
     return result
 
 

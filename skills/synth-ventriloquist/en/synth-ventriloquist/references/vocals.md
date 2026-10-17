@@ -178,6 +178,7 @@ To check the repair on a new voice or language, sing the same line with and with
 - `scoop`: how far phrase starts slide up into the note.
 - `drift`: slow random pitch wander that keeps held notes alive.
 - `evenness`: 0 keeps speech dynamics, 1 makes every syllable equally loud.
+- `sibilance`: default 0 (off). Set to 4 or so, it cuts above 5 kHz, on the phone's own span, every s, z, sh and every t, k, p burst that rises more than 3 dB above the line's vowel body (300-1300 Hz), by the excess and at most that many dB. Measured on five songs, 13% of bright consonants rose more than 3 dB (up to +13 dB) and most of the loudest were t and k bursts. On the worst lines a cap of 4 dB took 2-3 dB off the peaks and moved one line's recognition score, so it is a tool for a voice that sounds spitty, not a default. Unlike a mixer de-esser it knows where the consonants are and touches nothing else.
 - `seed`: a different seed gives a different take. `double()` uses this.
 
 Deadpan styles (doomer, coldwave, EBM) want `vibrato=0.3, scoop=0.3`. Anthemic choruses can take the defaults or more vibrato. For a singer voicebank these settings shape the pitch only with `own_pitch=False`. Otherwise the bank's own pitch model performs the line.
@@ -190,6 +191,7 @@ Deadpan styles (doomer, coldwave, EBM) want `vibrato=0.3, scoop=0.3`. Anthemic c
 - When the vocal sounds small, deepen the ducking first, then thin out the parts under the vocal, and leave raising the vocal `level_db` for last. In the test songs +1.5 LU of vocal sounded the same as ducking 2.5/6.0 but spent 1.2 dB of limiter headroom and made the chorus ceiling warning permanent; +3 LU put the vocal on top of the track instead of in it.
 - Do not sidechain the vocal or its reverb to the kick. Pumping chops consonant tails and makes words harder to follow. The vocal bus is outside the sidechain by default.
 - Harmonies and doubles go to the sides (`pan=±20`) and about 8 to 10 dB under the lead. They follow the chords automatically.
+- The mixer de-esser is off by default. The one bundled with LMMS 1.2 cuts everything above its split frequency whatever its threshold (measured: 9-16 kHz −7 dB), so it is added only when the user asks for it, with `song.vocal(..., deesser={})`. The default split is 9 kHz; pass `fx.deesser` arguments such as `{"split_hz": 7000, "threshold_db": -20}`. The agent never switches it on by itself.
 - Character effects (distortion for industrial, bitcrush for lo-fi, a chorus for an 80s sheen) are added after the standard vocal strip with `song.vocal(..., effects=[("distortion", {"drive": 4.0})])`, using the builder names from `sounds-effects.md`. Heavy processing costs clarity, so listen to the result with the user.
 
 ## What to hand the user
