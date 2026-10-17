@@ -65,7 +65,8 @@ MIN_VOCAL_SECTION_S = 1.0                 # a section with less sung time than t
 KICK_MARGIN_DB = 0.0
 DRUMS_VS_REST_RANGE_LU = (-7.0, 5.0)
 MASK_WINDOW_DB = 6.0
-ACTIVE_WINDOW_DB = 12.0
+ACTIVE_WINDOW_DB = 12.0                   # a part 'sounds' in frames within this of its loudest frame: right for hits (kick)
+VOICE_FLOOR_DB = 40.0                     # a voice 'sounds' in frames where its body band is within this of its loudest frame
 TAIL_CUT_DB = -45.0
 STFT_SIZE, STFT_HOP = 2048, 512
 ROLE_KEYWORDS = [("vocal_bg", ("harmony", "backing", "choir", "bgv")), ("vocal", ("vocal", "vox", "voice", "sing")),
@@ -375,7 +376,8 @@ def fit_vocal_presence(project_path: str, stems: dict[str, str], work_dir: str) 
     if not leads or not backing:
         return None
     (voice, rate), (rest, _) = _sum_stems(stems, leads), _sum_stems(stems, backing)
-    margin = presence_db(voice, rest, rate, audio.CONSONANT_BAND)
+    heard = voice_frames(voice, rate)
+    margin = presence_db(voice, rest, rate, audio.CONSONANT_BAND, heard)
     if margin is None or margin >= VOCAL_CONSONANT_MARGIN_DB + PRESENCE_SAFETY_DB:
         return None if margin is None else {"margin_db": round(margin, 1), "lift_db": 0.0}
     lift = round(min(VOCAL_CONSONANT_MARGIN_DB + PRESENCE_SAFETY_DB - margin, MAX_PRESENCE_LIFT_DB), 1)
@@ -384,7 +386,7 @@ def fit_vocal_presence(project_path: str, stems: dict[str, str], work_dir: str) 
     project.save(project_path)
     stems.update(_render_isolated(project_path, os.path.join(work_dir, "stems"), only=set(leads)))
     voice, _ = _sum_stems(stems, leads)
-    return {"margin_db": round(margin, 1), "lift_db": lift, "margin_after_db": round(presence_db(voice, rest, rate, audio.CONSONANT_BAND), 1)}
+    return {"margin_db": round(margin, 1), "lift_db": lift, "margin_after_db": round(presence_db(voice, rest, rate, audio.CONSONANT_BAND, heard), 1)}
 
 
 # -- master loudness ----------------------------------------------------------------------------------
@@ -506,19 +508,41 @@ def _sum_stems(stems: dict[str, str], names: list[str]) -> tuple[np.ndarray, int
     return (total if total is not None else np.zeros((1, 2))), rate
 
 
+def voice_frames(voice: np.ndarray, rate: int, spans: list[tuple[float, float]] | None = None) -> np.ndarray:
+    """STFT-frame mask of the moments a voice is heard: inside its sung line spans (start s, end s) when they are known,
+    else the frames where its body band is within VOICE_FLOOR_DB of its loudest frame.
+
+    The hit rule (ACTIVE_WINDOW_DB under the loudest frame of the measured band) is wrong for a voice: in the
+    consonant band the loudest frames are a few sibilant bursts, so it kept 2-30% of the sung frames, judged the
+    vocal on its 's' sounds (margins 4-12 dB too high) and dropped whole choruses from the per-section table.
+    """
+    body = _band_frames(voice, rate, audio.VOCAL_BODY_BAND)
+    if spans:
+        centres = (np.arange(len(body)) * STFT_HOP + STFT_SIZE / 2) / rate
+        mask = np.zeros(len(body), dtype=bool)
+        for start, end in spans:
+            mask |= (centres >= start) & (centres < end)
+        return mask
+    return body > body.max() * 10 ** (-VOICE_FLOOR_DB / 10) if body.max() > 0 else np.zeros(len(body), dtype=bool)
+
+
 def band_margins(front: np.ndarray, back: np.ndarray, rate: int, band: tuple[float, float],
-                 sections: list[tuple[str, float, float]] = ()) -> dict | None:
+                 sections: list[tuple[str, float, float]] = (), active: np.ndarray | None = None) -> dict | None:
     """How far `front` sits above `back` inside a band while `front` is sounding: over the whole song and per section.
 
-    sections are (name, start s, end s). The result holds 'whole', 'sections' {name: dB} and 'densest', the section
-    whose backing is loudest in the band under the sounding frames. One number for the whole song lets a sparse
-    verse lift the mean and hide a chorus where the front falls short, so the per-section values are what to read.
+    sections are (name, start s, end s). active is the frame mask of the moments that count (voice_frames for a
+    vocal); without it a frame counts when it is within ACTIVE_WINDOW_DB of the band's loudest frame, which fits
+    hits. The result holds 'whole', 'sections' {name: dB} and 'densest', the section whose backing is loudest in
+    the band under the counted frames. One number for the whole song lets a sparse verse lift the mean and hide a
+    chorus where the front falls short, so the per-section values are what to read.
     """
     length = min(len(front), len(back))
     a, b = _band_frames(front[:length], rate, band), _band_frames(back[:length], rate, band)
     if not len(a) or a.max() <= 0:
         return None
-    active = a > a.max() * 10 ** (-ACTIVE_WINDOW_DB / 10)
+    if active is None:
+        active = a > a.max() * 10 ** (-ACTIVE_WINDOW_DB / 10)
+    active = active[:len(a)]
     if not active.any():
         return None
     margin = lambda keep: float(10 * np.log10(a[keep].mean() / max(b[keep].mean(), 1e-20)))
@@ -535,9 +559,9 @@ def band_margins(front: np.ndarray, back: np.ndarray, rate: int, band: tuple[flo
     return result
 
 
-def presence_db(front: np.ndarray, back: np.ndarray, rate: int, band: tuple[float, float]) -> float | None:
+def presence_db(front: np.ndarray, back: np.ndarray, rate: int, band: tuple[float, float], active: np.ndarray | None = None) -> float | None:
     """How far `front` sits above `back` inside a band, measured only while `front` is sounding (whole song)."""
-    margins = band_margins(front, back, rate, band)
+    margins = band_margins(front, back, rate, band, active=active)
     return None if margins is None else margins["whole"]
 
 
@@ -617,26 +641,30 @@ def kick_hiss_db(x: np.ndarray, rate: int) -> float | None:
     return float(10 * np.log10(max(high[body].mean(), 1e-30) / low[body].mean()))
 
 
-def _consonant_advice(stems: dict[str, str], backing: list[str], role, voice: np.ndarray, rate: int, missing_db: float) -> str:
+def _consonant_advice(stems: dict[str, str], backing: list[str], role, voice: np.ndarray, rate: int, missing_db: float,
+                      heard: np.ndarray | None = None) -> str:
     """Name the fix that fits what covers the consonants: the music (dipped by Song.duck_for_vocals) or the drums (which it leaves alone)."""
     groups = {"drums": [n for n in backing if role(n) in compose.DRUM_ROLES], "music": [n for n in backing if role(n) not in compose.DRUM_ROLES]}
     margins = {}
     for name, members in groups.items():
         if members:
-            margin = presence_db(voice, _sum_stems(stems, members)[0], rate, audio.CONSONANT_BAND)
+            margin = presence_db(voice, _sum_stems(stems, members)[0], rate, audio.CONSONANT_BAND, heard)
             if margin is not None:
                 margins[name] = margin
     if margins and min(margins, key=margins.get) == "drums":
-        return (f"hats, claps and snares own this band under the vocal, so raise the vocal's level_db by about {missing_db:.0f} dB "
+        return (f"hats, claps and snares own this band under the vocal, so raise the vocal's level_db by about {max(missing_db, 1.0):.0f} dB "
                 "or thin out the bright drums while it sings")
-    return (f"raise presence_db in Song.duck_for_vocals by about {missing_db / PRESENCE_BAND_SHARE:.0f} dB, "
+    return (f"raise presence_db in Song.duck_for_vocals by about {max(missing_db / PRESENCE_BAND_SHARE, 1.0):.0f} dB, "
             "or lower the bright parts under the vocal")
 
 
-def check_stems(stems: dict[str, str], roles: dict[str, dict], genre: str | None = None, plan: dict | None = None) -> list[dict]:
+def check_stems(stems: dict[str, str], roles: dict[str, dict], genre: str | None = None, plan: dict | None = None,
+                sung_spans: list[tuple[float, float]] | None = None) -> list[dict]:
     """Part-balance checks from solo stems: role levels, kick and vocal presence, drums against the rest, masking.
 
-    plan (the song's plan file) gives the sections, so the vocal margins are also reported per section.
+    plan (the song's plan file) gives the sections, so the vocal margins are also reported per section. sung_spans
+    are the (start s, end s) of the lead lines when the song's vocals file is known; the vocal margins are then
+    measured on exactly those moments, otherwise on the frames where the voice is heard.
     """
     found = []
     measured = measure_stems(stems)
@@ -692,23 +720,25 @@ def check_stems(stems: dict[str, str], roles: dict[str, dict], genre: str | None
     if vocals and backing:
         (v, rate), (b, _) = _sum_stems(stems, vocals), _sum_stems(stems, backing)
         sections = _section_seconds(plan)
+        heard = voice_frames(v, rate, sung_spans)
         for code, band, need in (("vocal_body", audio.VOCAL_BODY_BAND, VOCAL_BODY_MARGIN_DB),
                                  ("vocal_consonants", audio.CONSONANT_BAND, VOCAL_CONSONANT_MARGIN_DB)):
-            margins = band_margins(v, b, rate, band, sections)
+            margins = band_margins(v, b, rate, band, sections, heard)
             if margins is None:
                 continue
             margin, densest = margins["whole"], margins["densest"]
-            # The floor is judged over the whole song; the ceiling where the backing is densest (usually a chorus),
-            # because a sparse verse lifts the whole-song value and would call a vocal 'too loud' that the chorus still covers.
-            ceiling_margin = margins["sections"][densest] if densest else margin
-            severity = "warn" if margin < need or ceiling_margin > VOCAL_MAX_MARGIN_DB else "info"
-            hint = (" - words will be hard to follow: " + _consonant_advice(stems, backing, role, v, rate, need - margin)
-                    if margin < need and code == "vocal_consonants" else " - the voice is covered: lower pads and leads under it or raise the vocal" if margin < need
-                    else " - the vocal towers over the music: lower it or fill the backing" if ceiling_margin > VOCAL_MAX_MARGIN_DB else "")
-            where = f", {ceiling_margin:+.1f} dB in the densest section {densest} (at most {VOCAL_MAX_MARGIN_DB:+.0f} there)" if densest else ""
+            # Floor and ceiling are both judged where the backing is densest (usually a chorus): a sparse verse lifts
+            # the whole-song value and would hide a chorus where the voice is covered, or call it 'too loud'.
+            judged = margins["sections"][densest] if densest else margin
+            severity = "warn" if judged < need or judged > VOCAL_MAX_MARGIN_DB else "info"
+            hint = (" - words will be hard to follow: " + _consonant_advice(stems, backing, role, v, rate, need - judged, heard)
+                    if judged < need and code == "vocal_consonants" else " - the voice is covered: lower pads and leads under it or raise the vocal" if judged < need
+                    else " - the vocal towers over the music: lower it or fill the backing" if judged > VOCAL_MAX_MARGIN_DB else "")
+            where = (f", {judged:+.1f} dB in the densest section {densest} (judged there: {need:+.0f} to {VOCAL_MAX_MARGIN_DB:+.0f})" if densest
+                     else f" (need {need:+.0f} to {VOCAL_MAX_MARGIN_DB:+.0f})")
             rows = [f"{name:14s} {value:+6.1f} dB" + (" (densest)" if name == densest else "") for name, value in margins["sections"].items()]
-            found.append(finding(severity, code, f"lead vocal is {margin:+.1f} dB against the backing in {band[0]}-{band[1]} Hz (need {need:+.0f} or more){where}{hint}",
-                                 margin_db=round(margin, 1), densest_section=densest, densest_margin_db=round(ceiling_margin, 1),
+            found.append(finding(severity, code, f"lead vocal is {margin:+.1f} dB against the backing in {band[0]}-{band[1]} Hz over the song{where}{hint}",
+                                 margin_db=round(margin, 1), densest_section=densest, densest_margin_db=round(judged, 1),
                                  sections={name: round(value, 1) for name, value in margins["sections"].items()}, table=rows))
 
     spectra = {}

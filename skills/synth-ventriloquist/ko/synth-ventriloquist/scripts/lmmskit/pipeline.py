@@ -44,13 +44,16 @@ def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs
     stems = stems or mix.render_stems(project_path, os.path.join(out_dir, "stems"))
     findings = lint_tools.lint(project, plan)
     findings += mix.check_master(x, rate, genre, target_lufs)
-    findings += mix.check_stems(stems, roles, genre, plan)
-    findings += mix.check_sections(x, rate, plan)
     vocal_file = os.path.splitext(project_path)[0] + compose.VOCALS_SUFFIX
+    rendered = None
     if vocals and os.path.exists(vocal_file):
-        from .vocal import part as vocal_part
         with open(vocal_file, encoding="utf-8") as handle:
             rendered = json.load(handle)
+    sung = [(row["audio_start_s"], row["audio_end_s"]) for item in rendered or [] if item["role"] == "vocal" for row in item["lines"]]
+    findings += mix.check_stems(stems, roles, genre, plan, sung or None)
+    findings += mix.check_sections(x, rate, plan)
+    if rendered is not None:
+        from .vocal import part as vocal_part
         folder = os.path.dirname(os.path.abspath(project_path))
         for item in rendered:
             item["stem"] = os.path.join(folder, item["stem"])          # stored relative to the project
