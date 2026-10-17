@@ -408,18 +408,21 @@ DEPTH_STEP_SCALE = 1000                 # older exports count shallow-diffusion 
 
 
 def _depth_feed(acoustic: Stage, settings: dict) -> dict:
-    """The acoustic model's shallow-diffusion depth in the unit its export declares.
-    Recent exports take a fraction (float, max_depth <= 1); older ones take an int64 step count that has to be
-    a multiple of the speedup, so the fraction is converted and rounded down to such a multiple."""
+    """The acoustic model's shallow-diffusion depth and sampling acceleration in the units its export declares.
+    Recent exports take the depth as a fraction (float, max_depth <= 1) next to the usual steps or speedup feed.
+    Older ones take an int64 step count out of 1000: the speedup is then chosen so that the requested number of
+    sampling steps is taken within that depth, and the depth is rounded down to a multiple of it (as OpenUtau does)."""
     inputs = {item.name: item.type for item in acoustic.session("acoustic").get_inputs()}
     if "depth" not in inputs:
-        return {}
+        return acoustic.steps_feed(settings["steps"])
     max_depth = float(acoustic.config.get("max_depth", 1.0))
     if "int" not in inputs["depth"]:
-        return {"depth": np.array(min(float(settings["depth"]), max_depth), dtype=np.float32)}
-    speedup = int(acoustic.steps_feed(settings["steps"]).get("speedup", 1))
-    steps = min(int(float(settings["depth"]) * DEPTH_STEP_SCALE), int(max_depth))
-    return {"depth": np.array(max(speedup, steps // speedup * speedup), dtype=np.int64)}
+        return {"depth": np.array(min(float(settings["depth"]), max_depth), dtype=np.float32),
+                **acoustic.steps_feed(settings["steps"])}
+    depth_steps = min(int(round(float(settings["depth"]) * DEPTH_STEP_SCALE)), int(max_depth))
+    speedup = max(1, depth_steps // int(settings["steps"]))
+    return {"depth": np.array(max(speedup, depth_steps // speedup * speedup), dtype=np.int64),
+            "speedup": np.array(speedup, dtype=np.int64)}
 
 
 def sing_phrase(bank: Voicebank, groups: list, word_cut: list, notes: list, settings: dict, lang: str) -> tuple:
@@ -517,7 +520,7 @@ def sing_phrase(bank: Voicebank, groups: list, word_cut: list, notes: list, sett
              "durations": durations[None, :], "f0": f0,
              "gender": np.full((1, n_frames), float(settings["gender"]), dtype=np.float32),
              "velocity": np.full((1, n_frames), float(settings["velocity"]), dtype=np.float32),
-             **_depth_feed(acoustic, settings), **acoustic.steps_feed(settings["steps"])}
+             **_depth_feed(acoustic, settings)}
     offsets = {"breathiness": settings["breathiness"], "voicing": settings["voicing"], "tension": settings["tension"]}
     for name in wanted:
         low, high = (-10.0, 10.0) if name == "tension" else (-96.0, 0.0)
