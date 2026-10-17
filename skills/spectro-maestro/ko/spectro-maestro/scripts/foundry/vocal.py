@@ -404,16 +404,17 @@ def _metric_weight(beat_in_bar: float) -> int:
 
 # Bright consonants spit, hiss and peak on the speech voices (see singing.py); a line built on them sounds spitty.
 BRIGHT_CONSONANTS = set("tkpszʃʒʧʤ")
-BRIGHT_SHARE = 0.6                 # of the syllables starting or ending on one, in a line of BRIGHT_MIN_SYLLABLES or more (3 in 5)
+BRIGHT_SHARE = 0.6                 # bright sounds per syllable, in a line of BRIGHT_MIN_SYLLABLES or more (3 in 5)
+BRIGHT_CLUSTER_WEIGHT = 2          # a cluster of two bright sounds (st, sk, ts, ks) counts this much: it spits the most
 BRIGHT_MIN_SYLLABLES = 4
 BRIGHT_RUN = 3                     # consecutive syllables on bright consonants
 EE_SYMBOLS = {"i"}                 # the ee vowel: thin and sharp when held (the length mark is stripped first)
 
 
-def _bright_syllable(plist: list, syllable) -> bool:
-    first = plist[syllable.onset[0]].symbol[0] if syllable.onset else ""
-    last = plist[syllable.coda[-1]].symbol[0] if syllable.coda else ""
-    return first in BRIGHT_CONSONANTS or last in BRIGHT_CONSONANTS
+def _bright_weight(plist: list, syllable) -> int:
+    """How many bright sounds a syllable carries at its edges, a cluster (st, sk, ts) counting as BRIGHT_CLUSTER_WEIGHT."""
+    edges = sum(1 for i in syllable.onset + syllable.coda if plist[i].symbol[0] in BRIGHT_CONSONANTS)
+    return min(edges, BRIGHT_CLUSTER_WEIGHT)
 
 
 def lint_lyrics(project: dict, models: str | None = None) -> list:
@@ -506,16 +507,17 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
             short = [g for g in groups if g[1] - g[0] < 0.11]
             if short:
                 issue("warn", "lyrics.short_notes", where, f"{len(short)} notes shorter than 110 ms; syllables there will smear")
-            bright = [_bright_syllable(plist, s) for s in syllables]
+            weights = [_bright_weight(plist, s) for s in syllables]
+            bright = [w > 0 for w in weights]
             longest, run = 0, 0
             for flag in bright:
                 run = run + 1 if flag else 0
                 longest = max(longest, run)
-            crowded = len(bright) >= BRIGHT_MIN_SYLLABLES and sum(bright) >= BRIGHT_SHARE * len(bright)
+            crowded = len(bright) >= BRIGHT_MIN_SYLLABLES and sum(weights) >= BRIGHT_SHARE * len(bright)
             if crowded or longest >= BRIGHT_RUN:
-                count = f"{sum(bright)} of {len(bright)} syllables" if crowded else f"{longest} syllables in a row"
+                count = f"{sum(weights)} bright sounds over {len(bright)} syllables (st, sk, ts clusters count twice)" if crowded else f"{longest} syllables in a row"
                 issue("warn", "lyrics.bright_consonants", where,
-                      f"{count} start or end on t, k, p, s, z or sh; the speech voices spit, hiss and peak there. Carry the line on "
+                      f"{count} on t, k, p, s, z or sh; the speech voices spit, hiss and peak there. Carry the line on "
                       f"voiced consonants (m, n, l, d, b, g, w, r) and keep those sounds to about one per word")
             for index, syllable in enumerate(syllables):
                 if lengths[index] >= 2 * spb and len(syllable.nucleus) == 1 and plist[syllable.nucleus[0]].symbol.replace("ː", "") in EE_SYMBOLS:
