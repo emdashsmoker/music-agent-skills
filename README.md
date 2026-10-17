@@ -44,6 +44,7 @@ skills/synth-ventriloquist/
 ```
 
 - A `.skill` file is a zip archive of the skill folder. Where only `.zip` uploads are accepted, rename the extension to `.zip`.
+- `SHA256SUMS` at the repository root lists the SHA-256 of the four packages. Verify a download with `sha256sum -c SHA256SUMS`.
 - To install from source, copy the folder named after the skill (for example `ko/synth-ventriloquist/`) into your agent's skills folder.
 - The Korean and English editions of a skill share one skill name. Install one of the two.
 
@@ -113,6 +114,7 @@ skills/synth-ventriloquist/
 ```
 
 - `.skill` 파일은 스킬 폴더를 묶은 zip 파일입니다. `.zip` 파일만 업로드할 수 있는 환경에서는 확장자를 `.zip`으로 변경한 후 업로드합니다.
+- 저장소 루트의 `SHA256SUMS`에 네 패키지의 SHA-256 값이 있습니다. 내려받은 파일은 `sha256sum -c SHA256SUMS`로 확인할 수 있습니다.
 - 소스로 설치할 때는 스킬 이름과 같은 폴더(예를 들어 `ko/synth-ventriloquist/`)를 에이전트의 스킬 폴더에 복사합니다.
 - 한국어판과 영어판은 같은 스킬 이름을 사용합니다. 둘 중 하나만 설치합니다.
 
