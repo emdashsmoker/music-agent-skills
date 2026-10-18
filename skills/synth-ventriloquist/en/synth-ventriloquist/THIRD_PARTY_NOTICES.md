@@ -27,9 +27,9 @@ The skill starts these as separate programs or loads them as libraries. None of 
 | Software or model | Used for | License |
 |---|---|---|
 | LMMS 1.2.x, with its bundled LADSPA plugins and factory samples | All synthesis, mixing and rendering | GPL-2.0-or-later |
-| FFmpeg | ogg, mp3 and flac encoding | LGPL-2.1-or-later or GPL, depending on the build |
+| FFmpeg | mp3 encoding, only when libsndfile is older than 1.1 (optional) | LGPL-2.1-or-later or GPL, depending on the build |
 | NumPy, SciPy | Measurement and signal processing | BSD-3-Clause |
-| python-soundfile, libsndfile | Reading and writing audio | BSD-3-Clause, LGPL-2.1-or-later |
+| python-soundfile, libsndfile | Reading and writing audio, including ogg, mp3 and flac encoding | BSD-3-Clause, LGPL-2.1-or-later |
 | Matplotlib | Review figures | Matplotlib license (PSF-style) |
 | ONNX Runtime | Running speech and singing models | MIT |
 | ONNX | Reading model graphs | Apache-2.0 |
