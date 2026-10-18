@@ -46,7 +46,7 @@ Speech voices have two methods. `stretched` (default) analyses the spoken line a
 Offer the choice, with a default, when the song has vocals:
 
 1. A singer voicebank, if the user has or wants to supply one.
-2. A built-in speech voice. Defaults: `kokoro:af_heart` (female), `kokoro:am_michael` (male). Others: `af_bella`, `af_nicole` (breathy), `bf_emma` (British), `am_fenrir` (deep), `am_onyx` (dark), `bm_george` (British), and the Piper voices in the `voices` list.
+2. A built-in speech voice. Defaults: `kokoro:af_heart` (female), `kokoro:am_michael` (male). The other Kokoro voices and the Piper voices are in the `voices` list.
 3. No vocal, or a vocal melody played by a synth lead.
 
 The voice is a choice of timbre, and it belongs to the user. Use the default voice or the one the user named, and keep it. When a line is unclear, change the wording or the notes first (see the word-choice procedure). Recognition scores do differ between voices on the same line, but a higher score is no reason to swap the singer on your own: offer the comparison (`compare` with `--voice` changed, audio included) and let the user decide.
