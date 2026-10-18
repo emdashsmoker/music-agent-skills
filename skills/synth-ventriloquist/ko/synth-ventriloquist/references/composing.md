@@ -111,7 +111,7 @@ vocal = song.vocal("lead vocal", "kokoro:af_heart")           # 또는 piper:<�
 vocal.line(("verse", 0), "Empty roads below a paper sky", "E4/0.5 E4/0.5 G4/0.5 G4/0.5 A4/2 A4/0.5 G4/0.5 F4/0.5 E4/2")
 vocal.harmony("harmony vocal", steps=2, only_kind="chorus", pan=20)
 vocal.double("double vocal", only_kind="chorus", pan=-20)
-song.duck_for_vocals(4.0, presence_db=6.0)     # 선택 사항. 보컬이 있는 곡은 호출 없이도 2.5와 6.0으로 더킹된다. presence_octaves는 사용자가 원하는 연출에 따라 딥 폭을 바꾸는 옵션(기본 1.5옥타브, 넓은 값은 비권장)
+song.duck_for_vocals(4.0, presence_db=6.0)     # 선택 사항. 보컬이 있는 곡은 호출 없이도 2.5와 6.0으로 더킹된다(딥 폭: presence_octaves, mixing.md 참고)
 ```
 
 멜로디는 부르는 음절마다 토큰 하나를 가진다. 목소리, 표기법, 가사 쓰기, 점검에 관한 모든 내용은 `vocals.md`에 있다. 가사를 쓰기 전에 읽는다.
@@ -136,4 +136,4 @@ song.duck_for_vocals(4.0, presence_db=6.0)     # 선택 사항. 보컬이 있는
 | `monotony` | 한 파트가 긴 구간을 변화 없이 반복한다 | 4마디나 8마디마다 변주를 넣거나 필터를 오토메이션한다 |
 | `unrepeatable_automation`, `unrepeatable_peak_controller`, `unrepeatable_drumsynth`, 그리고 코어 1개 렌더가 안 되는 시스템의 `unrepeatable_kicker_noise` | LMMS가 실행마다 다르게 렌더하는 요소 | 메시지가 알려 주는 재현 가능한 대안을 쓴다(`sounds-effects.md` 참조) |
 | `section_density` (info) | 섹션마다 연주되는 파트 수 | 의도한 에너지 곡선과 비교한다 |
-| `lyrics_*` | 보컬 파일의 모든 리드 줄에 돌린 `lyric-lint`의 가사 요령 발견 사항 | `vocals.md` 참고, 줄을 고치거나 단어를 옮긴 뒤 스크립트를 다시 실행한다 |
+| `lyrics_*` | 보컬 파일의 리드 줄에서 나온 `lyric-lint` 발견 사항 | 줄을 고치거나 단어를 옮긴 뒤(`vocals.md` 참고) 스크립트를 다시 실행한다 |

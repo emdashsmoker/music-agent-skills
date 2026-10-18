@@ -49,7 +49,7 @@ Collect the plan in one round of questions. Skip what the user already stated, a
 - Tempo [the genre profile's default], key [a minor key that suits the genre]
 - Length and form [3 to 4 minutes in song or club form. Uplifting trance runs 7 to 15 minutes, default about 7 and a half]
 - Vocals: none, sung by a built-in speech voice, or sung by a singer voicebank the user supplies. Offer the voice options from `references/vocals.md`. Language [English]
-- Lyrics: the user's own, or written here from a theme they give. Before drafting a line, read the lyric craft in `references/vocals.md`: the rules shape the words, and a draft written first tends to keep its faults
+- Lyrics: the user's own, or written here from a theme they give. Read the lyric craft in `references/vocals.md` before drafting a line, because a draft written first tends to keep its faults
 - Sound preferences [the genre's usual kit: 909, 808, 606, Linn or CR-78 style drums, 303-style acid bass, and so on]
 - Mix taste [backbeat and lead vocal slightly forward, brightness matched to finished records]: bigger or smaller snare, clap and vocal, a brighter or darker mix
 - Render mode [repeatable]: always ask this one and say what each choice costs. Repeatable gives the same file on every render and is slower in the full-mix renders. Fast finishes those sooner, and some songs may then differ slightly between renders. Gentle uses fewer cores so the computer stays usable, and the longest stage takes longer. The table and settings are in `references/setup.md`, Render mode
@@ -84,7 +84,7 @@ Check: every part is audible in the excerpt's measurements, and no patch is sile
 
 ### Stage 4: Vocals (only when the song has them)
 
-Read `references/vocals.md` first. In short: write lines as whole sentences with one melody token per syllable, check each line with `lyric-lint` as you write it and settle its warnings before it goes into the script (saving the script sings the lines, so a fault caught earlier costs nothing), sing them alone before the mix, run the word-choice procedure on weak lines, and give the user the dry vocal and the lyrics for approval. `lint` repeats the lyric checks on every lead line once the project exists. With a singer voicebank, read its terms with the user before the first render and credit it as required, and apply the lyric rules by their tiers: the singing craft and the model-voice habits hold, the speech-voice repairs do not.
+Read `references/vocals.md` first. In short: write lines as whole sentences with one melody token per syllable, check each line with `lyric-lint` as you write it, sing the lines alone before the mix, run the word-choice procedure on weak lines, and give the user the dry vocal and the lyrics for approval. Settle a line's `lyric-lint` warnings before it goes into the script: saving the script sings the lines, so a fault caught earlier costs nothing. `lint` repeats the lyric checks on every lead line once the project exists. With a singer voicebank, read its terms with the user before the first render and credit it as required. Of the lyric rules, only the singing craft and the model-voice habits apply to the bank.
 
 Check: the lead vocal's lines are approved by the user, or flagged lines are listed with what the recogniser heard, their pitch error in cents and their `ROUGH` syllables.
 

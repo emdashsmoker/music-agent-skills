@@ -111,7 +111,7 @@ vocal = song.vocal("lead vocal", "kokoro:af_heart")           # or piper:<voice>
 vocal.line(("verse", 0), "Empty roads below a paper sky", "E4/0.5 E4/0.5 G4/0.5 G4/0.5 A4/2 A4/0.5 G4/0.5 F4/0.5 E4/2")
 vocal.harmony("harmony vocal", steps=2, only_kind="chorus", pan=20)
 vocal.double("double vocal", only_kind="chorus", pan=-20)
-song.duck_for_vocals(4.0, presence_db=6.0)     # optional: a song with vocals is ducked at 2.5 and 6.0 without this call; presence_octaves changes the dip width to suit the production the user wants (default 1.5 octaves; wide values not recommended)
+song.duck_for_vocals(4.0, presence_db=6.0)     # optional: songs with vocals duck at 2.5 and 6.0 without it (dip width: presence_octaves, see mixing.md)
 ```
 
 The melody has one token per sung syllable. Everything about voices, the notation, lyric writing and the checks is in `vocals.md`. Read it before writing any lyric.
@@ -136,4 +136,4 @@ The melody has one token per sung syllable. Everything about voices, the notatio
 | `monotony` | A part repeats unchanged for a long stretch | Add variation every 4 or 8 bars, or automate a filter |
 | `unrepeatable_automation`, `unrepeatable_peak_controller`, `unrepeatable_drumsynth`, and on systems without one-core rendering `unrepeatable_kicker_noise` | Something LMMS renders differently on each run | Use the repeatable alternative named in the message (see `sounds-effects.md`) |
 | `section_density` (info) | How many parts play in each section | Compare with the intended energy curve |
-| `lyrics_*` | The lyric craft findings of `lyric-lint`, run on every lead line of the vocals file | See `vocals.md`; reword the line or move the word, then run the script again |
+| `lyrics_*` | `lyric-lint` findings on a lead line of the vocals file | Reword the line or move the word (see `vocals.md`), then run the script again |

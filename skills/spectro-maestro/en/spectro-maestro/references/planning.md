@@ -40,7 +40,7 @@ Deliverables : mp3, MIDI, ...
 ```
 - Show this summary to the user and start composing after it is confirmed
 - For a song whose lyrics are newly written, have the lyric draft confirmed as well
-    + Read the lyric writing rules in `vocals.md` before drafting: the rules shape the words, and a draft written first tends to keep its faults
+    + Read the lyric writing rules in `vocals.md` before drafting, because a draft written first tends to keep its faults
 
 ## Handling user input
 - Melodies, chords and rhythm ideas from the user go in as given
