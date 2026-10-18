@@ -3,8 +3,8 @@
 # Part of Spectro Maestro. See LICENSE and THIRD-PARTY-NOTICES.md at the root of the skill.
 """Sing with a DiffSinger voicebank the user supplies (the OpenUtau voicebank layout, ONNX models).
 
-Nothing about any particular voicebank lives here. The user points to a folder or an archive (a link
-is fetched into a folder first); this module reads the voicebank's own configuration and dictionaries and runs its models
+Nothing about any particular voicebank lives here. The user points to a folder (an archive or a link is
+first unpacked or fetched into one); this module reads the voicebank's own configuration and dictionaries and runs its models
 unmodified: duration, pitch, variance, acoustic, vocoder. The user is responsible for the terms
 of the voicebank they choose; `inspect` lists the licence and readme files found so they can be read.
 
@@ -19,7 +19,6 @@ import hashlib
 import json
 import os
 import re
-import zipfile
 
 import numpy as np
 import yaml
@@ -55,28 +54,14 @@ class DiffSingerError(singing.VocalError):
 # ---------------------------------------------------------------- locating a voicebank
 
 def resolve(reference: str) -> str:
-    """Folder or .zip file -> folder that holds dsconfig.yaml. Archives are unpacked into the models directory
-    under a name derived from the file. Links are not downloaded here: the agent first fetches what the user
-    handed over into a folder (references/vocals.md), so the toolkit itself never downloads a voicebank."""
+    """Voicebank folder -> the folder inside it that holds dsconfig.yaml. Archives and links are not opened here:
+    the agent first unpacks or fetches what the user handed over into a folder (references/vocals.md)."""
     reference = os.path.expanduser(str(reference))
-    if reference.startswith(("http://", "https://")):
-        raise DiffSingerError("the toolkit does not download voicebank links; fetch the link into a new empty folder "
-                              "as references/vocals.md describes, then pass that folder")
-    if os.path.isdir(reference):
-        return _find_root(reference)
-    if not os.path.isfile(reference):
-        raise DiffSingerError(f"voicebank not found: {reference}")
-    store = os.path.join(speech.models_dir(), "diffsinger")
-    name = re.sub(r"[^\w.-]+", "_", os.path.splitext(os.path.basename(reference.rstrip("/")))[0])[-60:] or "voicebank"
-    target = os.path.join(store, name + "_" + hashlib.sha1(reference.encode()).hexdigest()[:8])
-    if not os.path.isdir(target):
-        os.makedirs(store, exist_ok=True)
-        with zipfile.ZipFile(reference) as bundle:
-            for member in bundle.namelist():               # refuse paths that would leave the target folder
-                if os.path.isabs(member) or ".." in member.split("/"):
-                    raise DiffSingerError(f"unsafe path in archive: {member}")
-            bundle.extractall(target)
-    return _find_root(target)
+    if not os.path.isdir(reference):
+        raise DiffSingerError(f"voicebank folder not found: {reference}. The toolkit does not unpack archives or download "
+                              "links; unpack or fetch them into a new empty folder as references/vocals.md describes, "
+                              "then pass that folder")
+    return _find_root(reference)
 
 
 def _find_root(folder: str) -> str:
@@ -586,7 +571,7 @@ def _predict_variance(stage: Stage, symbols: list, durations: np.ndarray, midi: 
 def _settings(track: dict) -> dict:
     config = dict(track.get("vocal") or {})
     if not config.get("voice"):
-        raise DiffSingerError(f"{track['name']}: engine diffsinger needs 'voice': a voicebank folder or archive "
+        raise DiffSingerError(f"{track['name']}: engine diffsinger needs 'voice': a voicebank folder "
                               f"supplied by the user")
     settings = {**DEFAULTS, **{k: v for k, v in config.items() if k in DEFAULTS or k == "style"}}
     settings["voice"] = config["voice"]
