@@ -151,7 +151,7 @@ description: 전자음악 중심의 완성곡을 코드로 작곡, 편곡, 합�
 - 일치율은 들어볼 줄을 고르는 탐지기
     + 합격 여부는 사람의 청취로 결정
     + 사용자가 쓰거나 승인한 가사는 경고만으로 바꾸지 않고 원본과 후보 클립을 제시하여 선택을 받음
-- DiffSinger 보이스뱅크를 받으면 `studio diffsinger-inspect <경로>`부터 실행
+- DiffSinger 보이스뱅크를 받으면 `studio diffsinger-inspect <폴더>`부터 실행
     + `references/vocals.md`의 가사 규칙 가운데 가창 요령과 모델 목소리의 습성만 보이스뱅크에 적용
     + `lint`도 보이스뱅크의 줄에 이 두 가지를 검사
     + 이용 조건 파일을 읽고 사용자에게 요약 고지

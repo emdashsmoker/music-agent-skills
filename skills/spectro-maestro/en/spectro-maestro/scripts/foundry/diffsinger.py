@@ -6,7 +6,8 @@
 Nothing about any particular voicebank lives here. The user points to a folder (an archive or a link is
 first unpacked or fetched into one); this module reads the voicebank's own configuration and dictionaries and runs its models
 unmodified: duration, pitch, variance, acoustic, vocoder. The user is responsible for the terms
-of the voicebank they choose; `inspect` lists the licence and readme files found so they can be read.
+of the voicebank they choose; the agent finds and reads them in the voicebank folder
+before use (references/vocals.md), since their file names follow no convention.
 
 Pipeline per lyric line
   words -> phonemes (voicebank dictionary, then CMUdict for English, then espeak when available)
@@ -35,7 +36,6 @@ DEFAULTS = {"lang": "en", "speaker": None, "steps": 20, "pitch_steps": 10, "vari
             "deterministic": True,
             "pitch": "model", "expr": 1.0, "gender": 0.0, "velocity": 1.0, "tension": 0.0, "breathiness": 0.0,
             "voicing": 0.0}
-LICENCE_PATTERNS = ("*licen*", "*terms*", "*readme*", "*README*", "character.txt", "*tos*", "*credit*")
 ARPABET_VOWELS = {"aa", "ae", "ah", "ao", "aw", "ay", "eh", "er", "ey", "ih", "iy", "ow", "oy", "uh", "uw"}
 IPA_TO_ARPABET = [("tʃ", "ch"), ("dʒ", "jh"), ("aɪ", "ay"), ("aʊ", "aw"), ("eɪ", "ey"), ("oʊ", "ow"), ("əʊ", "ow"),
                   ("ɔɪ", "oy"), ("ɑ", "aa"), ("æ", "ae"), ("ʌ", "ah"), ("ə", "ah"), ("ɐ", "ah"), ("ɔ", "ao"),
@@ -241,11 +241,10 @@ def voicebank(reference: str) -> Voicebank:
 
 
 def inspect(reference: str) -> dict:
-    """What a voicebank offers, and which of its files state the terms of use."""
+    """What a voicebank offers. Terms-of-use files follow no naming convention, so the agent finds them by
+    reading the folder (references/vocals.md)."""
     bank = voicebank(reference)
     folder = bank.stages["dsdur"].folder
-    documents = sorted({os.path.relpath(p, bank.root) for pattern in LICENCE_PATTERNS
-                        for p in glob.glob(os.path.join(glob.escape(bank.root), pattern))})
     acoustic = bank.acoustic.config
     return {"root": bank.root, "speakers": bank.acoustic.speakers(),
             "languages": sorted(bank.acoustic.languages) or ["(single language)"],
@@ -253,8 +252,8 @@ def inspect(reference: str) -> dict:
             "models": {"duration": True, "pitch": "dspitch" in bank.stages, "variance": "dsvariance" in bank.stages},
             "sample_rate": acoustic.get("sample_rate"), "controls": [k[4:-6] for k, v in acoustic.items()
                                                                       if k.startswith("use_") and k.endswith("_embed") and v],
-            "read_these_for_terms_of_use": documents,
-            "note": "Read the listed files (and the voicebank's download page) and tell the user the usage terms before rendering."}
+            "note": "Find the terms of use among the files of this folder and on the voicebank's download page, "
+                    "then tell the user the usage terms before rendering (references/vocals.md)."}
 
 
 # ---------------------------------------------------------------- text to phonemes

@@ -65,7 +65,7 @@ A repository that uses Git LFS leaves pointer files after the clone (small files
 
 Before the first render with a bank:
 
-1. Run `voices diffsinger:<folder>` and open every file it lists under `terms_documents`, plus any terms page those files point to.
+1. Run `voices diffsinger:<folder>`. Find the documents that state the terms of use yourself by checking every file in the voicebank folder, subfolders included, and open them. File names differ in language and form from bank to bank (for example readme.txt, character.txt, 利用規約.txt). Also open any terms page those documents point to.
 2. Tell the user in a few plain sentences what the terms say about the points that matter: commercial use, credit, content restrictions, redistribution of the bank or of audio, and use for machine learning. Quote the source when the wording is unusual.
 3. Ask the user to confirm that the planned use fits. If no terms can be found, say so and ask the user how to proceed.
 4. Put the required credit into the delivery notes and into the lyrics file or metadata when the terms ask for it.

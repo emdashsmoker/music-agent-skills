@@ -5,7 +5,7 @@
 A voicebank is a folder the user supplies: dsconfig.yaml, phoneme and language tables, dictionaries,
 speaker embeddings and ONNX models for duration, pitch, variance, acoustic features and the vocoder.
 Nothing here downloads or names a voicebank; every bank comes with its own terms, which the user
-must read and accept before it is used (describe() lists the licence files found in the folder).
+must read and accept before it is used (the agent finds them in the folder: references/vocals.md).
 
 Pipeline: words -> phonemes (bank dictionary, then a built-in English fallback) -> phoneme lengths
 (duration model, then fitted so every vowel starts on its note) -> pitch curve (the bank's pitch
@@ -34,7 +34,6 @@ VOWEL_TYPE = "vowel"
 MIN_PHONE_FRAMES = 1
 EDGE_GUARD_S = 0.03
 MAX_CONSONANT_SHARE = 0.65                     # of a note: how much its closing consonants may take
-LICENCE_PATTERNS = ("*readme*", "*license*", "*licence*", "*terms*", "*tos*", "*credit*", "character.txt")
 ARPABET_FALLBACKS = {"ax": ["ah"], "dx": ["d", "t"], "q": ["cl", "gs"], "ll": ["l"], "mm": ["m"], "nn": ["n"]}
 WEAK_VOWELS = ("er", "ax", "axr")
 CHARACTER_LANGUAGES = ("ko", "ja", "zh")       # languages written without spaces: one written character per note
@@ -134,12 +133,7 @@ class Voicebank:
 
     # -- description ------------------------------------------------------------------------------
     def describe(self) -> dict:
-        """What the bank offers and which documents state its terms (to be read with the user before use)."""
-        documents = []
-        for pattern in LICENCE_PATTERNS:
-            for path in glob.glob(os.path.join(self.root, "**", pattern), recursive=True):
-                if os.path.isfile(path) and path.lower().endswith((".txt", ".md", ".yaml", ".pdf", ".html")) and "dsdict" not in path:
-                    documents.append(os.path.relpath(path, self.root))
+        """What the bank offers. Its terms of use are found by reading the folder (references/vocals.md)."""
         character = {}
         if os.path.exists(os.path.join(self.root, "character.yaml")):
             character = _yaml(os.path.join(self.root, "character.yaml"))
@@ -147,8 +141,7 @@ class Voicebank:
                 "languages": sorted(self.acoustic.languages) or ["(single language)"],
                 "voices": sorted(self.acoustic.speakers) or ["(default)"], "sample_rate": self.sample_rate,
                 "has_pitch_model": self.pitch is not None, "has_variance_model": self.variance is not None,
-                "vocoder": self.vocoder_config.get("name"), "phoneme_count": len(self.acoustic.phonemes),
-                "terms_documents": sorted(set(documents))}
+                "vocoder": self.vocoder_config.get("name"), "phoneme_count": len(self.acoustic.phonemes)}
 
     # -- words to phonemes ------------------------------------------------------------------------
     def _dictionary(self, lang: str) -> tuple[dict, dict]:

@@ -270,9 +270,9 @@ vox:
     + Fetch the Git LFS pointer files left after the clone (small files that start with `version https://git-lfs.github.com/spec/v1`) from `https://media.githubusercontent.com/media/<owner>/<repo>/<commit>/<path>` on GitHub or from `<repository address>/resolve/<commit>/<path>` on Hugging Face, and check each against the sha256 in its pointer. Use `git lfs pull` for other hosts and for private repositories
     + Do not use a folder while any pointer remains
 - Check before use
-    + `python scripts/studio.py diffsinger-inspect <path>`
-    + Prints speakers, languages, the models included, and the list of files that state usage terms
-    + Read those files and the terms on the distribution page and give the user a summary (commercial use, required credit, prohibited content, limits on use of the output)
+    + Run `python scripts/studio.py diffsinger-inspect <folder>` to see the speakers, languages and models included
+    + Find the terms-of-use documents yourself by checking every file in the voicebank folder, subfolders included. File names differ in language and form from bank to bank (for example readme.txt, character.txt, 利用規約.txt)
+    + Read those documents and the terms on the distribution page and give the user a summary (commercial use, required credit, prohibited content, limits on use of the output)
     + If the lyrics or the purpose conflict with the terms, discuss it with the user before proceeding
 - Settings
 ```yaml

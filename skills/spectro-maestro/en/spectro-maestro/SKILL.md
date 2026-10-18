@@ -159,7 +159,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 - The match score is a detector that picks lines to listen to
     + Whether a line passes is decided by a person listening
     + Lyrics the user wrote or approved are not changed because of a warning alone: present the original and the candidate clips and let the user choose
-- When given a DiffSinger voicebank, run `studio diffsinger-inspect <path>` first
+- When given a DiffSinger voicebank, run `studio diffsinger-inspect <folder>` first
     + Read the terms-of-use files and give the user a summary
     + Of the lyric rules in `references/vocals.md`, only the singing craft and the model-voice habits apply to the bank
     + `lint` runs those two groups on the bank's lines
