@@ -197,7 +197,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 - A cache means only changed tracks are recomputed
 
 ## Step 7 Export and report
-- Standard delivery : finished audio, MIDI, the song file, the project JSON
+- Standard delivery : finished audio (ogg, mp3), MIDI, the song file, the project JSON
     + On request: stems, LMMS project, DAWproject, a lyrics file, review pictures
     + Contents and limits of each format are in `references/export.md`
 - What the report contains

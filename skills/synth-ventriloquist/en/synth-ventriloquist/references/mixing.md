@@ -19,7 +19,7 @@ An agent cannot hear the mix, so every mix decision here rests on a measurement 
 python scripts/lmms_tool.py produce song.mmp -o out
 ```
 
-`produce` runs, in order: balance the part levels, set the master loudness, render, run all checks, draw the review figures, render once more to prove the result is repeatable, and export ogg and mp3 (when ffmpeg is present), MIDI, DAWproject, JSON and a copy of the project. Everything lands in `out/`, with `report.txt` (readable) and `report.json` (all measurements). Options: `--genre` (default: from the plan file), `--lufs` to override the loudness target, `--no-balance` to keep the faders as they are, `--no-tone-fit` to keep the tone as mixed, `--no-repeat-check` to skip the second render.
+`produce` runs, in order: balance the part levels, set the master loudness, render, run all checks, draw the review figures, render once more to prove the result is repeatable, and export ogg and mp3, MIDI, DAWproject, JSON and a copy of the project. An ogg file differs from run to run only in its Ogg stream serial number and page checksums, so its bytes are not identical. The sound data is the same, and the repeat check compares the WAV. Everything lands in `out/`, with `report.txt` (readable) and `report.json` (all measurements). Options: `--genre` (default: from the plan file), `--lufs` to override the loudness target, `--no-balance` to keep the faders as they are, `--no-tone-fit` to keep the tone as mixed, `--no-repeat-check` to skip the second render.
 
 `check` runs only the render, checks and figures. `balance` and `master` run those single steps.
 

@@ -74,7 +74,7 @@ A command written as a list may contain `{grants}`. For a Flatpak it is replaced
 
 ## Getting ffmpeg
 
-ffmpeg is needed only for ogg, mp3 and flac files. Without it `produce` still delivers the WAV and says so. Ways to get it, by the same logic as above: the system package manager, a static build in the user's home folder with the `ffmpeg` setting pointing at it, or the Python package `imageio-ffmpeg`, which brings an ffmpeg binary into the Python environment without administrator rights and is picked up automatically.
+ffmpeg is optional. soundfile writes ogg, mp3 and flac itself. ffmpeg is used only to encode mp3 when the libsndfile inside soundfile is older than 1.1 and cannot write mp3. With neither, `produce` skips the mp3, delivers the ogg and the WAV, and says so. Upgrading soundfile is then the simplest fix. Ways to get ffmpeg, by the same logic as above: the system package manager, a static build in the user's home folder with the `ffmpeg` setting pointing at it, or the Python package `imageio-ffmpeg`, which brings an ffmpeg binary into the Python environment without administrator rights and is picked up automatically.
 
 ## Drum kit
 

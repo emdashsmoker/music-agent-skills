@@ -7,7 +7,7 @@
     + `ogg` : Vorbis
     + `mp3` : libsndfile 1.1 이상 또는 ffmpeg 필요
     + `mid` : 트랙별 채널, 드럼은 10번 채널의 General MIDI 건반, 가사는 가사 이벤트로 포함
-- 기본값은 `wav,mp3,mid`
+- 기본값은 `wav,ogg,mp3,mid`
 - `render --stems`는 트랙별 스템을 `stems/<트랙>.flac`으로 저장
     + 버스 스템(`bus_drums.flac` 등)은 항상 저장됨
     + 스템을 모두 더하면 마스터 이전 믹스와 같은 균형
@@ -95,7 +95,7 @@
 
 ## 전달물 구성
 - 기본 전달물
-    + 완성 오디오 (`mp3` 또는 사용자가 지정한 형식)
+    + 완성 오디오 (`ogg`와 `mp3` 또는 사용자가 지정한 형식)
     + MIDI
     + 곡 파일 (`.yaml`)과 프로젝트 JSON
 - 요청 시 추가
