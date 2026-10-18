@@ -19,7 +19,7 @@
 python scripts/lmms_tool.py produce song.mmp -o out
 ```
 
-`produce`는 차례로 파트 레벨의 밸런스를 잡고, 마스터 음량을 정하고, 렌더하고, 모든 점검을 돌리고, 검수용 그림을 그리고, 결과가 재현되는지 증명하려고 한 번 더 렌더하고, ogg와 mp3(ffmpeg가 있을 때), MIDI, DAWproject, JSON, 프로젝트 사본을 내보낸다. 전부 `out/`에 놓이며 `report.txt`(읽기용)와 `report.json`(모든 측정값)이 함께 있다. 옵션: `--genre`(기본값: plan 파일에서), 음량 목표를 바꾸는 `--lufs`, 페이더를 그대로 두는 `--no-balance`, 믹스한 음색을 그대로 두는 `--no-tone-fit`, 두 번째 렌더를 건너뛰는 `--no-repeat-check`.
+`produce`는 차례로 파트 레벨의 밸런스를 잡고, 마스터 음량을 정하고, 렌더하고, 모든 점검을 돌리고, 검수용 그림을 그리고, 결과가 재현되는지 증명하려고 한 번 더 렌더하고, ogg와 mp3, MIDI, DAWproject, JSON, 프로젝트 사본을 내보낸다. ogg 파일은 실행할 때마다 Ogg 스트림 일련번호와 페이지 체크섬만 달라져 파일 바이트가 같지 않다. 소리 데이터는 같고, 재현 검사는 WAV로 한다. 전부 `out/`에 놓이며 `report.txt`(읽기용)와 `report.json`(모든 측정값)이 함께 있다. 옵션: `--genre`(기본값: plan 파일에서), 음량 목표를 바꾸는 `--lufs`, 페이더를 그대로 두는 `--no-balance`, 믹스한 음색을 그대로 두는 `--no-tone-fit`, 두 번째 렌더를 건너뛰는 `--no-repeat-check`.
 
 `check`는 렌더, 점검, 그림만 돌린다. `balance`와 `master`는 그 단계 하나만 돌린다.
 

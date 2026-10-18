@@ -74,7 +74,7 @@ python scripts/lmms_tool.py configure --set 'lmms_command=["flatpak", "run", "--
 
 ## ffmpeg 구하기
 
-ffmpeg는 ogg, mp3, flac 파일에만 필요하다. 없어도 `produce`는 WAV를 전달하고 그 사실을 알린다. 구하는 방법은 위와 같은 논리를 따른다. 시스템 패키지 관리자, 홈 폴더에 둔 정적 빌드와 그 경로를 가리키는 `ffmpeg` 설정, 또는 Python 패키지 `imageio-ffmpeg`가 있다. `imageio-ffmpeg`는 관리자 권한 없이 Python 환경 안에 ffmpeg 실행 파일을 가져오며 자동으로 인식된다.
+ffmpeg는 선택 사항이다. ogg, mp3, flac은 soundfile이 직접 쓴다. ffmpeg는 soundfile에 든 libsndfile이 1.1보다 오래되어 mp3를 쓰지 못할 때만 mp3 인코딩에 쓰인다. 둘 다 없으면 `produce`는 mp3를 건너뛰고 ogg와 WAV를 전달하며 그 사실을 알린다. 이때는 soundfile을 새 판으로 올리는 것이 가장 간단하다. ffmpeg를 구하는 방법은 위와 같은 논리를 따른다. 시스템 패키지 관리자, 홈 폴더에 둔 정적 빌드와 그 경로를 가리키는 `ffmpeg` 설정, 또는 Python 패키지 `imageio-ffmpeg`가 있다. `imageio-ffmpeg`는 관리자 권한 없이 Python 환경 안에 ffmpeg 실행 파일을 가져오며 자동으로 인식된다.
 
 ## 드럼 킷
 

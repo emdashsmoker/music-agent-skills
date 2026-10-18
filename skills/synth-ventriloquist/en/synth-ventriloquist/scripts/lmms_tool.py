@@ -27,7 +27,7 @@ PACKAGES = {  # import name: (name to install, what is missing without it)
     "pyworld": ("pyworld", "speech voices singing"), "onnx": ("onnx", "Piper timing and the Kokoro 'held' method"),
     "piper": ("piper-tts", "Piper voices"), "faster_whisper": ("faster-whisper", "recognition check of sung lines"),
     "yaml": ("pyyaml", "singer voicebanks"), "xmlschema": ("xmlschema", "DAWproject schema validation (optional)"),
-    "imageio_ffmpeg": ("imageio-ffmpeg", "an ffmpeg binary without administrator rights (optional, only when ffmpeg is missing)"),
+    "imageio_ffmpeg": ("imageio-ffmpeg", "an ffmpeg binary without administrator rights (optional, only for mp3 when libsndfile is older than 1.1)"),
 }
 
 
@@ -47,7 +47,12 @@ def cmd_doctor(args) -> None:
                                       "run selftest to see whether this version renders its projects correctly")
     else:
         status["lmms"] = {"error": "not found in the settings, on the PATH, in the usual folders or as a Flatpak: see references/setup.md"}
-    status["ffmpeg"] = settings.ffmpeg_path() or "missing: ogg, mp3 and flac output unavailable (WAV works)"
+    if settings.ffmpeg_path():
+        status["ffmpeg"] = settings.ffmpeg_path()
+    elif importlib.util.find_spec("soundfile") and render.soundfile_writes_mp3():
+        status["ffmpeg"] = "missing: not needed here, soundfile writes ogg, mp3 and flac itself"
+    else:
+        status["ffmpeg"] = "missing: mp3 output needs it or libsndfile 1.1 or later (ogg, flac and WAV work)"
     status["python_packages"] = {install: ("ok" if importlib.util.find_spec(name) else f"missing: {purpose}")
                                  for name, (install, purpose) in PACKAGES.items()}
     kit_state = kit.status()
@@ -256,7 +261,7 @@ def cmd_selftest(args) -> None:
     import hashlib
     import shutil
     import tempfile
-    from lmmskit import compose, export, lint, pipeline, render, settings
+    from lmmskit import compose, export, lint, pipeline, render
     from lmmskit.project import Project
     failures = []
 
@@ -273,11 +278,12 @@ def cmd_selftest(args) -> None:
             with open(render.render(path, os.path.join(folder, f"render{index}.wav")), "rb") as handle:
                 digests.append(hashlib.md5(handle.read()).hexdigest())
         record("two renders are identical", digests[0] == digests[1])
-        formats = pipeline.AUDIO_FORMATS if settings.ffmpeg_path() else ()
+        formats = tuple(f for f in pipeline.AUDIO_FORMATS if render.can_write(f".{f}"))
+        skipped = [f for f in pipeline.AUDIO_FORMATS if f not in formats]
         report = pipeline.produce(path, os.path.join(folder, "out"), formats=formats, repeat_check=False)
         master = next(f["data"] for f in report["findings"] if f["code"] == "master_summary")
         record("balance, loudness and mix checks", report["worst"] != "error" and master["lufs_integrated"] > -30, f"{master['lufs_integrated']} LUFS, true peak {master['true_peak_db']} dBTP")
-        record("audio files", all(os.path.getsize(report["files"][f]) > 1024 for f in ("wav", *formats)), "ogg and mp3 skipped: ffmpeg missing" if not formats else "")
+        record("audio files", all(os.path.getsize(report["files"][f]) > 1024 for f in ("wav", *formats)), f"{', '.join(skipped)} skipped: needs libsndfile 1.1 or later, or ffmpeg" if skipped else "")
         record("figures", all(os.path.exists(p) for p in report["figures"].values()) and len(report["figures"]) >= 4)
         midi_notes = export.read_midi_notes(report["files"]["midi"])
         record("MIDI export reads back", len(midi_notes.get("kick", [])) == 32, f"{len(midi_notes.get('kick', []))} kick notes")

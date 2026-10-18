@@ -91,7 +91,7 @@ Keep changes minimal and listed. The user should be able to read exactly what wa
 
 | Format | Command | Contains | Use |
 |---|---|---|---|
-| Audio | `render song.mmp -o out.ogg` (`.mp3`, `.flac`, `.wav`), or the files `produce` writes | The mix | Listening, publishing. Needs `ffmpeg` for ogg, mp3 and flac |
+| Audio | `render song.mmp -o out.ogg` (`.mp3`, `.flac`, `.wav`), or the files `produce` writes | The mix | Listening, publishing. mp3 needs libsndfile 1.1 or later, or `ffmpeg` |
 | LMMS project | the `.mmp` itself, or `export --mmp copy.mmpz` | Everything | Continue in LMMS |
 | Portable project | `pack song.mmp -o song.zip` | Project, plan files, the samples it uses, a note on where to copy them | Send to another LMMS user. Voicebanks are never included |
 | MIDI | `export song.mmp --midi song.mid` | Tempo and notes, one track per part. Drums on channel 10 with General MIDI note numbers. Sung melodies as notes | Any DAW or notation program. Sounds are not carried |

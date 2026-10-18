@@ -22,8 +22,12 @@ TESTED_LMMS_SERIES = "1.2."                     # the project format and command
 _CORE_COUNTER, _CORE_LOCK = itertools.count(), threading.Lock()
 SAMPLES_SUBDIR = "samples"                      # LMMS resolves relative sample paths under <workingdir>/samples
 SCRATCH_PREFIX = "lmmskit-render-"
-CODEC_ARGS = {".ogg": ["-c:a", "libvorbis", "-q:a", "6"], ".mp3": ["-c:a", "libmp3lame", "-q:a", "2"],
-              ".flac": ["-c:a", "flac"], ".wav": ["-c:a", "pcm_s16le"]}
+# soundfile writes every format: (container, subtype, compression level). The levels match by bitrate the ffmpeg
+# settings used before (libvorbis -q:a 6, libmp3lame -q:a 2). LMMS renders 16-bit, so flac and wav stay 16-bit.
+ENCODINGS = {".ogg": ("OGG", "VORBIS", 0.4), ".mp3": ("MP3", "MPEG_LAYER_III", 0.2),
+             ".flac": ("FLAC", "PCM_16", None), ".wav": ("WAV", "PCM_16", None)}
+FFMPEG_MP3_ARGS = ["-c:a", "libmp3lame", "-q:a", "2"]  # only for a libsndfile older than 1.1, which cannot write mp3
+WRITE_BLOCK = 1 << 15                                  # libsndfile's Vorbis encoder overflows its stack on one large write
 
 
 class LmmsNotFound(RuntimeError):
@@ -182,19 +186,52 @@ def render_stems(project_path: str, out_dir: str, *, oversampling: int = 1) -> l
     return sorted(os.path.join(out_dir, name) for name in os.listdir(out_dir) if name.endswith(".wav"))
 
 
+def soundfile_writes_mp3() -> bool:
+    """libsndfile 1.1 and later write mp3. soundfile is imported here so that doctor runs without it."""
+    import soundfile as sf
+    return "MP3" in sf.available_formats()
+
+
+def can_write(extension: str) -> bool:
+    """ogg, flac and wav always; mp3 when libsndfile writes it or ffmpeg is here to stand in."""
+    return extension in ENCODINGS and (extension != ".mp3" or soundfile_writes_mp3() or settings.ffmpeg_path() is not None)
+
+
 def convert(source: str, target: str, *, gain_db: float = 0.0, metadata: dict | None = None) -> str:
-    """Transcode with ffmpeg; the target extension picks the codec (.ogg, .mp3, .flac, .wav)."""
+    """Encode a WAV into the format the target extension names (.ogg, .mp3, .flac, .wav)."""
+    import soundfile as sf
     extension = os.path.splitext(target)[1].lower()
-    if extension not in CODEC_ARGS:
-        raise ValueError(f"unsupported target format {extension}; use one of {sorted(CODEC_ARGS)}")
+    if extension not in ENCODINGS:
+        raise ValueError(f"unsupported target format {extension}; use one of {sorted(ENCODINGS)}")
+    if extension == ".mp3" and not soundfile_writes_mp3():
+        return _mp3_with_ffmpeg(source, target, gain_db, metadata)
+    audio, rate = sf.read(source, always_2d=True)
+    if gain_db:
+        audio = audio * 10 ** (gain_db / 20)
+    container, subtype, level = ENCODINGS[extension]
+    options = {"samplerate": rate, "channels": audio.shape[1], "format": container, "subtype": subtype}
+    try:
+        handle = sf.SoundFile(target, "w", **options, **({} if level is None else {"compression_level": level}))
+    except TypeError:          # soundfile before 0.12 has no quality argument, so its default quality is used
+        handle = sf.SoundFile(target, "w", **options)
+    with handle:
+        for key, value in (metadata or {}).items():
+            setattr(handle, key, str(value))      # tags go in before the audio: Ogg writes them into its first pages
+        for start in range(0, len(audio), WRITE_BLOCK):
+            handle.write(audio[start:start + WRITE_BLOCK])
+    return target
+
+
+def _mp3_with_ffmpeg(source: str, target: str, gain_db: float, metadata: dict | None) -> str:
     ffmpeg = settings.ffmpeg_path()
     if not ffmpeg:
-        raise RuntimeError("ffmpeg not found: WAV output still works. See references/setup.md for ways to get it")
+        raise RuntimeError("mp3 needs libsndfile 1.1 or later (a newer soundfile) or ffmpeg, and neither is here. "
+                           "ogg, flac and WAV still work. See references/setup.md")
     command = [ffmpeg, "-y", "-loglevel", "error", "-i", source]
     if gain_db:
         command += ["-af", f"volume={gain_db:.3f}dB"]
     for key, value in (metadata or {}).items():
         command += ["-metadata", f"{key}={value}"]
-    command += ["-map_metadata", "-1", "-fflags", "+bitexact", "-flags:a", "+bitexact"] + CODEC_ARGS[extension] + [target]
+    command += ["-map_metadata", "-1", "-fflags", "+bitexact", "-flags:a", "+bitexact"] + FFMPEG_MP3_ARGS + [target]
     subprocess.run(command, check=True)
     return target
