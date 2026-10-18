@@ -120,6 +120,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 - For a vocal song choose the engine and the voice in this step
     + Pass the list from `studio voices` and its usage terms on to the user
     + Singing voicebanks are used only when the user provides them; do not search for or download one on the user's behalf
+    + Show the full lyrics and get the user's confirmation before any line is sung (new lyrics together with the plan summary)
 
 ## Step 2 Skeleton
 - Create a starter with `studio new <genre> -o song.yaml --title ... --bpm ... --key ...`
