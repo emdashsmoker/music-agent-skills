@@ -43,7 +43,7 @@ PACKAGES = {  # import name: (name to install, what is missing without it)
 def cmd_doctor(args) -> None:
     """Report what this machine has and what each missing piece disables. Changes nothing."""
     import importlib.util
-    from lmmskit import kit, render, settings
+    from lmmskit import render, settings
     status = {"environment": settings.environment()}
     candidates = settings.lmms_candidates()
     if candidates:
@@ -64,9 +64,14 @@ def cmd_doctor(args) -> None:
         status["ffmpeg"] = "missing: mp3 output needs it or libsndfile 1.1 or later (ogg, flac and WAV work)"
     status["python_packages"] = {install: ("ok" if importlib.util.find_spec(name) else f"missing: {purpose}")
                                  for name, (install, purpose) in PACKAGES.items()}
-    kit_state = kit.status()
-    status["drum_kit"] = {"folder": kit_state["folder"], "state": "ready" if kit_state["ready"] else
-                          "not built yet: made automatically on first use (a few seconds, needs LMMS), or now with the `kit` command"}
+    try:
+        from lmmskit import kit  # kit needs the core packages, and the doctor must still report on a machine without them
+    except ImportError as error:
+        status["drum_kit"] = {"state": f"unknown until the core packages are installed ({error})"}
+    else:
+        kit_state = kit.status()
+        status["drum_kit"] = {"folder": kit_state["folder"], "state": "ready" if kit_state["ready"] else
+                              "not built yet: made automatically on first use (a few seconds, needs LMMS), or now with the `kit` command"}
     status["settings"] = {key: settings.get(key) for key in settings.KEYS}
     _print(status)
 

@@ -135,7 +135,7 @@ def run() -> int:
     print("\nsettings (command line > environment variable SPECTRO_MAESTRO_<NAME> > config file > default)")
     try:
         for name, value, source, _meaning in settings.describe():
-            print(f"  {name:19s} {"(not set)" if value is None else value!s:52s} [{source}]")
+            print(f"  {name:19s} {'(not set)' if value is None else value!s:52s} [{source}]")
         print("  config files looked for: " + ", ".join(settings.config_candidates()))
         models = settings.lookup("models_dir")[0] or os.path.join(settings.lookup("cache_dir")[0] or settings.user_dir("cache"), "models")
         free = _free_gb(os.path.abspath(os.path.expanduser(str(models))))
