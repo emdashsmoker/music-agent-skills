@@ -82,15 +82,15 @@ vox:
 
 | Rules | For | What they cover |
 |---|---|---|
-| Singing craft | Any voice, a human singer included | Stress on the strong beats, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats |
+| Singing craft | Any voice, a human singer included | Stress on the strong beats, note lengths that follow the spoken stress, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats |
 | Model-voice habits | Speech voices and singing voicebanks alike | Consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak |
 | Speech-voice repairs | Speech voices only | The thin held ee and `vowel_body`, `consonant_ceiling` for stinging consonants, the line-ending repair, the strong-form spelling |
 - Rules for a voicebank
     + Write by the singing craft and the model-voice habits, and read the speech-voice repairs as background
     + `lint` runs the first two groups on DiffSinger tracks as well
 - Order of writing
-    + Fix the rhythm of the melody first
-    + Write the lyrics so that stressed syllables fall on the strong beats of that rhythm
+    + Fix the frame of the melody first: line lengths, the strong-beat positions and the held notes at line ends
+    + Write the lyrics so that stressed syllables fall on the strong beats of that frame, and set the note lengths to the spoken stress
     + Check syllable counts and stress with `lint`, then revise
 - Line length
     + A line is about two bars; leave a rest of at least half a beat between lines
@@ -105,6 +105,28 @@ vox:
 - Stress
     + Put the stressed syllable of a multi-syllable word on the stronger beat (`lyrics.stress`)
     + Order of beat strength : first beat, third beat, second and fourth beat, the off-beat eighth, sixteenth positions
+- Spoken stress and note length
+    + After writing a line, mark each syllable strong or weak as it is spoken and set the marks beside the note lengths ("Rise and fall" runs strong, weak, strong)
+    + The longest note of a line goes to a content word
+    + When a function word or a weak syllable takes the longest note and the stressed syllable after it is clipped short, the stress is reversed ("Rise and fall" with "and" held for two beats and "fall" cut to half a beat)
+    + A human singer struggles with such a line too, so give the stressed syllable the long note
+- Where the vocal rhythm comes from
+    + Take the vocal rhythm from the spoken stress of the words
+    + To sing a melody written for an instrument (a lead hook, a theme, a riff), rewrite its rhythm to the spoken stress first
+    + In arrangements where the lead plays the vocal's melody (synthpop, futurepop, eurodance, italo disco, etc.), fix the vocal line first and let the lead follow its rhythm
+- Where the dramatic devices go
+    + Risers, snare rolls and impacts carry the build-up and the drop (trance, big room, etc.)
+    + Instruments carry sudden stops and hits (darksynth, etc.) and fast runs and trills (chiptune, etc.)
+    + To build tension in a sung line, hold the last word itself
+    + For a clipped effect, give the last word a beat or more and cut it with a rest
+- Rhythmic density within a line
+    + A burst of fast syllables running into a long note, a burst of syllables after a long rest or slow notes, and a long build-up that ends on a clipped last word all leave the singer no place to breathe
+    + A last word clipped after a long build-up is over before it is heard (`lyrics.clipped_line_end`: the line ends, after a note held 2 beats or more, on a last syllable a quarter of that note or shorter)
+    + Even out a burst to the pace of the line's start or cut syllables from it (`lyrics.fast_syllables` points at fast runs)
+- Checking a clipped delivery
+    + Keep a clipped delivery that is part of the genre (the shouted lines of EBM, industrial, etc.) only when the last word comes through in the vocal-only render
+    + Note the reason for such a line in `notes` and put it on the listening list in the report
+    + For sounds whose job is not to carry words (vocal chops, vocal shots), note their purpose in `notes` to keep them apart from the lead lyric lines
 - Note length
     + One syllable needs 110 ms or more (`lyrics.short_notes`)
     + In fast songs avoid syllables shorter than an eighth note
@@ -198,7 +220,7 @@ vox:
     + A trembling or crackling line end and an over-strong syllable do not show in the match score or in `ROUGH`
     + A blurred short function word is also hard to catch with the match score or `ROUGH` (see 'Known limits' below)
     + Suspect them when the harmonic stripes at a line end blur into a smear in the picture, or when the level goes up and down
-    + The final verdict is by ear, so ask the user to listen to the line ends and to lines that keep a `lyrics.weak_words_in_a_row` warning (the listening list in the report)
+    + The final verdict is by ear, so ask the user to listen to the line ends and to lines that keep a `lyrics.weak_words_in_a_row` or `lyrics.clipped_line_end` warning (the listening list in the report)
     + After any change to the way vocals are processed, check line ends and long notes again as well as the places that were fixed
 - Cautions in reading recognition results
     + If the last note of the previous line leaks into the clip, the first word may come out different

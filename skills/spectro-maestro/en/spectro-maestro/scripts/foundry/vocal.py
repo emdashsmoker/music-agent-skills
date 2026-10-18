@@ -42,6 +42,9 @@ LINE_LEVEL_LIMIT_DB = 4.0
 MIN_BREATH_BEATS = 0.5          # lyric lint: less room than this between two lines leaves no breath
 FAST_SYLLABLE_S, FAST_SYLLABLE_COUNT = 0.2, 3    # lyric lint: this many notes this short make a line fast
 REST_IN_WORD_S = 0.12           # lyric lint: a gap this long between two syllables of one word splits the word
+# lyric lint: a note held this many beats, then a last syllable this fraction of it or shorter. The last word, usually the
+# rhyme and the point of the line, is over before it is heard.
+CLIP_HELD_BEATS, CLIP_RATIO = 2.0, 0.25
 LAYER_DEFAULTS = {
     "double": {"gain_db": -9.0, "pan": 0.55, "detune": 7.0, "delay_ms": 14.0},
     "harmony": {"gain_db": -8.0, "pan": -0.35, "steps": 2},
@@ -546,6 +549,13 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                 issue("warn", "lyrics.long_note_ending", where,
                       f"the last note is {last_len / spb:g} beats long but the word ends in a stop or fricative "
                       f"(/{phonetics.syllable_text(plist, last)}/); a word ending in an open vowel or a nasal holds better")
+            # In beats, rounded: a length taken as end minus start misses an exact 2 beats by a float hair.
+            held, tail = (round(lengths[-2] / spb, 6), round(last_len / spb, 6)) if len(lengths) >= 2 else (0.0, 0.0)
+            if held >= CLIP_HELD_BEATS and tail <= CLIP_RATIO * held:
+                issue("warn", "lyrics.clipped_line_end", where,
+                      f"/{phonetics.syllable_text(plist, syllables[-2])}/ holds {held:g} beats, then the line ends on "
+                      f"/{phonetics.syllable_text(plist, last)}/ in {tail:g} beats; the last word is over before it is heard. "
+                      f"Hold the last word itself, or give it a beat or more and end on a rest")
             short = [g for g in groups if g[1] - g[0] < 0.11]
             if short:
                 issue("warn", "lyrics.short_notes", where, f"{len(short)} notes shorter than 110 ms; syllables there will smear")
