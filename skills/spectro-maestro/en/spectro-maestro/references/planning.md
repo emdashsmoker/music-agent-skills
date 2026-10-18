@@ -48,8 +48,10 @@ Deliverables : mp3, MIDI, ...
     + If there is a harmonic clash, show where and offer alternatives, and ask for a choice
 - Lyrics from the user are kept as written in principle
     + Check syllable counts, stress, line-final vowels and rhyme
-    + Present a list of problem lines with suggested changes
+    + Once the engine and voice are chosen, also check what that voice can sing (sentence structure and words a pronunciation dictionary is unlikely to hold, at the top of the lyric writing rules in `vocals.md`)
+    + Present a list of problem lines with suggested changes; where it helps, play solo clips of the original and the change made with `vocal-try`
     + Apply only the changes that are approved
+    + If the user keeps the original, follow 'Handling unworkable plans' below
 - From a reference song take traits only
     + Do not copy the melody or the lyrics of a specific song
 - Given a MIDI file, make a song file draft with `import-midi`, then assign instruments and roles
