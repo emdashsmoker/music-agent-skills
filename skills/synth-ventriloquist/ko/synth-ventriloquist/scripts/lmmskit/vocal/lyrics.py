@@ -25,6 +25,9 @@ MIN_NOTE_S = 0.110                 # shorter notes smear consonants (a 16th at 1
 FAST_SYLLABLE_S = 0.200
 FAST_SYLLABLE_COUNT = 3
 LONG_NOTE_BEATS = 2.0
+# A line that builds up on a held note and then ends on a last syllable this fraction of it or shorter: the last word,
+# usually the rhyme and the point of the line, is over before it is heard. Same rule as spectro-maestro's lyrics.clipped_line_end.
+CLIP_RATIO = 0.25
 STRONG_NOTE_BEATS = 1.0
 SHORT_NOTE_BEATS = 0.5
 CLUSTER_SIZE = 2
@@ -218,6 +221,11 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
         if speech_voice and beats[index] >= LONG_NOTE_BEATS and syllable.nucleus and not syllable.diphthong and syllable.nucleus[0].symbol.replace(LENGTH_MARK, "") in EE_SYMBOLS:
             found.append(finding("info", "held_ee", f"{label}: '{syllable.text}' holds {beats[index]:g} beats on an ee vowel, which the speech voices sing thin and sharp; a word with ah, oh, oo or ay holds fuller, or fill it with Style(vowel_body=1)"))
     final = syllables[-1]
+    held, tail = (round(beats[-2], 6), round(beats[-1], 6)) if len(syllables) >= 2 else (0.0, 0.0)   # rounded: seconds back to beats carry float error
+    if held >= LONG_NOTE_BEATS and tail <= CLIP_RATIO * held:
+        found.append(finding("warn", "clipped_line_end", f"{label}: '{syllables[-2].text}' holds {held:g} beats, then the line ends on "
+                             f"'{final.text}' in {tail:g} beats; the last word is over before it is heard. Hold the last word itself, "
+                             "or give it a beat or more and end on a rest"))
     if beats[-1] >= LONG_NOTE_BEATS and final.coda and final.coda[-1].symbol[0] in NASALS:
         found.append(finding("info", "nasal_line_end", f"{label}: the last long note closes on a nasal (second-best to an open vowel)"))
     if role == "chorus" and len(syllables) > CHORUS_MAX_SYLLABLES:
