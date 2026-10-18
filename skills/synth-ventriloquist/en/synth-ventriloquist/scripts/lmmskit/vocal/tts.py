@@ -12,6 +12,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
+import unicodedata
 import urllib.request
 from dataclasses import dataclass
 
@@ -66,6 +68,10 @@ VOICES = {
     "piper:en_US-libritts_r-medium": {"engine": "piper", "gender": "mixed", "lang": "en-us", "note": "clear, lo-fi and peaky; suits lo-fi tracks; CC BY 4.0 dataset"},
 }
 DEFAULT_VOICE = {"female": "kokoro:af_heart", "male": "kokoro:am_michael"}
+ESPEAK_LANGUAGES = {"zh": "cmn"}       # a song's language code -> espeak's name for it, where the two differ
+# espeak marks the words it reads with another language's rules, e.g. "(en)tʃˈaɪniːz(ja)lˈetə" for a kanji in Japanese.
+# Kokoro's tokenizer keeps those marks, and the voice sang them as letters: "(ko)" became an extra syllable "ko".
+LANGUAGE_SWITCH = re.compile(r"\([a-z]+\)")
 
 
 @dataclass
@@ -82,6 +88,46 @@ class Unit:
     @property
     def phoneme_text(self) -> str:
         return "".join(p.symbol for p in self.phones)
+
+
+def speech_language(voice: str, lang: str | None) -> str:
+    """espeak language for a voice singing in `lang` (en, ko, ja, zh, ru ...): English keeps the voice's own accent."""
+    own = VOICES.get(voice, {}).get("lang", "en-us")
+    if not lang or lang.lower() == "en":
+        return own if own.startswith("en") else "en-us"
+    return ESPEAK_LANGUAGES.get(lang.lower(), lang.lower())
+
+
+def _identity(base: str, voice: str, lang: str) -> str:
+    """Cache identity of a backend: the language joins it only when it is not the voice's own, so English caches stay valid."""
+    return base if lang == speech_language(voice, None) else f"{base}:{lang}"
+
+
+def _vocab_phonemes(tokenizer, text: str, lang: str) -> str:
+    """What Kokoro's tokenizer.phonemize returns, except that a letter outside its vocabulary keeps its base letter.
+    espeak writes the Japanese a as the precomposed ä, which the tokenizer dropped: every a of a Japanese line went unsung."""
+    import phonemizer
+    raw = phonemizer.phonemize(text.strip(), lang, preserve_punctuation=True, with_stress=True)    # as the tokenizer runs it
+    kept = "".join(c if c in tokenizer.vocab else unicodedata.normalize("NFD", c) for c in raw)
+    return "".join(c for c in kept if c in tokenizer.vocab).strip()
+
+
+def espeak_phonemes(tokenizer, text: str, lang: str) -> str:
+    """espeak phonemes of a line (Kokoro's tokenizer), without language-switch marks.
+
+    A word the language cannot read itself is spelled out by espeak in another language ('Chinese letter' for a kanji
+    under ja, 'tilde' for a ~). Such words raise ValueError. Words with Latin letters are left alone: espeak reads them
+    as English, as a singer would. Words are tested one at a time, since a mark such as ー reads only inside a word.
+    """
+    phonemes = _vocab_phonemes(tokenizer, text, lang)
+    if not LANGUAGE_SWITCH.search(phonemes):
+        return phonemes
+    foreign = [word for word in text.split() if not any(c.isascii() and c.isalpha() for c in word)
+               and LANGUAGE_SWITCH.search(_vocab_phonemes(tokenizer, word, lang))]
+    if foreign:
+        raise ValueError(f"the speech voice reads {lang} and cannot read {' '.join(foreign)}; write them in a script {lang} reads "
+                         "(Japanese: kana), leave out symbols such as ~, set lang to the lyrics' language, or choose a voice that reads them")
+    return re.sub(" {2,}", " ", LANGUAGE_SWITCH.sub(" ", phonemes)).strip()     # a mark stands where the word's space was
 
 
 # -- model files ----------------------------------------------------------------------------------------
@@ -296,10 +342,10 @@ class KokoroBackend:
 
     @property
     def identity(self) -> str:
-        return f"kokoro:{self.voice}:{KOKORO_REVISION[:8]}"
+        return _identity(f"kokoro:{self.voice}:{KOKORO_REVISION[:8]}", f"kokoro:{self.voice}", self.lang)
 
     def phonemize(self, text: str) -> str:
-        return self._tokenizer.phonemize(text, self.lang)
+        return espeak_phonemes(self._tokenizer, text, self.lang)
 
     def synthesize(self, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED) -> Unit:
         phonemes = self.phonemize(text)
@@ -335,7 +381,7 @@ class PiperBackend:
 
     @property
     def identity(self) -> str:
-        return f"piper:{self.voice}"
+        return _identity(f"piper:{self.voice}", f"piper:{self.voice}", self.lang)
 
     def phonemize(self, text: str) -> str:
         return " ".join("".join(sentence) for sentence in self._voice.phonemize(text)).strip()
@@ -380,17 +426,18 @@ _backends: dict[str, object] = {}
 
 
 def backend(voice: str, lang: str | None = None):
-    """Backend for a voice id such as 'kokoro:af_heart' or 'piper:en_US-lessac-medium' (cached per process)."""
-    if voice not in _backends:
+    """Backend for a voice id such as 'kokoro:af_heart' or 'piper:en_US-lessac-medium' singing in `lang` (cached per process)."""
+    language = speech_language(voice, lang)
+    key = f"{voice}|{language}"
+    if key not in _backends:
         engine, _, name = voice.partition(":")
-        language = lang or VOICES.get(voice, {}).get("lang", "en-us")
         if engine == "kokoro":
-            _backends[voice] = KokoroBackend(name, language)
+            _backends[key] = KokoroBackend(name, language)
         elif engine == "piper":
-            _backends[voice] = PiperBackend(name, language)
+            _backends[key] = PiperBackend(name, language)
         else:
             raise ValueError(f"unknown TTS engine in voice id '{voice}'; use kokoro:<voice> or piper:<voice>")
-    return _backends[voice]
+    return _backends[key]
 
 
 # -- unit cache -------------------------------------------------------------------------------------------
@@ -418,9 +465,9 @@ def load_unit(path: str) -> Unit:
                 int(data["snapped"]) if "snapped" in data else 0)
 
 
-def speak(voice: str, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED, cache: str | None = None) -> Unit:
-    """Synthesize a line (or read it from the cache folder)."""
-    engine = backend(voice)
+def speak(voice: str, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED, cache: str | None = None, lang: str | None = None) -> Unit:
+    """Synthesize a line in `lang` (or read it from the cache folder)."""
+    engine = backend(voice, lang)
     if cache is None:
         return engine.synthesize(text, speed, seed)
     os.makedirs(cache, exist_ok=True)

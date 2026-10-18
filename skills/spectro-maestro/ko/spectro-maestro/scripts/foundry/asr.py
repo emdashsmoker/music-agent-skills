@@ -10,6 +10,7 @@ from __future__ import annotations
 import difflib
 import os
 import re
+import unicodedata
 
 import numpy as np
 from scipy import signal
@@ -17,7 +18,16 @@ from scipy import signal
 from . import settings, speech
 
 ASR_RATE = 16000
+WHISPER_LANGUAGES = {"cmn": "zh"}        # espeak's language names -> the recogniser's, where the two differ
 _models = {}
+
+
+def language_code(language: str | None) -> str | None:
+    """The recogniser's code for a language given as a song code (zh) or an espeak name (cmn, en-gb)."""
+    if not language:
+        return None
+    base = language.lower().split("-")[0]
+    return WHISPER_LANGUAGES.get(base, base)
 
 
 def _model(name: str):
@@ -53,6 +63,7 @@ def transcribe(audio: np.ndarray, sr: int, model: str | None = None, language: s
 
 
 def normalise(text: str) -> str:
+    text = unicodedata.normalize("NFC", text)           # a decomposed lyric (NFD Hangul) has two or three times the characters
     text = STUCK_LETTER.sub(r"\1", text.lower())     # a recogniser stuck on a held note repeats one letter
     return re.sub(r"\s+", " ", re.sub(r"[^\w\s']", " ", text, flags=re.UNICODE)).strip()
 

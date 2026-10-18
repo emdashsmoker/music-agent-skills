@@ -217,7 +217,7 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
             try:
                 hints = [f["message"].split(": ", 1)[-1] for f in
                          lyrics.lint_line(voice, line_tools.Line(row["text"], row["melody"], row["start_beat"]), bpm, natural_pitch=natural,
-                                          role=row["kind"], beats_per_bar=beats_per_bar)]
+                                          role=row["kind"], beats_per_bar=beats_per_bar, lang=lang)]
             except Exception:                                   # a bank the lint cannot read: the score still stands
                 hints = []
             found.append(finding("warn", "weak_line", f"{label} is recognised as '{scored['heard']}' (score {scored['score']}). Listen to the line; "

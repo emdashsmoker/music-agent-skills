@@ -18,6 +18,7 @@ import glob
 import json
 import os
 import re
+import unicodedata
 from dataclasses import dataclass
 
 import numpy as np
@@ -36,7 +37,29 @@ EDGE_GUARD_S = 0.03
 MAX_CONSONANT_SHARE = 0.65                     # of a note: how much its closing consonants may take
 ARPABET_FALLBACKS = {"ax": ["ah"], "dx": ["d", "t"], "q": ["cl", "gs"], "ll": ["l"], "mm": ["m"], "nn": ["n"]}
 WEAK_VOWELS = ("er", "ax", "axr")
-CHARACTER_LANGUAGES = ("ko", "ja", "zh")       # languages written without spaces: one written character per note
+CHARACTER_LANGUAGES = ("ko", "ja", "zh")       # languages written without spaces: looked up by the dictionary's written units
+
+
+def _words_of(text: str) -> list[str]:
+    """Lower-case words of a line. Punctuation outside ASCII (、。，！？「」) separates words like its ASCII forms; the
+    typographic apostrophe stays inside a word (don’t)."""
+    text = "".join(" " if not c.isascii() and unicodedata.category(c).startswith("P") else c for c in text.replace("’", "'"))
+    return re.findall(r"[^\s,.!?;:\"()]+", text.lower())
+
+
+def _longest_match(word: str, entries: dict) -> list[list[str]] | None:
+    """A word without spaces as dictionary entries, longest first from the left: kana pairs such as きゃ are one entry,
+    not き plus ゃ. None when some part has no entry. Ported from Spectro Maestro's diffsinger.word_phonemes (same author,
+    AGPL-3.0-or-later)."""
+    longest = max(map(len, entries), default=0)
+    pieces, index = [], 0
+    while index < len(word):
+        size = next((n for n in range(min(longest, len(word) - index), 0, -1) if word[index:index + n] in entries), 0)
+        if not size:
+            return None
+        pieces.append(entries[word[index:index + size]])
+        index += size
+    return pieces
 
 
 def _yaml(path: str) -> dict:
@@ -172,9 +195,10 @@ class Voicebank:
     def _fallback_english(self, word: str) -> list[str] | None:
         """Pronounce an out-of-dictionary English word with espeak and translate to the bank's ARPAbet symbols."""
         from kokoro_onnx.tokenizer import Tokenizer
+        from .tts import espeak_phonemes
         if not hasattr(self, "_g2p"):
             self._g2p = Tokenizer()
-        ipa = self._g2p.phonemize(word, "en-us")
+        ipa = espeak_phonemes(self._g2p, word, "en-us")
         symbols = list(ipa)
         result = []
         for arpabet, _, _ in to_arpabet(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols))):
@@ -185,16 +209,16 @@ class Voicebank:
         return result or None
 
     def phonemize(self, text: str, lang: str = "en") -> list[list[str]]:
-        """Phonemes per word. Languages written without spaces are looked up one written character at a time."""
+        """Phonemes per word. Languages written without spaces are looked up by the longest dictionary entries from the left."""
         entries, _ = self._dictionary(lang)
-        words = re.findall(r"[^\s,.!?;:\"()]+", text.lower())
         result = []
-        for word in words:
+        for word in _words_of(text):
             if word in entries:
                 result.append([self._known(p.split("/")[-1], lang) or p for p in entries[word]])
                 continue
-            if lang in CHARACTER_LANGUAGES and all(character in entries for character in word):
-                result += [[self._known(p.split("/")[-1], lang) or p for p in entries[character]] for character in word]
+            pieces = _longest_match(word, entries) if lang in CHARACTER_LANGUAGES else None
+            if pieces is not None:
+                result += [[self._known(p.split("/")[-1], lang) or p for p in piece] for piece in pieces]
                 continue
             fallback = self._fallback_english(word) if lang == "en" else None
             if fallback is None:

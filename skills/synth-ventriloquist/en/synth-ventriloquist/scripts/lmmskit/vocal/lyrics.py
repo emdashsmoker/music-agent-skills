@@ -69,12 +69,12 @@ def _bank_symbol(symbol: str) -> str:
     return ARPABET_TO_IPA.get(bare, bare)
 
 
-def _voicebank_syllables(voice: str, text: str) -> list[Syllable]:
+def _voicebank_syllables(voice: str, text: str, lang: str) -> list[Syllable]:
     """Syllables of a line as a DiffSinger voicebank pronounces it, with IPA symbols so the same rules apply.
     Bank dictionaries carry no stress, so the stress rules stay quiet for these voices."""
     from . import diffsinger
     folder = voice.split(":", 1)[1].partition("#")[0]
-    rows = diffsinger.voicebank(folder).syllables(text)
+    rows = diffsinger.voicebank(folder).syllables(text, lang)
     out = []
     for row in rows:
         make = lambda symbols: [Phone(_bank_symbol(s), 0.0, 0.0, row["word"], False) for s in symbols]
@@ -82,12 +82,12 @@ def _voicebank_syllables(voice: str, text: str) -> list[Syllable]:
     return out
 
 
-def line_syllables(voice: str, text: str, wanted: int | None = None):
-    """Syllables of a line as the engine pronounces it (folded toward `wanted` if given), without synthesizing."""
+def line_syllables(voice: str, text: str, wanted: int | None = None, lang: str = "en"):
+    """Syllables of a line in `lang` as the engine pronounces it (folded toward `wanted` if given), without synthesizing."""
     if voice.startswith("diffsinger:"):
-        syllables = _voicebank_syllables(voice, text)
+        syllables = _voicebank_syllables(voice, text, lang)
     else:
-        phonemes = tts.backend(voice).phonemize(text)
+        phonemes = tts.backend(voice, lang).phonemize(text)
         symbols = list(phonemes)
         syllables = syllabify(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols)))
     return fold_weak_syllables(syllables, wanted) if wanted is not None else syllables
@@ -147,16 +147,19 @@ def _bright_findings(label: str, syllables: list) -> list[dict]:
 
 
 def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | None = None, role: str = "verse",
-              beats_per_bar: float = BEATS_PER_BAR) -> list[dict]:
-    """Findings for one line. natural_pitch (MIDI) enables the range check; role 'chorus' adds chorus rules.
+              beats_per_bar: float = BEATS_PER_BAR, lang: str = "en") -> list[dict]:
+    """Findings for one line sung in `lang`. natural_pitch (MIDI) enables the range check; role 'chorus' adds chorus rules.
     line.start_beat and beats_per_bar place the notes in their bars for the stress check."""
     found = []
     words = _words(line.text)
     groups, lead_beats, _ = lines.note_groups(line.melody, bpm)
     seconds_per_beat = 60.0 / bpm
-    spoken = line_syllables(voice, line.text)
-    syllables = fold_weak_syllables(spoken, len(groups))
     label = f"'{line.text}'"
+    try:
+        spoken = line_syllables(voice, line.text, lang=lang)
+    except ValueError as error:                        # characters the voice's language cannot read (tts.espeak_phonemes)
+        return [finding("error", "unreadable_text", f"{label}: {error}")]
+    syllables = fold_weak_syllables(spoken, len(groups))
     if len(syllables) != len(groups):
         per_word = {}
         for syllable in spoken:
@@ -237,9 +240,9 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
     return found
 
 
-def rhyme_vowel(voice: str, text: str) -> str:
+def rhyme_vowel(voice: str, text: str, lang: str = "en") -> str:
     """Vowel sound that ends a line, for checking rhyme pairs."""
-    syllables = line_syllables(voice, text)
+    syllables = line_syllables(voice, text, lang=lang)
     return "".join(p.symbol for p in syllables[-1].nucleus) if syllables and syllables[-1].nucleus else ""
 
 
