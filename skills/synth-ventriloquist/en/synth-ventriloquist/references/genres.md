@@ -203,7 +203,7 @@ bass   R _ R _ R _ R _ R _ R _ 5 _ 8 _      (pick_bass: driving 8th notes high o
 
 - The bass carries the song. A chorused guitar-like part (`jangle_pluck` with reverb and delay) plays arpeggios or a two-note figure. A cold monophonic synth line (`square_lead`) answers the voice. Pads are thin and far back (`cold_pad`).
 - Minor key, two to four chords for the whole song (`i VI III VII`, `i iv`, `i VII VI`). Low, flat, baritone vocal with little vibrato, lines of resignation and everyday images, long gaps between lines. Reverb on snare and voice, darker top end (the profile lowers the air band) and a modest loudness target (−12 LUFS).
-- For speech-based voices, set `vocal = song.vocal(..., style=Style(vibrato=0.3, scoop=0.3))` for the deadpan delivery.
+- For speech voices, set `vocal = song.vocal(..., style=Style(vibrato=0.3, scoop=0.3))` for the deadpan delivery.
 
 ## Listening styles: IDM, ambient, downtempo, trip hop, lo-fi, vaporwave, chiptune
 

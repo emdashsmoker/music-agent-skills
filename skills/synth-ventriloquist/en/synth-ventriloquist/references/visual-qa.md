@@ -92,7 +92,12 @@ Seconds from bars: `song.seconds(bar)`, or bars × 4 × 60 ÷ BPM in 4/4.
 
 Render only the part in question when the mix hides it: the stems from the last `produce` are in `out/stems/`, one WAV per part.
 
-`vocal_line` has two panels. The top is a spectrogram to 6 kHz with an orange mark at every syllable: check that the marks line up with where the sound starts and that horizontal stripes run through every vowel to its end; a smudge instead of stripes is a whispered or noisy vowel. The bottom lays the sung pitch (dark line) over the written notes (pale bars). The line should sit on the bars. A line running parallel to a bar nearly a semitone away is a pitch error; short spikes at the note edges are consonants and the move between notes, ignore them; a line that breaks in the middle of a vowel is a voice that went unvoiced there.
+`vocal_line` has two panels. The top is a spectrogram to 6 kHz with an orange mark at every syllable. The bottom lays the sung pitch (dark line) over the written notes (pale bars).
+
+- The marks should line up with where the sound starts, and horizontal stripes should run through every vowel to its end. A smudge in place of stripes is a whispered or noisy vowel.
+- The pitch line should sit on the bars. A line running parallel to a bar nearly a semitone away is a pitch error.
+- Short spikes at the note edges are consonants and the move between notes. Ignore them.
+- A line that breaks in the middle of a vowel shows a voice that went unvoiced there.
 
 ## Reading spectrograms
 
