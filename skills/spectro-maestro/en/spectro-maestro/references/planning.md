@@ -16,7 +16,7 @@
 | Length | Genre standard (pop 3-4 min, club 5-8 min) | Present it converted to bars |
 | Structure | The genre's standard structure | Present the section list and bar counts as a table |
 | Vocals | None | If wanted, ask the vocal questions below |
-| Delivery formats | mp3 and MIDI | ogg, wav, flac, stems, LMMS and DAWproject on request |
+| Delivery formats | mp3, MIDI, the song file and the project JSON | ogg, wav, flac, stems, LMMS and DAWproject on request |
 | Loudness target | Genre profile | Reflect a stated purpose such as streaming or club play |
 - Extra questions when there are vocals
     + Engine and voice (show the `voices` list, ask whether the user has a singing voicebank)
@@ -36,7 +36,7 @@ Structure : intro 8 - verse 16 - chorus 16 - ... (N bars in total, M min S s)
 Chords : verse i VI III VII / chorus VI VII i i
 Core idea : (one or two lines on the hook, the timbre, the development)
 Vocals : engine, voice, range, lyric theme
-Deliverables : mp3, MIDI, ...
+Deliverables : mp3, MIDI, song file, project JSON, ...
 ```
 - Show this summary to the user and start composing after it is confirmed
 - For a song whose lyrics are newly written, have the lyric draft confirmed as well

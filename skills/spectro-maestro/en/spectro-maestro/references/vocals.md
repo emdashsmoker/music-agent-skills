@@ -135,6 +135,11 @@ vox:
     + When a weak function word must sit on a held note, spell its strong form for the voice: too for to, thee for the, ay for a
     + A singer holds the strong form anyway, and the voice then speaks a full vowel
     + Check that the respelling keeps the meaning, and keep the ordinary spelling in the lyrics file
+- Function words on short off-beats (any voice)
+    + A function word on a short off-beat note can still blur (on a Kokoro `am_michael` song at 134 bpm, listening found the to of "to every" and the could of "could ever" blurred)
+    + The match score and `ROUGH` rarely catch this fault, so reduce it while writing the lyrics (see 'Known limits' below)
+    + Rewrite a line flagged `lyrics.weak_words_in_a_row` only when a content-word phrasing keeps the meaning and the rhyme; for the user's lyrics, propose the rewrite
+    + If no such phrasing exists, keep the warning and judge the line by ear (see 'Checking procedure' below)
 
 ## Patterns that weaken intelligibility
 | Pattern | Observed example | Remedy |
@@ -190,8 +195,9 @@ vox:
     + If consonants are buried and the words cannot be heard, raise it to `consonant_ceiling: 0`
 - Faults that neither recognition nor the marks catch
     + A trembling or crackling line end and an over-strong syllable do not show in the match score or in `ROUGH`
+    + A blurred short function word is also hard to catch with the match score or `ROUGH` (see 'Known limits' below)
     + Suspect them when the harmonic stripes at a line end blur into a smear in the picture, or when the level goes up and down
-    + The final verdict is by ear, so ask the user to listen to the line ends
+    + The final verdict is by ear, so ask the user to listen to the line ends and to lines that keep a `lyrics.weak_words_in_a_row` warning (the listening list in the report)
     + After any change to the way vocals are processed, check line ends and long notes again as well as the places that were fixed
 - Cautions in reading recognition results
     + If the last note of the previous line leaks into the clip, the first word may come out different
@@ -298,3 +304,7 @@ vocal:
 - Fast rap and runs of sixteenth-note singing blur the syllables
 - The stress check runs only for speech voice engines
     + Voicebank dictionaries carry no stress marks, so DiffSinger tracks get the syllable count, pronunciation and the other checks of the singing craft and the model-voice habits
+- A blurred short function word (to, could and the like) is hard to catch with the match score
+    + The score compares the characters of the whole line, so it stays high even when one short word drops out entirely (a 31-character line heard without its to scores 0.95)
+    + The recogniser often fills in a function word from the words around it
+    + Reduce it while writing the lyrics, and judge the lines that keep it by ear
