@@ -59,7 +59,7 @@ The toolkit renders DiffSinger voicebanks in the OpenUtau folder layout (a folde
 
 - A folder path: use it directly. `voices diffsinger:<folder>` confirms that it loads.
 - An archive file: unpack it into a new empty folder outside the song project, then use that folder.
-- A link to a repository or download page the user gives: fetch exactly that into a new empty folder. Do not search for voicebanks or suggest sources.
+- A link to a repository or download page the user gives: fetch exactly that into a new empty folder. Do not search for voicebanks or suggest sources. For a GitHub repository link, before fetching: if the execution environment has a tool that attaches a GitHub repository to the session, call it. Pass the owner and the repository name from the link as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused.
 
 Before the first render with a bank:
 
