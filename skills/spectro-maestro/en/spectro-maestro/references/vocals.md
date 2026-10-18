@@ -55,7 +55,7 @@ vox:
 | `consonant_ceiling` | -3 | Largest level of an unvoiced consonant (dB, against the vowel level of its line); only t, s, k above it are turned down, by at most 6 dB |
 | `formant` | 0 | Formant shift (semitones); positive gives a thinner, brighter timbre |
 | `breath` | 0 | Share of breath noise (0 to 1) |
-| `vowel_body` | 0 | Fills held ee vowels (he, she, we, see) with the 300-1300 Hz body of the line's other vowels, at most 10 dB, and thins their hiss; 1 is the full fill. Measured on 24 lines it took the median ee body from 8.8 to 6.4 dB under the line and left the recognition scores; the vowel colour moves a little toward ih, so listen |
+| `vowel_body` | 0 | Fills held ee vowels (he, she, we, see) with the 300-1300 Hz body of the line's other vowels (at most 10 dB) and thins their hiss; 1 is the full fill. The vowel colour moves a little toward ih, so listen |
 - Layers
     + `double` : the same melody sung once more on each side (separate takes with slight pitch and timing differences)
     + `harmony` : a harmony `steps` scale steps above or below; notes that clash with the chord are moved to chord tones
@@ -63,11 +63,14 @@ vox:
     + Options : `gain_db`, `pan`, `detune` (cents), `delay_ms`
 
 ## Lyric writing rules
-- Which voices a rule is for
-    + Singing craft for any voice, a human included : stress on the strong beats, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats
-    + Habits of model voices, speech voices and singer voicebanks alike : consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak
-    + Repairs for speech voices only : the thin held ee and `vowel_body`, `consonant_ceiling` for stinging consonants, the line-ending repair, the strong-form spelling
-    + With a voicebank, write by the first two tiers and read the third as background; `lint` runs the first two on DiffSinger tracks as well
+| Rules | For | What they cover |
+|---|---|---|
+| Singing craft | Any voice, a human singer included | Stress on the strong beats, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats |
+| Model-voice habits | Speech voices and singer voicebanks alike | Consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak |
+| Speech-voice repairs | Speech voices only | The thin held ee and `vowel_body`, `consonant_ceiling` for stinging consonants, the line-ending repair, the strong-form spelling |
+- Rules for a voicebank
+    + Write by the singing craft and the model-voice habits, and read the speech-voice repairs as background
+    + `lint` runs the first two groups on DiffSinger tracks as well
 - Order of writing
     + Fix the rhythm of the melody first
     + Write the lyrics so that stressed syllables fall on the strong beats of that rhythm
@@ -96,16 +99,26 @@ vox:
 - Rhyme
     + `lint` lists the line-end sounds (`lyrics.rhymes`), so check that the intended pairs match
 - Bright consonants
-    + Carry a line on voiced consonants (m, n, l, d, b, g, w, r) and open vowels; t, k, p, s, z and sh are seasoning, about one per word and not right before a held note
-    + On the speech voices those sounds spit and hiss, and their bursts are the loudest peaks of a line (up to 13 dB above the vowel body) with a metallic edge, so a line built on them pokes out of the mix and works the limiter first (`lyrics.bright_consonants`: three bright sounds in five syllables, a cluster such as st or sk counting twice, or three syllables in a row)
+    + Carry a line on voiced consonants (m, n, l, d, b, g, w, r) and open vowels
+    + Use t, k, p, s, z and sh as seasoning, about one per word and none right before a held note
+    + On the speech voices those sounds spit and hiss, and their bursts peak up to 13 dB above the vowel body with a metallic edge
+    + A line built on them pokes out of the mix and reaches the limiter first
+    + `lyrics.bright_consonants` warns at three bright sounds in five syllables (a cluster such as st or sk counts twice) or at three bright syllables in a row
 - Held ee vowels (speech voices only)
-    + A speech voice stretched onto a note sings a held ee (he, she, we, see, me, be, free) thin: the spoken vowel has little body and the stretch keeps it so, so the word sits under its neighbours and what is left rings metallic, quiet and sharp at the same time (on seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
+    + A speech voice stretched onto a note sings a held ee (he, she, we, see, me, be, free) thin, because the spoken vowel has little body and the stretch keeps it so
+    + The word sits under its neighbours, and what is left rings metallic: quiet and sharp at once (in seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
     + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes (`lyrics.held_ee`), or fill the vowel with `style: {vowel_body: 1}`
+    + `vowel_body: 1` on 24 lines raised the median ee body from 8.8 to 6.4 dB under the line and left the recognition scores unchanged
     + A singer voicebank shapes the vowel itself, so this rule and `lyrics.held_ee` do not apply to it
 - Reduced vowels and weak function words (any voice)
-    + Weak function words (to, the, a) go quiet on long notes: the vowel is reduced in speech and a singer has to open it on purpose
-    + Reduced vowels (the schwa of the, to, a and the first syllable of upon, about) and the tiny ɪ of it, its, sit have almost no vowel to hold: a schwa held for half a second came out 18-22 dB under its line and "the" sang as breath; give them short off-beat notes and let a content word take the beat (`lyrics.reduced_vowel_on_beat`, `lyrics.short_vowel_on_beat`, `lyrics.weak_word_on_long_note`)
-    + When such a word must sit on a held note, spell its strong form for the voice (too for to, thee for the, ay for a): a singer holds the strong form anyway and the voice then speaks a full vowel; listen for the meaning and keep the ordinary spelling in the lyrics file
+    + Weak function words (to, the, a) go quiet on long notes: the vowel is reduced in speech, and a singer has to open it on purpose
+    + Reduced vowels (the schwa of the, to, a and the first syllable of upon, about) and the short ɪ of it, its, sit have almost no vowel to hold
+    + A schwa held for half a second came out 18-22 dB under its line, and "the" sang as breath
+    + Give these words short off-beat notes and let a content word take the beat (`lyrics.reduced_vowel_on_beat`, `lyrics.short_vowel_on_beat`, `lyrics.weak_word_on_long_note`)
+- Strong-form spelling (speech voices only)
+    + When a weak function word must sit on a held note, spell its strong form for the voice: too for to, thee for the, ay for a
+    + A singer holds the strong form anyway, and the voice then speaks a full vowel
+    + Check that the respelling keeps the meaning, and keep the ordinary spelling in the lyrics file
 
 ## Patterns that weaken intelligibility
 | Pattern | Observed example | Remedy |
@@ -267,5 +280,5 @@ vocal:
 - The recognition match is most trustworthy in English
     + For other languages trust it only as far as the multilingual recognition model is accurate
 - Fast rap and runs of sixteenth-note singing blur the syllables
-- Stress and rest checks on the engine path are performed only for speech voice engines
-    + DiffSinger tracks are checked only for syllable count and whether the words can be pronounced
+- The stress check runs only for speech voice engines
+    + Voicebank dictionaries carry no stress marks, so DiffSinger tracks get the syllable count, pronunciation and the other checks of the singing craft and the model-voice habits
