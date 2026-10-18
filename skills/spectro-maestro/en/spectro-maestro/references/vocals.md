@@ -63,6 +63,19 @@ vox:
     + Options : `gain_db`, `pan`, `detune` (cents), `delay_ms`
 
 ## Lyric writing rules
+- Before writing, check the strengths and weaknesses of the chosen engine and voice
+    + The kind of engine (speech voice or singing voicebank) and the language decide which rules in the table below apply
+    + Choose the words and the sentence structure to fit those rules from the start (changing words after the lyrics are finished means fitting meaning and rhyme again)
+- Sentence structure
+    + Pick a word order that keeps weak function words (to, the, a) off beats and long notes
+    + Recast a sentence that opens with function words or stacks them in a row so that a content word leads
+    + A speech voice reads to with a weak vowel, so it sinks on a beat or a long note (see 'Reduced vowels and weak function words' below)
+- Words a pronunciation dictionary is unlikely to hold (proper nouns, invented words, abbreviations, foreign words)
+    + A speech voice guesses their pronunciation from the spelling, so it may read them differently than intended
+    + A singing voicebank sings an English word missing from its dictionary with a guessed pronunciation, and in other languages it stops at such a word
+    + Write numbers and symbols out as the words to be sung
+    + For a word the song needs, write the line containing it first and listen with `vocal-try`; if it is misread, give that line a `phonemes` entry
+
 | Rules | For | What they cover |
 |---|---|---|
 | Singing craft | Any voice, a human singer included | Stress on the strong beats, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats |

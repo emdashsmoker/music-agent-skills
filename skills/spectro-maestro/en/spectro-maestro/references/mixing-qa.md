@@ -48,7 +48,7 @@
 | `ceiling` | -1 | True peak ceiling (dBTP) |
 | `glue` | true | Light compressor that binds the buses |
 | `clip` | true | Soft clip that shaves only the highest momentary peaks |
-| `eq` | none | Master EQ bands |
+| `eq` | none | Master EQ bands (same format as `eq` in `sound.md`) |
 | `vocal_carve` | -2.5 | How much of the music bus's 1.3-5 kHz is taken out while the vocal sounds (dB) |
 | `mono_below` | 110 | Everything below this frequency is summed to mono |
 | `sidechain_release` | 0.5 | Sidechain recovery time (beats) |
