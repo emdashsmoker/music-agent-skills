@@ -58,7 +58,7 @@ except ImportError as error:
           "to see what to install.", file=sys.stderr)
     sys.exit(2)
 
-DEFAULT_FORMATS = "wav,mp3,mid"
+DEFAULT_FORMATS = "wav,ogg,mp3,mid"     # ogg before mp3: a missing mp3 encoder stops the loop, ogg is already written
 
 
 def _fail(error: Exception) -> int:

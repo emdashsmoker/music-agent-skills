@@ -91,7 +91,7 @@ project.save("song_v2.mmp")
 
 | 형식 | 명령 | 담는 것 | 용도 |
 |---|---|---|---|
-| 오디오 | `render song.mmp -o out.ogg`(`.mp3`, `.flac`, `.wav`) 또는 `produce`가 쓰는 파일 | 믹스 | 감상, 공개. ogg, mp3, flac에는 `ffmpeg`가 필요 |
+| 오디오 | `render song.mmp -o out.ogg`(`.mp3`, `.flac`, `.wav`) 또는 `produce`가 쓰는 파일 | 믹스 | 감상, 공개. mp3에는 libsndfile 1.1 이상 또는 `ffmpeg`가 필요 |
 | LMMS 프로젝트 | `.mmp` 자체, 또는 `export --mmp copy.mmpz` | 전부 | LMMS에서 이어서 작업 |
 | 휴대용 프로젝트 | `pack song.mmp -o song.zip` | 프로젝트, plan 파일, 쓰이는 샘플, 복사 위치 안내 | 다른 LMMS 사용자에게 보내기. 보이스뱅크는 포함되지 않는다 |
 | MIDI | `export song.mmp --midi song.mid` | 템포와 음표, 파트당 트랙 하나. 드럼은 채널 10에 General MIDI 음 번호로. 부른 멜로디는 음표로 | 모든 DAW나 악보 프로그램. 음색은 실리지 않는다 |

@@ -12,7 +12,7 @@ import json
 import os
 import shutil
 
-from . import audio, compose, export, genres, lint as lint_tools, mix, render, settings, sounds, visual
+from . import audio, compose, export, genres, lint as lint_tools, mix, render, sounds, visual
 from .findings import finding, format_findings, worst
 from .project import Project
 
@@ -119,10 +119,11 @@ def produce(project_path: str, out_dir: str, genre: str | None = None, target_lu
     name = os.path.splitext(os.path.basename(project_path))[0]
     title = title or (plan or {}).get("title") or name
     files = {"wav": report["wav"]}
-    if formats and not settings.ffmpeg_path():
-        report["findings"].append(finding("info", "audio_formats", f"ffmpeg was not found, so {', '.join(formats)} were not written: the WAV is the delivery, "
-                                          "or see references/setup.md for ways to get ffmpeg"))
-        formats = ()
+    skipped = [extension for extension in formats if not render.can_write(f".{extension}")]
+    if skipped:
+        report["findings"].append(finding("info", "audio_formats", f"{', '.join(skipped)} not written: mp3 needs libsndfile 1.1 or later "
+                                          "(a newer soundfile) or ffmpeg. See references/setup.md"))
+        formats = tuple(extension for extension in formats if extension not in skipped)
     for extension in formats:
         files[extension] = render.convert(report["wav"], os.path.join(out_dir, f"{name}.{extension}"), metadata={"title": title})
     if exports:

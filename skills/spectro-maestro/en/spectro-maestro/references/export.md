@@ -7,7 +7,7 @@
     + `ogg` : Vorbis
     + `mp3` : needs libsndfile 1.1 or later, or ffmpeg
     + `mid` : one channel per track, drums on channel 10 with General MIDI keys, lyrics included as lyric events
-- The default is `wav,mp3,mid`
+- The default is `wav,ogg,mp3,mid`
 - `render --stems` saves one stem per track as `stems/<track>.flac`
     + Bus stems (`bus_drums.flac` and so on) are always saved
     + All stems added together have the same balance as the mix before mastering
@@ -95,7 +95,7 @@
 
 ## What to deliver
 - Standard delivery
-    + Finished audio (`mp3` or the format the user named)
+    + Finished audio (`ogg` and `mp3`, or the format the user named)
     + MIDI
     + The song file (`.yaml`) and the project JSON
 - Added on request
