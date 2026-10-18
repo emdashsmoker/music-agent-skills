@@ -19,6 +19,11 @@ from .phones import (AFFRICATES, IPA_TO_ARPABET, LENGTH_MARK, NASALS, PLOSIVES, 
 from .singing import OUTPUT_SR, Style
 
 MIN_NOTE_S = 0.110                 # shorter notes smear consonants (a 16th at 140 bpm is 107 ms)
+# Under about 200 ms a syllable starts to blur even on a singing voicebank (an eighth at 150 bpm is 200 ms), and a run of
+# them reads as a rushed line. Same rule as spectro-maestro's lyrics.fast_syllables, counted per sung syllable here so a
+# syllable bent over several short notes counts once.
+FAST_SYLLABLE_S = 0.200
+FAST_SYLLABLE_COUNT = 3
 LONG_NOTE_BEATS = 2.0
 STRONG_NOTE_BEATS = 1.0
 SHORT_NOTE_BEATS = 0.5
@@ -164,6 +169,10 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
             found.append(finding("warn", "unstable_word", f"{label}: '{word}' has an unsteady syllable count; give it one note of {LONG_NOTE_BEATS:g}+ beats or choose another word"))
     durations = [sum(n.duration for n in group) for group in groups]
     beats = [d / seconds_per_beat for d in durations]
+    quick = sum(1 for seconds in durations if seconds < FAST_SYLLABLE_S)
+    if quick >= FAST_SYLLABLE_COUNT:
+        found.append(finding("info", "fast_syllables", f"{label}: {quick} syllables are shorter than {FAST_SYLLABLE_S * 1000:.0f} ms; consonants "
+                             "start to blur at this speed. If the line scores weak or sounds rushed, give it one syllable per beat"))
     weak = [words[s.word] in WEAK_WORDS if s.word < len(words) else False for s in syllables]
     for index, (syllable, seconds) in enumerate(zip(syllables, durations)):
         shortest = min(n.duration for n in groups[index])
