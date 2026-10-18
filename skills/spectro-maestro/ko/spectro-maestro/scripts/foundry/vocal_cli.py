@@ -116,7 +116,7 @@ def check_track(project: dict, track: dict, build: str, out_dir: str, plots_for:
             following = track["lines"][index + 1]["start"] * spb - float(report[index + 1].get("pre_roll_s", 0.1)) - 0.03
             b = max(a + SR // 10, min(b, int(following * SR)))
         piece = audio[a:b]
-        heard = asr.transcribe(piece, SR, model, language[:2] if language and not model.endswith(".en") else None)
+        heard = asr.transcribe(piece, SR, model, asr.language_code(language) if not model.endswith(".en") else None)
         row = {"line": index + 1, "section": line["section"], "text": line["text"], "heard": heard,
                "score": asr.similarity(line["text"], heard),
                "pitch_error_cents": _pitch_error_cents(piece, notes, a / SR - start),

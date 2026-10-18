@@ -9,6 +9,7 @@ that raises the score can still sound less clear to a person, so listening decid
 from __future__ import annotations
 
 import re
+import unicodedata
 
 import numpy as np
 
@@ -19,6 +20,7 @@ PADDINGS_S = (0.0, 0.25, 0.5)             # silence added around a line for the 
 MORE_PADDINGS_S = tuple(i * 0.0625 for i in range(9) if i not in (0, 4, 8))   # the six extra passes when the first three disagree
 STEADY_SPREAD = 0.1                       # first passes within this of each other need no extra passes
 ASR_SAMPLE_RATE = 16000
+WHISPER_LANGUAGES = {"cmn": "zh"}        # espeak's language names -> the recogniser's, where the two differ
 _models: dict[str, object] = {}
 
 
@@ -30,6 +32,7 @@ def _model(name: str):
 
 
 def normalize(text: str) -> str:
+    text = unicodedata.normalize("NFC", text)           # a decomposed lyric (NFD Hangul) has two or three times the characters
     return re.sub(r"\s+", " ", re.sub(r"[^\w' ]+", " ", text.lower())).strip()
 
 
@@ -56,6 +59,14 @@ def model_for(language: str | None) -> str:
     return DEFAULT_MODEL if (language or "en").lower().startswith("en") else MULTILINGUAL_MODEL
 
 
+def language_code(language: str | None) -> str | None:
+    """The recogniser's code for a language given as a song code (zh) or an espeak name (cmn, en-gb)."""
+    if not language:
+        return None
+    base = language.lower().split("-")[0]
+    return WHISPER_LANGUAGES.get(base, base)
+
+
 def transcribe(audio: np.ndarray, sr: int, model: str | None = None, language: str | None = "en", prompt: str | None = None) -> str:
     """Recognised text of a mono signal. Greedy settings with temperature 0 keep the result repeatable."""
     from scipy import signal
@@ -63,7 +74,7 @@ def transcribe(audio: np.ndarray, sr: int, model: str | None = None, language: s
     if sr != ASR_SAMPLE_RATE:
         divisor = np.gcd(ASR_SAMPLE_RATE, sr)
         mono = signal.resample_poly(mono, ASR_SAMPLE_RATE // divisor, sr // divisor)
-    segments, _ = _model(model or model_for(language)).transcribe(mono.astype(np.float32), language=language, beam_size=5, temperature=0.0,
+    segments, _ = _model(model or model_for(language)).transcribe(mono.astype(np.float32), language=language_code(language), beam_size=5, temperature=0.0,
                                            condition_on_previous_text=False, initial_prompt=prompt, vad_filter=False)
     return " ".join(segment.text.strip() for segment in segments).strip()
 

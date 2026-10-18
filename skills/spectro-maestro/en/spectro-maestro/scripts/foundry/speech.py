@@ -12,6 +12,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
+import unicodedata
 import urllib.request
 from dataclasses import dataclass, field
 
@@ -31,6 +33,48 @@ SIBILANT_SHARE = 0.35           # share of energy above 4 kHz that marks a sibil
 SILENCE_DB = -45.0
 KOKORO_LANG = {"a": "en-us", "b": "en-gb", "e": "es", "f": "fr-fr", "h": "hi", "i": "it", "p": "pt-br",
                "j": "ja", "z": "cmn"}
+ESPEAK_LANGUAGES = {"zh": "cmn"}       # a song's language code -> espeak's name for it, where the two differ
+# espeak marks the words it reads with another language's rules, e.g. "(en)tʃˈaɪniːz(ja)lˈetə" for a kanji in Japanese.
+# Kokoro's tokenizer keeps those marks, and the voice sang them as letters: "(ko)" became an extra syllable "ko".
+LANGUAGE_SWITCH = re.compile(r"\([a-z]+\)")
+
+
+def espeak_language(lang: str | None, voice: str) -> str:
+    """espeak language for a Kokoro voice: its own without `lang`, its own English accent for 'en', espeak's name otherwise."""
+    own = KOKORO_LANG.get(voice[0], "en-us")
+    if not lang:
+        return own
+    if lang.lower() == "en":
+        return own if own.startswith("en") else "en-us"
+    return ESPEAK_LANGUAGES.get(lang.lower(), lang.lower())
+
+
+def _vocab_phonemes(tokenizer, text: str, lang: str) -> str:
+    """What Kokoro's tokenizer.phonemize returns, except that a letter outside its vocabulary keeps its base letter.
+    espeak writes the Japanese a as the precomposed ä, which the tokenizer dropped: every a of a Japanese line went unsung."""
+    import phonemizer
+    raw = phonemizer.phonemize(text.strip(), lang, preserve_punctuation=True, with_stress=True)    # as the tokenizer runs it
+    kept = "".join(c if c in tokenizer.vocab else unicodedata.normalize("NFD", c) for c in raw)
+    return "".join(c for c in kept if c in tokenizer.vocab).strip()
+
+
+def espeak_phonemes(tokenizer, text: str, lang: str) -> str:
+    """espeak phonemes of a line (Kokoro's tokenizer), without language-switch marks.
+
+    A word the language cannot read itself is spelled out by espeak in another language ('Chinese letter' for a kanji
+    under ja, 'tilde' for a ~). Such words raise VocalError. Words with Latin letters are left alone: espeak reads them
+    as English, as a singer would. Words are tested one at a time, since a mark such as ー reads only inside a word. Same rule as synth-ventriloquist's tts.espeak_phonemes.
+    """
+    phonemes = _vocab_phonemes(tokenizer, text, lang)
+    if not LANGUAGE_SWITCH.search(phonemes):
+        return phonemes
+    foreign = [word for word in text.split() if not any(c.isascii() and c.isalpha() for c in word)
+               and LANGUAGE_SWITCH.search(_vocab_phonemes(tokenizer, word, lang))]
+    if foreign:
+        from .singing import VocalError
+        raise VocalError(f"the speech voice reads {lang} and cannot read {' '.join(foreign)}; write them in a script {lang} reads "
+                         "(Japanese: kana), leave out symbols such as ~, set lang to the lyrics' language, or choose a voice that reads them")
+    return re.sub(" {2,}", " ", LANGUAGE_SWITCH.sub(" ", phonemes)).strip()     # a mark stands where the word's space was
 
 
 def models_dir() -> str:
@@ -114,7 +158,7 @@ class KokoroBackend:
     def __init__(self, voice: str = "af_heart", lang: str | None = None):
         root = os.path.join(models_dir(), "kokoro")
         self.voice = voice
-        self.lang = lang or KOKORO_LANG.get(voice[0], "en-us")
+        self.lang = espeak_language(lang, voice)
         self.sr = KOKORO_SR
         self.session = _session(fetch(f"{KOKORO_REPO}/onnx/model.onnx", os.path.join(root, "onnx", "model.onnx")))
         style_path = fetch(f"{KOKORO_REPO}/voices/{voice}.bin", os.path.join(root, "voices", f"{voice}.bin"))
@@ -123,7 +167,7 @@ class KokoroBackend:
         self.tokenizer = Tokenizer()
 
     def phonemize(self, text: str) -> str:
-        return self.tokenizer.phonemize(text, self.lang)
+        return espeak_phonemes(self.tokenizer, text, self.lang)
 
     def synthesize(self, phones: str, speed: float = 1.0) -> Unit:
         ids = self.tokenizer.tokenize(phones)

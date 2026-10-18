@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import copy
 import re
+import unicodedata
 import zlib
 from fractions import Fraction
 
@@ -385,7 +386,9 @@ class Compiler:
             if offset + events[-1]["start"] + events[-1]["dur"] > section["bars"] * self.bar_beats + self.bar_beats + 1e-6:
                 raise SpecError(f"{here}: line runs past the end of section {section['name']!r}")
             lines.append({
-                "text": str(entry["text"]), "section": section["name"],
+                # Text from another system can arrive decomposed (NFD: 한 as ㅎ ㅏ ㄴ, й as и plus a breve); the engines,
+                # dictionaries and the recogniser read composed text.
+                "text": unicodedata.normalize("NFC", str(entry["text"])), "section": section["name"],
                 "start": round(section["start"] + offset + events[0]["start"], 5),
                 "notes": [[round(e["start"] - events[0]["start"], 5), round(e["dur"], 5), e["pitches"][0] + shift,
                            1 if e["tie"] else 0] for e in events],

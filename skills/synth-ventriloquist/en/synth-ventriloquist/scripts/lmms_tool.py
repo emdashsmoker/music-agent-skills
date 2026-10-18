@@ -21,6 +21,15 @@ def _print(data) -> None:
     print(json.dumps(data, indent=1, ensure_ascii=False, default=float))
 
 
+def _utf8_console() -> None:
+    """Lyrics and phoneme symbols must not crash a console that uses a legacy code page (Windows). Same as spectro-maestro."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 PACKAGES = {  # import name: (name to install, what is missing without it)
     "numpy": ("numpy", "core"), "scipy": ("scipy", "core"), "soundfile": ("soundfile", "core"), "matplotlib": ("matplotlib", "review figures"),
     "onnxruntime": ("onnxruntime", "all vocals"), "kokoro_onnx": ("kokoro-onnx", "Kokoro voices and English fallback pronunciation"),
@@ -236,7 +245,8 @@ def cmd_compare(args) -> None:
 def cmd_lyric_lint(args) -> None:
     from lmmskit.findings import format_findings
     from lmmskit.vocal import lines, lyrics
-    print(format_findings(lyrics.lint_line(args.voice, lines.Line(args.text, args.melody, args.start_beat), args.bpm, role=args.kind)) or "no findings")
+    print(format_findings(lyrics.lint_line(args.voice, lines.Line(args.text, args.melody, args.start_beat), args.bpm, role=args.kind,
+                                           lang=args.lang)) or "no findings")
 
 
 def _selftest_song(folder: str, vocal: bool) -> str:
@@ -302,6 +312,7 @@ def cmd_selftest(args) -> None:
 
 
 def main() -> None:
+    _utf8_console()
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -352,7 +363,7 @@ def main() -> None:
         (("--no-ending-fix",), {"action": "store_true", "help": "speech voices: leave the last syllable as spoken"}))
     add("compare", cmd_compare, voice, melody, bpm, method, lang, cache, (("texts",), {"nargs": "+", "help": "candidate wordings"}),
         (("--out",), {"default": None, "help": "folder for the candidate WAVs"}))
-    add("lyric-lint", cmd_lyric_lint, voice, melody, bpm, (("--text",), {"required": True}), (("--kind",), {"default": "verse"}),
+    add("lyric-lint", cmd_lyric_lint, voice, melody, bpm, lang, (("--text",), {"required": True}), (("--kind",), {"default": "verse"}),
         (("--start-beat",), {"type": float, "default": 0.0, "help": "beat in the bar where the melody starts (0 = downbeat), for the stress check"}))
     args = parser.parse_args()
     args.run(args)

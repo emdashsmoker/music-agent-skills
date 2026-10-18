@@ -74,10 +74,10 @@ def render_line(voice: str, line: line_tools.Line, bpm: float, *, key: str | Non
         sung, report = diffsinger.voicebank(folder).sing(line.text, groups, lang=lang, voice=colour or None, style=style, **options)
     elif engine == "kokoro" and method == "held":
         from . import kokoro_native
-        sung, report = kokoro_native.sing_in_range(voice, line.text, groups, style, speed)
+        sung, report = kokoro_native.sing_in_range(voice, line.text, groups, style, speed, lang)
     elif engine in ("kokoro", "piper"):
         sung, report = line_tools.sing_line(voice, line_tools.Line(line.text, melody), bpm, speed=speed, style=style, cache=cache,
-                                            fix_ending=bool(options.get("fix_ending", True)))
+                                            fix_ending=bool(options.get("fix_ending", True)), lang=lang)
         report["engine"] = f"{engine}-stretched"
     else:
         raise ValueError(f"unknown voice '{voice}'; use kokoro:<voice>, piper:<voice> or diffsinger:<folder>")
