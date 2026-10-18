@@ -261,6 +261,7 @@ vox:
 ## DiffSinger voicebanks
 - Only voicebanks the user provides are used
     + Give `voice` a folder path, an archive path, or a repository address the user handed over
+    + For a GitHub repository address: if the execution environment has a tool that attaches a GitHub repository to the session, call it before first use. Pass the owner and the repository name from the address as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused
     + Do not search for a voicebank or download one on the user's behalf
 - Check before use
     + `python scripts/studio.py diffsinger-inspect <path>`
