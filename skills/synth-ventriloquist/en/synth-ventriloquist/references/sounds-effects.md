@@ -25,7 +25,7 @@ The second form renders each named patch alone, prints a table (loudness, length
 
 ## Drum machines in the library
 
-The machine kits are one-shot recordings of LMMS's own drum synthesis, and the named kicks are clean synthesized one-shots (a pitch-dropping sine with a short click). The hits without a prefix (`kick_acoustic`, `kick_hardcore`, `snare_harsh`, `clap`, `ohat`, `ride` and so on) play samples that come with LMMS. The skill ships none of them as audio: the kit is made on this machine the first time a song needs it (`lmms_tool.py kit` shows it, `kit --build` makes it now) and kept in the kit folder, so the drums sound the same on every later render here. The named kicks are identical on every machine. The recorded hits with noise in them (snares, hats, claps) differ slightly from one machine to another, as two takes of the same drum machine would.
+The machine kits are one-shot recordings of LMMS's own drum synthesis, and the named kicks are clean synthesized one-shots (a pitch-dropping sine with a short click). The skill ships none of them as audio: the kit is made on this machine the first time a song needs it (`lmms_tool.py kit` shows it, `kit --build` makes it now) and kept in the kit folder, so the drums sound the same on every later render here. The named kicks are identical on every machine. The recorded hits with noise in them (snares, hats, claps) differ slightly from one machine to another, as two takes of the same drum machine would. The hits without a prefix (`kick_acoustic`, `kick_hardcore`, `snare_harsh`, `clap`, `ohat`, `ride` and so on) play the samples that come with the installed LMMS directly.
 
 | Prefix | Character | Typical genres |
 |---|---|---|
