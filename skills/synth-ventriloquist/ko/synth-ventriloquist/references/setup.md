@@ -94,7 +94,7 @@ python scripts/lmms_tool.py kit --build    # 지금 만들기
 드럼머신 타격은 LMMS 1.2.x에 들어 있는 DrumSynth 프리셋에서 녹음한다. 이후 버전의 LMMS는 이 프리셋을 옮기거나, 이름을 바꾸거나, 뺄 수 있다. 프리셋 없이 나온 빌드도 있을 수 있다. 이때 킷 생성은 "LMMS rendered no sound for ... DrumSynth presets" 오류로 멈추고, 드럼이 있는 곡을 저장할 수 없다. 해결 방법은 사용자의 LMMS 옆에 LMMS 1.2.2를 따로 두고 킷을 한 번만 녹음하는 것이다. LMMS 1.2.2는 킷 녹음에만 쓴다. 곡 렌더는 사용자가 원래 쓰던 LMMS로 계속하며, 그 LMMS는 그대로 둔다.
 
 - 이 문서의 다른 설치와 달리 일회성 컨테이너를 포함한 모든 환경에서 사용자에게 먼저 묻는다. 사용자가 고른 LMMS 옆에 LMMS를 하나 더 두는 일이기 때문이다. 이유(설치된 LMMS로 드럼머신 타격을 녹음할 수 없음), 받을 대상(https://github.com/LMMS/lmms/releases/tag/v1.2.2 의 LMMS 1.2.2), 사용자의 LMMS는 건드리지 않는다는 점을 함께 말한다. 사용자가 거절하면 문제 해결에 있는 다른 방법을 제안한다.
-- Linux: 사용자가 동의하면 위 페이지의 AppImage를 툴킷 전용 폴더(예를 들어 캐시 폴더)에 내려받아 실행 권한을 준다. 그다음 이 명령 한 번에만 그 AppImage를 지정해 킷을 녹음한다. AppImage가 실행되지 않으면 문제 해결을 본다.
+- Linux: 사용자가 동의하면 위 페이지의 AppImage를 툴킷 전용 폴더(예를 들어 캐시 폴더)에 내려받아 실행 권한을 준다. 그다음 이 명령 한 번에만 그 AppImage를 지정해 킷을 녹음한다. AppImage가 실행되지 않으면 문제 해결을 본다. 내려받기 전에 세션에 GitHub 저장소를 연결하는 도구가 실행 환경에 있으면 호출한다. 인자는 소유자 `LMMS`, 저장소 이름 `lmms`를 각각 따로 전달한다. 도구 응답이 안내하는 접근 경로를 따른다. 도구가 없거나 호출이 거부되면 이 단계를 건너뛴다.
 
 ```bash
 LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py kit --build
