@@ -270,9 +270,9 @@ vox:
     + 클론 뒤 남은 Git LFS 포인터 파일(`version https://git-lfs.github.com/spec/v1`로 시작하는 작은 파일)은 GitHub의 `https://media.githubusercontent.com/media/<소유자>/<저장소>/<커밋>/<경로>`나 Hugging Face의 `<저장소 주소>/resolve/<커밋>/<경로>`에서 받아 포인터의 sha256과 대조. 다른 호스트나 비공개 저장소는 `git lfs pull`로 받음
     + 포인터가 하나라도 남은 폴더는 쓰지 않음
 - 사용 전 확인
-    + `python scripts/studio.py diffsinger-inspect <경로>`
-    + 화자, 언어, 포함된 모델, 이용 조건이 적힌 파일 목록을 출력
-    + 목록의 파일과 배포 페이지의 이용 조건을 읽고 사용자에게 요약 고지 (상업적 이용, 표기 의무, 금지 내용, 생성물 이용 제한)
+    + `python scripts/studio.py diffsinger-inspect <폴더>`로 화자, 언어, 포함된 모델을 확인
+    + 이용 조건 문서는 보이스뱅크 폴더의 파일을 하위 폴더까지 모두 확인하여 직접 찾음. 파일 이름의 언어와 형식은 보이스뱅크마다 다름 (예: readme.txt, character.txt, 利用規約.txt)
+    + 찾은 문서와 배포 페이지의 이용 조건을 읽고 사용자에게 요약 고지 (상업적 이용, 표기 의무, 금지 내용, 생성물 이용 제한)
     + 조건에 어긋나는 가사나 용도이면 진행 전에 사용자와 상의
 - 설정
 ```yaml
