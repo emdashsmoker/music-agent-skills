@@ -92,7 +92,7 @@
     + Playing at full strength to the last bar and stopping sounds as if the music was cut off
 - Choose one of three ways
     + Closing hit : `ending: hit`, one tonic chord and its decay (club genres, pop)
-    + Fade-out : `ending: fade`, for a looping outro (lo-fi, doomer, synthwave)
+    + Fade-out : `ending: fade`, for a looping outro (lo-fi, doomer, synthwave, etc.)
     + Written by hand : an outro that sheds parts, and a last chord
 - Even when the outro closes a filter or lowers the level, decide where the last point is
     + A reverb tail that ends closed is kept, so use it together with a last hit or a fade

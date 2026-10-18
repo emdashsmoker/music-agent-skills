@@ -106,4 +106,4 @@
     + Check the kick's `tune_hz` and the bass register so that the fundamentals of kick and bass do not overlap for long in one band
 - At most two sustained sounds in one register
     + Pad, strings and supersaw chords all sounding in one section clog the mids
-- In genres where filter movement takes the place of melody (acid, techno), build the development by moving `lpf` with a section's `auto`
+- In genres where filter movement takes the place of melody (acid, techno, etc.), build the development by moving `lpf` with a section's `auto`

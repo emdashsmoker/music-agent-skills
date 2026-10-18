@@ -113,10 +113,10 @@ vox:
 - Where the vocal rhythm comes from
     + Take the vocal rhythm from the spoken stress of the words
     + To sing a melody written for an instrument (a lead hook, a theme, a riff), rewrite its rhythm to the spoken stress first
-    + In arrangements where the lead plays the vocal's melody (synthpop, futurepop, eurodance, italo disco), fix the vocal line first and let the lead follow its rhythm
+    + In arrangements where the lead plays the vocal's melody (synthpop, futurepop, eurodance, italo disco, etc.), fix the vocal line first and let the lead follow its rhythm
 - Where the dramatic devices go
-    + Risers, snare rolls and impacts carry the build-up and the drop (trance, big room)
-    + Instruments carry sudden stops and hits (darksynth) and fast runs and trills (chiptune)
+    + Risers, snare rolls and impacts carry the build-up and the drop (trance, big room, etc.)
+    + Instruments carry sudden stops and hits (darksynth, etc.) and fast runs and trills (chiptune, etc.)
     + To build tension in a sung line, hold the last word itself
     + For a clipped effect, give the last word a beat or more and cut it with a rest
 - Rhythmic density within a line
@@ -124,7 +124,7 @@ vox:
     + A last word clipped after a long build-up is over before it is heard (`lyrics.clipped_line_end`: the line ends, after a note held 2 beats or more, on a last syllable a quarter of that note or shorter)
     + Even out a burst to the pace of the line's start or cut syllables from it (`lyrics.fast_syllables` points at fast runs)
 - Checking a clipped delivery
-    + Keep a clipped delivery that is part of the genre (the shouted lines of EBM and industrial) only when the last word comes through in the vocal-only render
+    + Keep a clipped delivery that is part of the genre (the shouted lines of EBM, industrial, etc.) only when the last word comes through in the vocal-only render
     + Note the reason for such a line in `notes` and put it on the listening list in the report
     + For sounds whose job is not to carry words (vocal chops, vocal shots), note their purpose in `notes` to keep them apart from the lead lyric lines
 - Note length
