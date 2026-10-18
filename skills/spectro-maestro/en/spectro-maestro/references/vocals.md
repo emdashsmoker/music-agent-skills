@@ -75,6 +75,9 @@ vox:
     + A singing voicebank sings an English word missing from its dictionary with a guessed pronunciation, and in other languages it stops at such a word
     + Write numbers and symbols out as the words to be sung
     + For a word the song needs, write the line containing it first and listen with `vocal-try`; if it is misread, give that line a `phonemes` entry
+- Lyrics from the user
+    + Review them by the measures above before they are sung, and present the problem lines with suggested changes
+    + Apply only approved changes; if the user keeps the original, follow 'Handling unworkable plans' in `planning.md`: state the expected loss of quality once, then go on with the original
 
 | Rules | For | What they cover |
 |---|---|---|
