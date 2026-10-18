@@ -81,7 +81,7 @@
 ## Effects
 | Name | Main parameters | Use |
 |---|---|---|
-| `eq` | `bands: [[peak, 3000, 2.5, 1.0], [highshelf, 9000, 3]]` | Kinds : peak, lowshelf, highshelf, hp, lp, notch |
+| `eq` | `bands: [[peak, 3000, 2.5, 1.0], [highshelf, 9000, 3]]` | Each band is [kind, frequency (Hz), gain (dB), Q]; gain defaults to 0 and Q to 0.707. Kinds : peak, lowshelf, highshelf, hp, lp, notch |
 | `hpf`, `lpf` | `freq`, `poles` | Tidying a band |
 | `tilt` | `db_per_octave`, `pivot` | Overall brightness |
 | `comp` | `threshold`, `ratio`, `attack`, `release`, `makeup`, `mix` | Evening out level |

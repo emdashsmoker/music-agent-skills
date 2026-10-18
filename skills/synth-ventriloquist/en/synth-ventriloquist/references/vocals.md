@@ -37,7 +37,7 @@ Read this before adding any vocal. It covers the choice of voice, the melody not
 
 A good singer voicebank is the first choice when the user has one, most of all for exposed lead vocals. The speech voices are the fallback that always works, and they suit electronic styles where a processed voice is at home (futurepop, EBM, synthpop, electro, vocoder hooks).
 
-`python scripts/lmms_tool.py voices` lists the built-in speech voices with gender, accent and notes. `voices <voice id>` describes one voice, and for a voicebank it lists languages, voice colours and the documents that state its terms.
+`python scripts/lmms_tool.py voices` lists the built-in speech voices with gender, accent and notes. `voices <voice id>` describes one voice, and for a voicebank it lists languages, voice colours and the documents that state its terms. For a bank with several voice colours, add `#colour` to the id to pick one. Without it the first colour sings.
 
 Speech voices have two methods. `stretched` (default) analyses the spoken line and re-synthesizes it on the melody: any pitch, clearest words in testing. `held` (`method="held"`, Kokoro only) lets the speech model itself hold the vowels: a more natural tone inside the voice's clean range, weaker outside it. Render the same line both ways and let the user pick when the vocal tone matters to them.
 
@@ -111,6 +111,13 @@ The words are matched to the tokens by syllable, in order. If the counts differ,
 `python scripts/lmms_tool.py sing --voice <id> --text "..." --melody "..." --bpm 132 -o work/line.wav` sings one line alone and prints its report with a recognition score.
 
 ## Lyric craft
+
+Before writing, find out what the chosen voice sings well. The kind of voice (speech voice or singer voicebank) and the language decide which rules in the table below apply. Choose the words and the sentence structure to fit those rules from the start. Changing words after the lyrics are finished means fitting meaning and rhyme again.
+
+- Fit the sentence structure to the voice too. Pick a word order that keeps weak function words (to, the, a) off beats and long notes. Recast a sentence that opens with function words or stacks them in a row so that a content word leads. A speech voice reads to with a weak vowel, so it sinks on a beat or a long note (see the reduced-vowel rule below).
+- Avoid, or test early, words a pronunciation dictionary is unlikely to hold (proper nouns, invented words, abbreviations, foreign words). A speech voice guesses their pronunciation from the spelling, so it may read them differently than intended. A singer voicebank sings an English word missing from its dictionary with a guessed pronunciation, and in other languages it stops at such a word.
+- Write numbers and symbols out as the words to be sung.
+- For a word the song needs, such as the title or a name, sing a line containing it with `sing` or `compare` before writing the other lines. If it is misread, respell it by sound in the text given to the voice, and keep the original spelling in the lyric file for the user.
 
 Sung words are harder to follow than spoken ones, and a model voice has less to spare than a human singer. These habits raise the odds. They are starting points from measurements on English speech voices, so check them with `compare` instead of trusting them blindly.
 
