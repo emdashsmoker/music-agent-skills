@@ -25,7 +25,7 @@ The second form renders each named patch alone, prints a table (loudness, length
 
 ## Drum machines in the library
 
-The machine kits are one-shot recordings of LMMS's own drum synthesis, and the named kicks are clean synthesized one-shots (a pitch-dropping sine with a short click). The skill ships none of them as audio: the kit is made on this machine the first time a song needs it (`lmms_tool.py kit` shows it, `kit --build` makes it now) and kept in the kit folder, so the drums sound the same on every later render here. The named kicks are identical on every machine. The recorded hits with noise in them (snares, hats, claps) differ slightly from one machine to another, as two takes of the same drum machine would.
+The machine kits are one-shot recordings of LMMS's own drum synthesis, and the named kicks are clean synthesized one-shots (a pitch-dropping sine with a short click). The hits without a prefix (`kick_acoustic`, `kick_hardcore`, `snare_harsh`, `clap`, `ohat`, `ride` and so on) play samples that come with LMMS. The skill ships none of them as audio: the kit is made on this machine the first time a song needs it (`lmms_tool.py kit` shows it, `kit --build` makes it now) and kept in the kit folder, so the drums sound the same on every later render here. The named kicks are identical on every machine. The recorded hits with noise in them (snares, hats, claps) differ slightly from one machine to another, as two takes of the same drum machine would.
 
 | Prefix | Character | Typical genres |
 |---|---|---|
@@ -35,7 +35,8 @@ The machine kits are one-shot recordings of LMMS's own drum synthesis, and the n
 | `linn_` | natural-sounding 80s drums with toms, cabasa, tambourine (LinnDrum style) | synthpop, synthwave, doomer and post-punk |
 | `cr78_` | soft vintage preset rhythm box (CR-78 style) | coldwave, lo-fi, downtempo |
 | `electro_`, `8bit_`, `jazz_`, `amen_`, `reverb_` | electro kit, chip sounds, acoustic-flavoured hits, gated-reverb hits | electro, chiptune, breakbeat, 80s styles |
-| named kicks | `trance_kick`, `house_kick`, `techno_kick`, `hard_kick`, `kick_hardcore`, `kick_distorted`, `industrial_kick`, `psy_kick`, `dnb_kick`, `boom_kick`, `kick_hiphop` | the genre in the name |
+| named kicks | `trance_kick`, `house_kick`, `techno_kick`, `hard_kick`, `industrial_kick`, `psy_kick`, `dnb_kick`, `boom_kick` | the genre in the name |
+| hits without a prefix (LMMS factory samples) | `kick_acoustic`, `kick_hardcore`, `kick_distorted`, `kick_hiphop`, `snare_acoustic`, `snare_harsh`, `clap`, `hat`, `ohat`, `ride`, `crash`, `tom_low` and more | breakbeat, hardcore, industrial, hip hop |
 
 There is no separate 707 kit. The 909 and Linn kits cover that territory. A TB-303 style bass line is the `acid_bass` and `acid_square` patches (LMMS's LB302): overlapping notes slide, and an accent is a louder note.
 
@@ -72,7 +73,7 @@ Top-level keys of a patch:
 
 ## Building a patch from scratch
 
-Three helpers produce the `attrs` for the instruments that cover most electronic sounds.
+These helpers produce the `attrs` for the instruments that cover most electronic sounds.
 
 - `sounds.osc3(waves, vols, coarse, fine, pan, spread, phase, mod)` for TripleOscillator: three oscillators with wave shapes (the constants `SINE`, `TRIANGLE`, `SAW`, `SQUARE`, `MOOG_SAW`, `EXPONENTIAL`, `NOISE`), detune in semitones and cents, and a mix mode between them (`MOD_MIX`, `MOD_FM`, `MOD_PM`, `MOD_AM`, `MOD_SYNC`). Detuned saws make supersaws and pads, a sine plus a square an organ, FM a bell or a metallic bass.
 - `sounds.acid(cutoff, resonance, env_mod, decay, dist, square)` for the LB302 acid synth.
@@ -131,7 +132,7 @@ Pass a parameter to `song.automate(param, [(bar, value), ...])`:
 
 The same script must render the same audio every time. What was found by rendering the same projects repeatedly:
 
-- Some LMMS behaviour depends on the timing between its threads. The toolkit therefore starts LMMS on a single CPU core wherever the operating system allows it (Linux), which made the timing-dependent case below repeatable in tests. On other systems they can vary.
+- Some LMMS behaviour depends on the timing between its threads. The toolkit therefore starts LMMS on a single CPU core wherever the operating system allows it (Linux), which made the timing-dependent case below repeatable in tests. On other systems it can vary.
 - DrumSynth drum presets (`.ds` files) are synthesized with fresh random noise on every render, on any system. The library therefore plays recordings of them, made once per machine (the kit folder).
 - A peak-controller sidechain differs on every render, on any system. `song.sidechain()` writes the same ducking as automation instead.
 - Automation of an instrument's own knobs differed on every render on several cores. On one core most renders were identical, but one finished song still came out different on its second render. Treat it as unrepeatable.

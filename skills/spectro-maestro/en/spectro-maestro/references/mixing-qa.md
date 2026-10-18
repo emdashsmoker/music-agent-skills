@@ -54,9 +54,9 @@
 | `sidechain_release` | 0.5 | Sidechain recovery time (beats) |
 | `fade_out` | 0 | Fade at the end of the song (beats) |
 - Starting points for target loudness by genre
-    + Quiet and dynamic genres (ambient, lo-fi, doomer) : -16 to -12
+    + Quiet and dynamic genres (ambient, lo-fi, doomer) : -17 to -12
     + Pop and the house family : -11 to -9
-    + Hard club genres (hardstyle, gabber, dubstep) : -8 to -6
+    + Hard club genres (hardstyle, gabber, big room) : -8 to -7
 - The harder the limiter works, the more the kick is squashed and pumping appears
     + If `limiter_p95_db` exceeds 5, lower the target loudness or reduce the loudest bus
 
