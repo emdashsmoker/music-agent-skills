@@ -63,8 +63,8 @@ print(song.save(os.path.join(os.getcwd(), "night_drive.mmp")))
 | 메서드 | 용도 | 예 |
 |---|---|---|
 | `part.hits(at, grid, bars, pitch=None, step=0.25, vol=100, swing=0.0)` | 드럼 | `"x---x---x---x---"`: `x` 타격, `X` 악센트, `o` 고스트, `-` 쉼. 그리드는 `bars`를 채울 때까지 반복된다. |
-| `part.seq(at, text, bars=None, step=0.25, octave=3, gate=1.0, vol=100)` | 음이름으로 쓰는 멜로디와 베이스 라인 | `"A2 . . C3 _ _ . E3"`: 음이름은 연주, `.` 쉼, `_` 유지, `[A2 C3 E3]`는 화음, 마디선은 선택. |
-| `part.riff(at, symbols, pattern, bars_each=1.0, step=0.25, octave=2, gate=1.0)` | 코드를 따라가는 하나의 패턴 | `"R . R 5 8 _ 5 ."`: `R` 근음, `3`, `5`, `7`, `8`(옥타브), 접미사 `+`/`-`는 옥타브 이동, `!` 악센트, `?` 고스트. |
+| `part.seq(at, text, bars=None, step=0.25, octave=3, gate=1.0, vol=100)` | 음이름으로 쓰는 멜로디와 베이스 라인 | `"A2 . . C3 _ _ . E3"`: 음이름은 연주, `.` 쉼, `_` 유지, `[A2 C3 E3]`는 화음, `\|` 마디선은 선택. |
+| `part.riff(at, symbols, pattern, bars_each=1.0, step=0.25, octave=2, gate=1.0)` | 코드를 따라가는 하나의 패턴 | `"R . R 5 8 _ 5 ."`: `R` 근음, `3`, `5`, `7`, `8`(옥타브), `.` 쉼, `_` 유지, 접미사 `+`/`-`는 옥타브 이동, `!` 악센트, `?` 고스트. |
 | `part.chords(at, symbols, bars_each=1.0, octave=3, rhythm=None, gate=0.95)` | 패드, 스탭, 건반 | `rhythm=None`은 코드를 길게 유지한다. `rhythm="x--x--x---x--x--"`는 스탭으로 친다. 보이싱은 코드에서 코드로 매끄럽게 이어진다. |
 | `part.notes(at, [Note(start, length, pitch, vol)])` | 그 밖의 모든 것 | `Note`는 `lmmskit.project`에 있다. start는 클립 시작부터의 박이다. `theory.note("E5")`가 음높이 번호를 준다. |
 
@@ -77,7 +77,7 @@ print(song.save(os.path.join(os.getcwd(), "night_drive.mmp")))
 ## 코드와 화성
 
 - `song.chords(at, "Am F C G", bars_each=1.0, repeats=1)`은 화성이 무엇인지 선언한다. lint가 이를 써서 베이스 음과 긴 멜로디 음을 점검한다. 전체 구간(진행 × `repeats`)에 대해 코드마다 기호 하나를 돌려주며, 파트의 `riff`와 `chords`가 이 형태를 받는다.
-- 조성과 함께 로마 숫자를 쓸 수 있다. `theory.progression("i VI III VII", "A minor")`는 `["Am", "F", "C", "G"]`를 준다.
+- 조성과 함께 로마 숫자를 쓸 수 있다. `theory.progression("i VI III VII", "A minor")`는 `["Am", "F", "C", "G"]`를 준다. 대문자는 장3화음, 소문자는 단3화음이다.
 - 코드 기호: 장3화음, `m`, `7`, `maj7`, `m7`, `dim`, `aug`, `sus2`, `sus4`, `add9`, `m9`, `9`, 슬래시 베이스(`C/E`).
 - 선법도 조성으로 받는다: `"A phrygian"`, `"D dorian"`, `"E harmonic minor"`.
 

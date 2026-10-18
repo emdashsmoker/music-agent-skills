@@ -104,7 +104,7 @@ pad:  {grid: "c - - - - - - - - - - - - - - -"}          # hold the chord for on
 ## Melody notation (line)
 - A list of tokens written as `pitch:beats`
     + Note names : `C4`, `F#3`, `Bb4` (only capital letters are read as note names)
-    + Degrees : `5`, `b3`, `1'`, `7,` (against the song's scale; with an accidental, against the major scale)
+    + Degrees : `5`, `b3`, `1'`, `7,` (against the song's scale; with an accidental, against the major scale; `'` raises an octave, `,` lowers one)
     + Rest : `r:1`
     + Chord : `[C4 E4 G4]:2`
     + When the beats are left out, the previous value is used
@@ -112,7 +112,7 @@ pad:  {grid: "c - - - - - - - - - - - - - - -"}          # hold the chord for on
     + A bar boundary that does not line up is reported as an error, so mistakes in counting beats are found at once
 - `~` joins a note to the next (example : `E4:1~D4:1`)
     + In a vocal, the joined notes are sung as one syllable
-- Put `!` or `?` after a note to change its velocity
+- Put `!` after a note to accent it, or `?` to make it a ghost note
 ```yaml
 lead: {line: "5:1.5 3:.5 5:1 1':1 | 1':1.5 7:.5 6:2", octave: 4}
 ```
@@ -138,7 +138,7 @@ vox:
     + `notes` : melody notation, one note per syllable
     + `phonemes` : give the engine's phonetic symbols directly (optional)
 - When the number of syllables and the number of notes differ, `lint` reports it with the syllable count of each word
-- To spread one syllable over several notes, tie them with `~`
+- To sing one syllable on several notes, join the notes with `~`
 - Vocal settings and lyric writing rules are in `vocals.md`
 
 ## Sections
@@ -206,7 +206,7 @@ mix:
 master:
   lufs: -10                   # target loudness
   ceiling: -1                 # true peak ceiling (dBTP)
-  eq: [[highshelf, 9000, 1.5]]
+  eq: [[highshelf, 9000, 1.5]] # band format: eq in sound.md
   vocal_carve: -2.5           # how much of the backing's 1.3-5 kHz is taken out when there is a vocal
   fade_out: 8                 # length of the fade at the end of the song (beats)
   tail: 3                     # room for the reverb at the end of the song (seconds)

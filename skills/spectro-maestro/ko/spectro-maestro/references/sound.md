@@ -81,7 +81,7 @@
 ## 이펙트
 | 이름 | 주요 파라미터 | 용도 |
 |---|---|---|
-| `eq` | `bands: [[peak, 3000, 2.5, 1.0], [highshelf, 9000, 3]]` | 종류 : peak, lowshelf, highshelf, hp, lp, notch |
+| `eq` | `bands: [[peak, 3000, 2.5, 1.0], [highshelf, 9000, 3]]` | 밴드마다 [종류, 주파수(Hz), 이득(dB), Q], 이득을 생략하면 0, Q를 생략하면 0.707, 종류 : peak, lowshelf, highshelf, hp, lp, notch |
 | `hpf`, `lpf` | `freq`, `poles` | 대역 정리 |
 | `tilt` | `db_per_octave`, `pivot` | 전체 밝기 |
 | `comp` | `threshold`, `ratio`, `attack`, `release`, `makeup`, `mix` | 음량 고르기 |

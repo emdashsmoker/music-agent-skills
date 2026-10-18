@@ -63,8 +63,8 @@ The role is a mix decision, so assign it by function. An arpeggio that carries t
 | Method | Use | Example |
 |---|---|---|
 | `part.hits(at, grid, bars, pitch=None, step=0.25, vol=100, swing=0.0)` | drums | `"x---x---x---x---"`: `x` hit, `X` accent, `o` ghost, `-` rest. The grid repeats to fill `bars`. |
-| `part.seq(at, text, bars=None, step=0.25, octave=3, gate=1.0, vol=100)` | melodies and bass lines by note name | `"A2 . . C3 _ _ . E3"`: name plays, `.` rests, `_` holds, `[A2 C3 E3]` is a chord, bar lines are optional. |
-| `part.riff(at, symbols, pattern, bars_each=1.0, step=0.25, octave=2, gate=1.0)` | one pattern that follows the chords | `"R . R 5 8 _ 5 ."`: `R` root, `3`, `5`, `7`, `8` (octave), `+`/`-` suffix shifts an octave, `!` accent, `?` ghost. |
+| `part.seq(at, text, bars=None, step=0.25, octave=3, gate=1.0, vol=100)` | melodies and bass lines by note name | `"A2 . . C3 _ _ . E3"`: name plays, `.` rests, `_` holds, `[A2 C3 E3]` is a chord, `\|` bar lines are optional. |
+| `part.riff(at, symbols, pattern, bars_each=1.0, step=0.25, octave=2, gate=1.0)` | one pattern that follows the chords | `"R . R 5 8 _ 5 ."`: `R` root, `3`, `5`, `7`, `8` (octave), `.` rests, `_` holds, `+`/`-` suffix shifts an octave, `!` accent, `?` ghost. |
 | `part.chords(at, symbols, bars_each=1.0, octave=3, rhythm=None, gate=0.95)` | pads, stabs, keys | `rhythm=None` holds each chord. `rhythm="x--x--x---x--x--"` plays it as stabs. Voicings are led smoothly from chord to chord. |
 | `part.notes(at, [Note(start, length, pitch, vol)])` | anything else | `Note` comes from `lmmskit.project`. Starts are beats from the clip start. `theory.note("E5")` gives the pitch number. |
 
@@ -77,7 +77,7 @@ Drum one-shots are held for the full length of the sample automatically.
 ## Chords and harmony
 
 - `song.chords(at, "Am F C G", bars_each=1.0, repeats=1)` declares what the harmony is. The lint uses it to check bass notes and long melody notes. It returns one symbol per chord for the whole stretch (the progression times `repeats`), which is what `riff` and `chords` on a part expect.
-- Roman numerals work with a key: `theory.progression("i VI III VII", "A minor")` gives `["Am", "F", "C", "G"]`.
+- Roman numerals work with a key: `theory.progression("i VI III VII", "A minor")` gives `["Am", "F", "C", "G"]`. Upper case is a major triad, lower case a minor one.
 - Chord symbols: major, `m`, `7`, `maj7`, `m7`, `dim`, `aug`, `sus2`, `sus4`, `add9`, `m9`, `9`, slash bass (`C/E`).
 - Modes are accepted as keys: `"A phrygian"`, `"D dorian"`, `"E harmonic minor"`.
 
