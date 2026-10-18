@@ -107,7 +107,7 @@ When the same three or more warnings survive two rounds of fixes, stop and show 
 ## Mixing moves in the song script
 
 - Level intent: `level_db` on `song.add(...)`.
-- Room under the vocal: in every song with a vocal part, the music bus by default drops 2.5 dB and dips 6 dB in the consonant band while a lead line is sung. A genre profile's `vocal_duck` pair replaces these defaults when present. `song.duck_for_vocals(depth_db, presence_db)` changes them, and `song.duck_for_vocals(0)` turns the ducking off. `presence_octaves` sets the width of the consonant-band dip (default 1.5 octaves). A wide dip such as 3.0 also pulls the music's highs down to 9 kHz under every line and darkens the backing. It is not recommended, so use it only when the user asks for that sound.
+- Room under the vocal: `song.duck_for_vocals(depth_db, presence_db)` sets how far the music bus ducks under sung lines (default 2.5 and 6.0, or the genre profile's `vocal_duck`), and `song.duck_for_vocals(0)` turns it off. `presence_octaves` sets the width of the consonant-band dip (default 1.5 octaves). A wide dip such as 3.0 also pulls the music's highs down to 9 kHz and darkens the backing, so use it only when the user asks for that sound.
 - Space: `sends={"reverb": 0.3, "delay": 0.2}`. Dry and close means small sends, far away means large sends plus a lower level.
 - Stereo: `pan` on parts. Keep kick, sub, bass and lead vocal in the centre. Spread hats, plucks, doubles and harmonies.
 - Tone: `fx.eq(part.chain, ...)`, or change the patch filter.

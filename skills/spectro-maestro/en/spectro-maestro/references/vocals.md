@@ -66,7 +66,7 @@ vox:
 | Rules | For | What they cover |
 |---|---|---|
 | Singing craft | Any voice, a human singer included | Stress on the strong beats, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats |
-| Model-voice habits | Speech voices and singer voicebanks alike | Consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak |
+| Model-voice habits | Speech voices and singing voicebanks alike | Consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak |
 | Speech-voice repairs | Speech voices only | The thin held ee and `vowel_body`, `consonant_ceiling` for stinging consonants, the line-ending repair, the strong-form spelling |
 - Rules for a voicebank
     + Write by the singing craft and the model-voice habits, and read the speech-voice repairs as background
@@ -108,8 +108,8 @@ vox:
     + A speech voice stretched onto a note sings a held ee (he, she, we, see, me, be, free) thin, because the spoken vowel has little body and the stretch keeps it so
     + The word sits under its neighbours, and what is left rings metallic: quiet and sharp at once (in seven songs with Kokoro voices, the body band of an ee syllable sat 9 dB under its line)
     + Keep ee words on short notes and put open vowels (ah, oh, oo, ay) on held notes (`lyrics.held_ee`), or fill the vowel with `style: {vowel_body: 1}`
-    + `vowel_body: 1` on 24 lines raised the median ee body from 8.8 to 6.4 dB under the line and left the recognition scores unchanged
-    + A singer voicebank shapes the vowel itself, so this rule and `lyrics.held_ee` do not apply to it
+    + `vowel_body: 1` on 24 lines raised the median ee body from 8.8 to 6.4 dB under the line and left the match scores unchanged
+    + A singing voicebank shapes the vowel itself, so this rule and `lyrics.held_ee` do not apply to it
 - Reduced vowels and weak function words (any voice)
     + Weak function words (to, the, a) go quiet on long notes: the vowel is reduced in speech, and a singer has to open it on purpose
     + Reduced vowels (the schwa of the, to, a and the first syllable of upon, about) and the short ɪ of it, its, sit have almost no vowel to hold
