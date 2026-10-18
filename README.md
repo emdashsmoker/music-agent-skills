@@ -1,8 +1,8 @@
 # music-agent-skills
 
-Music production agent skills that finish songs without diffusion models, following the principles of harmony and rhythm and the production process written into each skill. They cover composing, arranging, mixing and mastering. Vocals come from speech synthesis voices (Kokoro, Piper) turned into singing. Every skill ships as a Korean original and an English translation.
+Agent skills that turn a user request into a finished song through theory-based composition, arrangement, mixing and mastering, revisable by section and by track. Vocals are rendered either by converting synthesized speech voices into singing or from a singing voicebank supplied by the user. Finished songs can also be exported in MIDI, LMMS and DAWproject formats. Every skill is provided as a Korean original with an English translation.
 
-화성, 리듬 같은 음악 이론과 제작 과정을 담은 스킬 지침에 따라 확산 모델 없이 곡을 완성하는 음악 제작 에이전트 스킬 모음입니다. 작곡부터 편곡, 믹싱, 마스터링까지 다룹니다. 보컬은 음성 합성 모델(Kokoro, Piper)의 목소리를 노래로 바꿔 만듭니다. 모든 스킬은 한국어 원본과 영어 번역본을 함께 제공합니다.
+사용자의 요청을 음악 이론에 근거한 작곡, 편곡, 믹싱, 마스터링을 거쳐 섹션 및 트랙 단위로 수정 가능한 곡으로 완성하는 에이전트 스킬 모음입니다. 보컬은 음성 합성 음색의 가창 변환 또는 사용자가 제공한 가창 보이스뱅크로 구현합니다. 완성곡은 MIDI, LMMS, DAWproject 형식으로도 내보낼 수 있습니다. 모든 스킬은 한국어 원본과 영어 번역본으로 제공합니다.
 
 <p align="center">
 <img src="assets/readme/studio-chain.png" width="100%" alt="A song plan runs through a drum machine, a synthesizer and a voice, then effects, a mixer and a master, and comes out as audio and project files, automated end to end by an AI agent">
@@ -160,6 +160,8 @@ Thanks to the developers and contributors of these projects.
 - [DAWproject](https://github.com/bitwig/dawproject)
 - [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M)
 - [Piper](https://github.com/OHF-Voice/piper1-gpl)
+- [DiffSinger](https://github.com/openvpi/DiffSinger)
+- [OpenUtau](https://github.com/stakira/OpenUtau)
 - [eSpeak NG](https://github.com/espeak-ng/espeak-ng)
 - [WORLD](https://github.com/mmorise/World)
 - [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
