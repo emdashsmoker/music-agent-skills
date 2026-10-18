@@ -35,7 +35,7 @@ python scripts/lmms_tool.py check song.mmpz -o review  # 렌더, 측정, 그림
 - 누락된 샘플이나 플러그인: 해당 트랙이 무음이나 잘못된 소리로 렌더된다. 음표와 구조의 분석은 유효하다. 오디오 측정은 실제 곡을 설명하지 못한다. 파일을 요청하거나(샘플은 프로젝트 옆 `samples/`에 둔다) 그 트랙을 제외하고 계속하기로 합의한다.
 - VST 플러그인: VST의 창 없는 렌더는 사용자 시스템에 좌우되며 자주 실패한다. 그 설정은 보존할 수는 있지만 이해하거나 고칠 수 없는 불투명 데이터다.
 - 큰 프로젝트(수십 개 트랙, 여러 분): 스템 렌더에 오래 걸린다. 소요 시간을 말하고, 음표 수준의 `lint`(렌더 없음)나 구간(`render --bars`)으로 시작하는 방법을 제안한다.
-- 설치된 것보다 새로운 LMMS로 만든 프로젝트는 열리지 않을 수 있다. `lmms upgrade in.mmp out.mmp`는 오래된 파일을 앞 버전으로만 변환한다.
+- 설치된 것보다 새로운 LMMS로 만든 프로젝트는 열리지 않을 수 있다. `lmms upgrade in.mmp out.mmp`는 오래된 파일을 새 형식으로 올릴 뿐 이전 형식으로 되돌리지는 않는다.
 - 피크 컨트롤러 사이드체인, DrumSynth 프리셋, 악기 노브 오토메이션을 쓰는 프로젝트는 실행마다 조금 다르게 렌더될 수 있다(lint의 `unrepeatable_*` 결과). 일부 서드 파티 이펙트 플러그인도 마찬가지다. 측정값은 0.몇 dB 이내에서 여전히 유효하다.
 - plan 파일이 없으면 도구가 트랙의 이름, 악기, 음역으로 믹스 역할을 추정한다. `part_levels` 표에서 추정을 확인하고, 중요하면 트랙 이름을 바꾸거나 스크립트에서 역할을 넘겨 바로잡는다.
 
@@ -91,7 +91,7 @@ project.save("song_v2.mmp")
 
 | 형식 | 명령 | 담는 것 | 용도 |
 |---|---|---|---|
-| 오디오 | `render song.mmp -o out.ogg`(`.mp3`, `.flac`, `.wav`) 또는 `produce`가 쓰는 파일 | 믹스 | 감상, 공개. ogg와 mp3에는 `ffmpeg`가 필요 |
+| 오디오 | `render song.mmp -o out.ogg`(`.mp3`, `.flac`, `.wav`) 또는 `produce`가 쓰는 파일 | 믹스 | 감상, 공개. ogg, mp3, flac에는 `ffmpeg`가 필요 |
 | LMMS 프로젝트 | `.mmp` 자체, 또는 `export --mmp copy.mmpz` | 전부 | LMMS에서 이어서 작업 |
 | 휴대용 프로젝트 | `pack song.mmp -o song.zip` | 프로젝트, plan 파일, 쓰이는 샘플, 복사 위치 안내 | 다른 LMMS 사용자에게 보내기. 보이스뱅크는 포함되지 않는다 |
 | MIDI | `export song.mmp --midi song.mid` | 템포와 음표, 파트당 트랙 하나. 드럼은 채널 10에 General MIDI 음 번호로. 부른 멜로디는 음표로 | 모든 DAW나 악보 프로그램. 음색은 실리지 않는다 |
