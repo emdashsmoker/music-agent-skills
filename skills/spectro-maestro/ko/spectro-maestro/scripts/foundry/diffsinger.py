@@ -3,10 +3,11 @@
 # Part of Spectro Maestro. See LICENSE and THIRD-PARTY-NOTICES.md at the root of the skill.
 """Sing with a DiffSinger voicebank the user supplies (the OpenUtau voicebank layout, ONNX models).
 
-Nothing about any particular voicebank lives here. The user points to a folder, an archive or a
-link; this module reads the voicebank's own configuration and dictionaries and runs its models
+Nothing about any particular voicebank lives here. The user points to a folder (an archive or a link is
+first unpacked or fetched into one); this module reads the voicebank's own configuration and dictionaries and runs its models
 unmodified: duration, pitch, variance, acoustic, vocoder. The user is responsible for the terms
-of the voicebank they choose; `inspect` lists the licence and readme files found so they can be read.
+of the voicebank they choose; the agent finds and reads them in the voicebank folder
+before use (references/vocals.md), since their file names follow no convention.
 
 Pipeline per lyric line
   words -> phonemes (voicebank dictionary, then CMUdict for English, then espeak when available)
@@ -19,9 +20,6 @@ import hashlib
 import json
 import os
 import re
-import shutil
-import subprocess
-import zipfile
 
 import numpy as np
 import yaml
@@ -38,7 +36,6 @@ DEFAULTS = {"lang": "en", "speaker": None, "steps": 20, "pitch_steps": 10, "vari
             "deterministic": True,
             "pitch": "model", "expr": 1.0, "gender": 0.0, "velocity": 1.0, "tension": 0.0, "breathiness": 0.0,
             "voicing": 0.0}
-LICENCE_PATTERNS = ("*licen*", "*terms*", "*readme*", "*README*", "character.txt", "*tos*", "*credit*")
 ARPABET_VOWELS = {"aa", "ae", "ah", "ao", "aw", "ay", "eh", "er", "ey", "ih", "iy", "ow", "oy", "uh", "uw"}
 IPA_TO_ARPABET = [("tʃ", "ch"), ("dʒ", "jh"), ("aɪ", "ay"), ("aʊ", "aw"), ("eɪ", "ey"), ("oʊ", "ow"), ("əʊ", "ow"),
                   ("ɔɪ", "oy"), ("ɑ", "aa"), ("æ", "ae"), ("ʌ", "ah"), ("ə", "ah"), ("ɐ", "ah"), ("ɔ", "ao"),
@@ -57,32 +54,14 @@ class DiffSingerError(singing.VocalError):
 # ---------------------------------------------------------------- locating a voicebank
 
 def resolve(reference: str) -> str:
-    """Folder, .zip file, .zip URL or git URL -> folder that holds dsconfig.yaml.
-    Archives and repositories are unpacked into the models directory under a name derived from the reference."""
+    """Voicebank folder -> the folder inside it that holds dsconfig.yaml. Archives and links are not opened here:
+    the agent first unpacks or fetches what the user handed over into a folder (references/vocals.md)."""
     reference = os.path.expanduser(str(reference))
-    if os.path.isdir(reference):
-        return _find_root(reference)
-    store = os.path.join(speech.models_dir(), "diffsinger")
-    name = re.sub(r"[^\w.-]+", "_", os.path.splitext(os.path.basename(reference.rstrip("/")))[0])[-60:] or "voicebank"
-    target = os.path.join(store, name + "_" + hashlib.sha1(reference.encode()).hexdigest()[:8])
-    if not os.path.isdir(target):
-        os.makedirs(store, exist_ok=True)
-        if reference.startswith(("http://", "https://")) and not reference.lower().split("?")[0].endswith(".zip"):
-            if not shutil.which("git"):
-                raise DiffSingerError("git is needed to fetch a repository link")
-            subprocess.run(["git", "clone", "--depth", "1", reference, target], check=True)
-        else:
-            archive = reference
-            if reference.startswith(("http://", "https://")):
-                archive = speech.fetch(reference, target + ".zip")
-            if not os.path.isfile(archive):
-                raise DiffSingerError(f"voicebank not found: {reference}")
-            with zipfile.ZipFile(archive) as bundle:
-                for member in bundle.namelist():           # refuse paths that would leave the target folder
-                    if os.path.isabs(member) or ".." in member.split("/"):
-                        raise DiffSingerError(f"unsafe path in archive: {member}")
-                bundle.extractall(target)
-    return _find_root(target)
+    if not os.path.isdir(reference):
+        raise DiffSingerError(f"voicebank folder not found: {reference}. The toolkit does not unpack archives or download "
+                              "links; unpack or fetch them into a new empty folder as references/vocals.md describes, "
+                              "then pass that folder")
+    return _find_root(reference)
 
 
 def _find_root(folder: str) -> str:
@@ -262,11 +241,10 @@ def voicebank(reference: str) -> Voicebank:
 
 
 def inspect(reference: str) -> dict:
-    """What a voicebank offers, and which of its files state the terms of use."""
+    """What a voicebank offers. Terms-of-use files follow no naming convention, so the agent finds them by
+    reading the folder (references/vocals.md)."""
     bank = voicebank(reference)
     folder = bank.stages["dsdur"].folder
-    documents = sorted({os.path.relpath(p, bank.root) for pattern in LICENCE_PATTERNS
-                        for p in glob.glob(os.path.join(glob.escape(bank.root), pattern))})
     acoustic = bank.acoustic.config
     return {"root": bank.root, "speakers": bank.acoustic.speakers(),
             "languages": sorted(bank.acoustic.languages) or ["(single language)"],
@@ -274,8 +252,8 @@ def inspect(reference: str) -> dict:
             "models": {"duration": True, "pitch": "dspitch" in bank.stages, "variance": "dsvariance" in bank.stages},
             "sample_rate": acoustic.get("sample_rate"), "controls": [k[4:-6] for k, v in acoustic.items()
                                                                       if k.startswith("use_") and k.endswith("_embed") and v],
-            "read_these_for_terms_of_use": documents,
-            "note": "Read the listed files (and the voicebank's download page) and tell the user the usage terms before rendering."}
+            "note": "Find the terms of use among the files of this folder and on the voicebank's download page, "
+                    "then tell the user the usage terms before rendering (references/vocals.md)."}
 
 
 # ---------------------------------------------------------------- text to phonemes
@@ -592,7 +570,7 @@ def _predict_variance(stage: Stage, symbols: list, durations: np.ndarray, midi: 
 def _settings(track: dict) -> dict:
     config = dict(track.get("vocal") or {})
     if not config.get("voice"):
-        raise DiffSingerError(f"{track['name']}: engine diffsinger needs 'voice': a voicebank folder, archive or link "
+        raise DiffSingerError(f"{track['name']}: engine diffsinger needs 'voice': a voicebank folder "
                               f"supplied by the user")
     settings = {**DEFAULTS, **{k: v for k, v in config.items() if k in DEFAULTS or k == "style"}}
     settings["voice"] = config["voice"]

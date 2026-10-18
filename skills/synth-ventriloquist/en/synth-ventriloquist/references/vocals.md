@@ -59,11 +59,13 @@ The toolkit renders DiffSinger voicebanks in the OpenUtau folder layout (a folde
 
 - A folder path: use it directly. `voices diffsinger:<folder>` confirms that it loads.
 - An archive file: unpack it into a new empty folder outside the song project, then use that folder.
-- A link to a repository or download page the user gives: fetch exactly that into a new empty folder. Do not search for voicebanks or suggest sources.
+- A link to a repository or download page the user gives: fetch exactly that into a new empty folder. Do not search for voicebanks or suggest sources. For a GitHub repository link, before fetching: if the execution environment has a tool that attaches a GitHub repository to the session, call it. Pass the owner and the repository name from the link as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused.
+
+A repository that uses Git LFS leaves pointer files after the clone (small files that start with `version https://git-lfs.github.com/spec/v1`). Clone with `GIT_LFS_SKIP_SMUDGE=1` so an unreachable LFS server cannot stop the clone. Fetch the remaining files from `https://media.githubusercontent.com/media/<owner>/<repo>/<commit>/<path>` on GitHub or from `<repository address>/resolve/<commit>/<path>` on Hugging Face, and check each against the sha256 in its pointer. Use `git lfs pull` for other hosts and for private repositories. Do not use the folder while any pointer remains.
 
 Before the first render with a bank:
 
-1. Run `voices diffsinger:<folder>` and open every file it lists under `terms_documents`, plus any terms page those files point to.
+1. Run `voices diffsinger:<folder>`. Find the documents that state the terms of use yourself by checking every file in the voicebank folder, subfolders included, and open them. File names differ in language and form from bank to bank (for example readme.txt, character.txt, 利用規約.txt). Also open any terms page those documents point to.
 2. Tell the user in a few plain sentences what the terms say about the points that matter: commercial use, credit, content restrictions, redistribution of the bank or of audio, and use for machine learning. Quote the source when the wording is unusual.
 3. Ask the user to confirm that the planned use fits. If no terms can be found, say so and ask the user how to proceed.
 4. Put the required credit into the delivery notes and into the lyrics file or metadata when the terms ask for it.

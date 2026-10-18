@@ -122,6 +122,7 @@ def run() -> int:
     kernel = "switched off by the 'native' setting" if native_off else "fast filter kernel will be built into the cache folder" if tools["compiler"] else None
     print(f"  {'ok     ' if kernel and not native_off else 'absent '} C compiler      {kernel or 'none found: filters use the slower path, results are identical'}")
     print(f"  {'ok     ' if shutil.which('git') else 'absent '} git             only for voicebanks handed over as repository links")
+    print(f"  {'ok     ' if shutil.which('git-lfs') else 'absent '} git-lfs         only for Git LFS voicebank repositories outside GitHub and Hugging Face, or private ones")
     try:
         from . import lmms_tool
         lmms, how = lmms_tool.find()

@@ -260,12 +260,19 @@ vox:
 
 ## DiffSinger voicebanks
 - Only voicebanks the user provides are used
-    + Give `voice` a folder path, an archive path, or a repository address the user handed over
-    + Do not search for a voicebank or download one on the user's behalf
+    + Give `voice` a folder path (the toolkit neither unpacks archives nor downloads links)
+    + Unpack an archive into a new empty folder outside the song project, then give `voice` that folder. Do not unpack an archive with entries that point outside that folder (absolute paths or `..`)
+    + For a repository or download link the user hands over, fetch exactly that into a new empty folder outside the song project, then give `voice` that folder
+    + Do not search for or download a voicebank the user did not hand over
+- Fetching a link
+    + If the execution environment has a tool that attaches a GitHub repository to the session, call it before fetching a GitHub repository. Pass the owner and the repository name from the address as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused
+    + Clone with `GIT_LFS_SKIP_SMUDGE=1` so an unreachable LFS server cannot stop the clone
+    + Fetch the Git LFS pointer files left after the clone (small files that start with `version https://git-lfs.github.com/spec/v1`) from `https://media.githubusercontent.com/media/<owner>/<repo>/<commit>/<path>` on GitHub or from `<repository address>/resolve/<commit>/<path>` on Hugging Face, and check each against the sha256 in its pointer. Use `git lfs pull` for other hosts and for private repositories
+    + Do not use a folder while any pointer remains
 - Check before use
-    + `python scripts/studio.py diffsinger-inspect <path>`
-    + Prints speakers, languages, the models included, and the list of files that state usage terms
-    + Read those files and the terms on the distribution page and give the user a summary (commercial use, required credit, prohibited content, limits on use of the output)
+    + Run `python scripts/studio.py diffsinger-inspect <folder>` to see the speakers, languages and models included
+    + Find the terms-of-use documents yourself by checking every file in the voicebank folder, subfolders included. File names differ in language and form from bank to bank (for example readme.txt, character.txt, 利用規約.txt)
+    + Read those documents and the terms on the distribution page and give the user a summary (commercial use, required credit, prohibited content, limits on use of the output)
     + If the lyrics or the purpose conflict with the terms, discuss it with the user before proceeding
 - Settings
 ```yaml
