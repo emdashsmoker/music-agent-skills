@@ -204,7 +204,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + The planning summary and what changed along the way
     + Final numbers (loudness, true peak, the main balance figures) and remaining findings
     + What was seen in the pictures
-    + For a vocal song, a summary of match scores per line, weak lines and what was done about them
+    + For a vocal song, a summary of match scores per line, weak lines and what was done about them, and lines left for listening because a function-word warning remains
     + What was not checked and known limits
     + If a voice with usage terms was used, the terms such as required credit
 - Take the user's listening comments and go back to step 6
