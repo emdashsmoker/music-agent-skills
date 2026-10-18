@@ -60,7 +60,7 @@ Collect the plan in one round of questions. Skip what the user already stated, a
 
 Then write the plan back in a few lines: title, genre, tempo, key, sections with bar counts and total length, parts per section, the chord progression, the vocal approach, and what will be delivered. Wait for the user's confirmation or changes. If nobody is there to answer, proceed with the defaults and put the assumptions at the top of the delivery notes.
 
-Pause and ask when a request is unclear or surprising for the stated goal, for example lyrics that contradict the mood, a tempo far outside the genre, or a length the form cannot fill. Say what seems off and offer two concrete alternatives. For lyrics: show the full text and get approval before any line is sung, and decline lyrics you would not write in any other context.
+Pause and ask when a request is unclear or surprising for the stated goal, for example lyrics that contradict the mood, a tempo far outside the genre, or a length the form cannot fill. Say what seems off and offer two concrete alternatives. Do not change the plan on your own. If the user keeps the original plan, state the expected technical loss of quality clearly, once, then go ahead with the plan and record the measurements and limits of that part in the delivery notes. For lyrics: show the full text and get approval before any line is sung.
 
 Check for this stage: the user confirmed the plan, or the assumptions are written down.
 
