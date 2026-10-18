@@ -66,6 +66,7 @@ vox:
 - Before writing, check the strengths and weaknesses of the chosen engine and voice
     + The kind of engine (speech voice or singing voicebank) and the language decide which rules in the table below apply
     + Choose the words and the sentence structure to fit those rules from the start (changing words after the lyrics are finished means fitting meaning and rhyme again)
+- Where the rules are silent, review the lines from several seats as well, such as a lyricist (e.g. meaning, imagery, rhyme), a singer (e.g. where to breathe, notes that follow the natural rhythm of the words), a listener (e.g. whether the words come through and stick on first hearing), a sound engineer (e.g. bands shared with the backing, places where the lead collides) and an agent operator (e.g. whether the limits of the tools the skill relies on, such as speech voices, singing voicebanks, speech recognition and the mixer, were taken into account); note the reason in `notes` for any choice that departs from the rules
 - Sentence structure
     + Pick a word order that keeps weak function words (to, the, a) off beats and long notes
     + Recast a sentence that opens with function words or stacks them in a row so that a content word leads
