@@ -139,8 +139,9 @@ class Voicebank:
         """ONNX session. Models without sampling noise are created once and kept.
 
         The pitch, variance and acoustic models draw diffusion noise from a random stream that onnxruntime fixes
-        when a session is created and advances on every run. Passing a seed builds a fresh session, so a line
-        rendered again (alone or inside a long song) gets the same noise and therefore the same audio.
+        when a session is created and advances on every run, and some vocoders draw noise the same way. Passing a
+        seed builds a fresh session, so a line rendered again (alone or inside a long song) gets the same noise and
+        therefore the same audio.
         """
         file = path or os.path.normpath(os.path.join(stage.folder, stage.config[key]))
         if seed is None and file in self._sessions:
@@ -374,7 +375,7 @@ class Voicebank:
             "tension": (curves["tension"] + tension).astype(np.float32), "energy": curves["energy"].astype(np.float32),
             "gender": np.full((1, frames_total), gender, dtype=np.float32), "velocity": np.full((1, frames_total), velocity, dtype=np.float32),
             "spk_embed": self._speaker(self.acoustic, voice, frames_total), **self._acceleration(acoustic, steps)})[0]
-        vocoder = self._session(None, "", os.path.join(self.vocoder_folder, self.vocoder_config["model"]))
+        vocoder = self._session(None, "", os.path.join(self.vocoder_folder, self.vocoder_config["model"]), seed=style.seed)
         audio = self._run(vocoder, {"mel": mel.astype(np.float32), "f0": f0})[0][0].astype(np.float64)
 
         edges = np.concatenate([[0], np.cumsum(ph_dur)]) * self.frame_s
