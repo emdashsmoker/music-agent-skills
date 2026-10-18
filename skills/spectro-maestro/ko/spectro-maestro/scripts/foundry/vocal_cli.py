@@ -105,6 +105,7 @@ def check_track(project: dict, track: dict, build: str, out_dir: str, plots_for:
     with open(os.path.join(build, f"vocal_{name}.json"), encoding="utf-8") as handle:
         report = json.load(handle)
     language = (track.get("vocal") or {}).get("lang")
+    model = asr.model_for(model, language)
     rows = []
     for index, (line, info) in enumerate(zip(track["lines"], report)):
         notes = [(o * spb, d * spb, m, t) for o, d, m, t in line["notes"]]
@@ -190,6 +191,8 @@ def cmd_vocal_try(args) -> int:
     project = songfile.load(args.song)
     track = _vocal_tracks(project, args.track)[0]
     line = track["lines"][args.line - 1]
+    language = (track.get("vocal") or {}).get("lang")
+    model = asr.model_for(args.asr_model, language)
     out_dir = args.output or os.path.splitext(args.song)[0].removesuffix(".project") + "_out"
     build = os.path.join(out_dir, "build")
     os.makedirs(os.path.join(out_dir, "vocals"), exist_ok=True)
@@ -209,7 +212,7 @@ def cmd_vocal_try(args) -> int:
         except vocal.VocalError as error:
             print(f"  {number}: {text!r}: {error}")
             continue
-        heard = asr.transcribe(audio, SR, args.asr_model)
+        heard = asr.transcribe(audio, SR, model, asr.language_code(language) if not model.endswith(".en") else None)
         path = export.write_audio(os.path.join(out_dir, "vocals", f"try_line{args.line}_{number}.wav"), audio)
         label = "current" if number == 0 else f"option {number}"
         print(f"  {label}: {asr.similarity(text, heard):.2f}  {text!r} -> {heard!r}  [{path}]")
@@ -233,7 +236,7 @@ def register(sub) -> None:
     p.add_argument("--track")
     p.add_argument("--sections", help="only these sections")
     p.add_argument("--plots", default="weak", help="weak (default), all, none, or a line number")
-    p.add_argument("--asr-model", help="faster-whisper model (setting asr_model, default base.en); 'base' or 'small' for other languages")
+    p.add_argument("--asr-model", help="faster-whisper model (setting asr_model, default base.en); an English-only model switches to its multilingual twin when the track's lang is not English")
     p.add_argument("--models", help="directory holding voice models")
     p.set_defaults(run=cmd_vocal_check)
 
