@@ -49,7 +49,7 @@ Collect the plan in one round of questions. Skip what the user already stated, a
 - Tempo [the genre profile's default], key [a minor key that suits the genre]
 - Length and form [3 to 4 minutes in song or club form. Uplifting trance runs 7 to 15 minutes, default about 7 and a half]
 - Vocals: none, sung by a built-in speech voice, or sung by a singer voicebank the user supplies. Offer the voice options from `references/vocals.md`. Language [English]
-- Lyrics: the user's own, or written here from a theme they give. Read the lyric craft in `references/vocals.md` before drafting a line, because a draft written first tends to keep its faults
+- Lyrics: the user's own, or written here from a theme they give. Read the lyric craft in `references/vocals.md` before drafting a line, because a draft written first tends to keep its faults. Review the user's own lyrics by the same craft once the voice is chosen, offer revised lines, and follow the user's choice
 - Sound preferences [the genre's usual kit: 909, 808, 606, Linn or CR-78 style drums, 303-style acid bass, and so on]
 - Mix taste [backbeat and lead vocal slightly forward, brightness matched to finished records]: bigger or smaller snare, clap and vocal, a brighter or darker mix
 - Render mode [repeatable]: always ask this one and say what each choice costs. Repeatable gives the same file on every render and is slower in the full-mix renders. Fast finishes those sooner, and some songs may then differ slightly between renders. Gentle uses fewer cores so the computer stays usable, and the longest stage takes longer. The table and settings are in `references/setup.md`, Render mode
