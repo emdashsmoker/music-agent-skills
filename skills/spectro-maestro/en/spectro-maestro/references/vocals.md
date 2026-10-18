@@ -260,8 +260,9 @@ vox:
 
 ## DiffSinger voicebanks
 - Only voicebanks the user provides are used
-    + Give `voice` a folder path or an archive path
-    + For a repository or download link the user hands over, fetch exactly that into a new empty folder outside the song project, then give `voice` that folder (the toolkit does not download links)
+    + Give `voice` a folder path (the toolkit neither unpacks archives nor downloads links)
+    + Unpack an archive into a new empty folder outside the song project, then give `voice` that folder. Do not unpack an archive with entries that point outside that folder (absolute paths or `..`)
+    + For a repository or download link the user hands over, fetch exactly that into a new empty folder outside the song project, then give `voice` that folder
     + Do not search for or download a voicebank the user did not hand over
 - Fetching a link
     + If the execution environment has a tool that attaches a GitHub repository to the session, call it before fetching a GitHub repository. Pass the owner and the repository name from the address as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused
