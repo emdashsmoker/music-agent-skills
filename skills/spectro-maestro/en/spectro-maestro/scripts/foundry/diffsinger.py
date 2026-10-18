@@ -21,6 +21,7 @@ import os
 import re
 import shutil
 import subprocess
+import urllib.parse
 import zipfile
 
 import numpy as np
@@ -38,6 +39,16 @@ DEFAULTS = {"lang": "en", "speaker": None, "steps": 20, "pitch_steps": 10, "vari
             "deterministic": True,
             "pitch": "model", "expr": 1.0, "gender": 0.0, "velocity": 1.0, "tension": 0.0, "breathiness": 0.0,
             "voicing": 0.0}
+# Git LFS: voicebank repositories often keep model files in LFS. A clone then holds small pointer files,
+# or aborts when the LFS server cannot be reached, so LFS files are fetched in a separate step.
+LFS_POINTER_HEAD = b"version https://git-lfs.github.com/spec/v1"
+LFS_POINTER_MAX_BYTES = 1024           # pointers are about 130 bytes; real model files are far larger
+LFS_PULL_TIMEOUT_S = 3600              # a stalled transfer must not hang an unattended run; large banks still fit
+# Hosts whose plain HTTPS file URLs serve LFS content: no git-lfs install and no LFS API access needed
+LFS_FILE_URLS = {
+    "github.com": "https://media.githubusercontent.com/media/{repo}/{commit}/{path}",
+    "huggingface.co": "https://huggingface.co/{repo}/resolve/{commit}/{path}",
+}
 LICENCE_PATTERNS = ("*licen*", "*terms*", "*readme*", "*README*", "character.txt", "*tos*", "*credit*")
 ARPABET_VOWELS = {"aa", "ae", "ah", "ao", "aw", "ay", "eh", "er", "ey", "ih", "iy", "ow", "oy", "uh", "uw"}
 IPA_TO_ARPABET = [("tʃ", "ch"), ("dʒ", "jh"), ("aɪ", "ay"), ("aʊ", "aw"), ("eɪ", "ey"), ("oʊ", "ow"), ("əʊ", "ow"),
@@ -70,7 +81,11 @@ def resolve(reference: str) -> str:
         if reference.startswith(("http://", "https://")) and not reference.lower().split("?")[0].endswith(".zip"):
             if not shutil.which("git"):
                 raise DiffSingerError("git is needed to fetch a repository link")
-            subprocess.run(["git", "clone", "--depth", "1", reference, target], check=True)
+            try:
+                _clone(reference, target)
+            except BaseException:                          # also an interrupt in the middle of a large download
+                shutil.rmtree(target, ignore_errors=True)   # a half-fetched folder would be reused as the cache
+                raise
         else:
             archive = reference
             if reference.startswith(("http://", "https://")):
@@ -83,6 +98,84 @@ def resolve(reference: str) -> str:
                         raise DiffSingerError(f"unsafe path in archive: {member}")
                 bundle.extractall(target)
     return _find_root(target)
+
+
+def _git_env() -> dict:
+    # LFS files are fetched after the clone; no credential prompt may stall an unattended run
+    return dict(os.environ, GIT_LFS_SKIP_SMUDGE="1", GIT_TERMINAL_PROMPT="0")
+
+
+def _clone(reference: str, target: str) -> None:
+    subprocess.run(["git", "clone", "--depth", "1", reference, target], check=True, env=_git_env())
+    _fill_lfs(reference, target)
+
+
+def _lfs_pointers(folder: str) -> dict:
+    """Relative path -> (sha256, size) for every Git LFS pointer file left in the working tree."""
+    pointers = {}
+    for root, dirs, files in os.walk(folder):
+        dirs[:] = [d for d in dirs if d != ".git"]
+        for name in files:
+            path = os.path.join(root, name)
+            if os.path.islink(path) or os.path.getsize(path) > LFS_POINTER_MAX_BYTES:
+                continue
+            with open(path, "rb") as handle:
+                text = handle.read()
+            if not text.startswith(LFS_POINTER_HEAD):
+                continue
+            fields = dict(line.split(" ", 1) for line in text.decode("utf-8", "replace").splitlines() if " " in line)
+            oid, size = fields.get("oid", ""), fields.get("size", "")
+            if oid.startswith("sha256:") and size.isdigit():
+                pointers[os.path.relpath(path, folder).replace(os.sep, "/")] = (oid[len("sha256:"):], int(size))
+    return pointers
+
+
+def _download_lfs(url: str, path: str, sha256: str, size: int) -> bool:
+    """Replace one pointer file with its content; the pointer stays when the download fails or does not match."""
+    part = path + ".lfs"
+    try:
+        speech.fetch(url, part)
+    except singing.VocalError as error:
+        print(f"[diffsinger] {error}", flush=True)
+        return False
+    digest = hashlib.sha256()
+    with open(part, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    if digest.hexdigest() != sha256 or os.path.getsize(part) != size:
+        os.remove(part)
+        print(f"[diffsinger] checksum mismatch for {url}", flush=True)
+        return False
+    os.replace(part, path)
+    return True
+
+
+def _fill_lfs(reference: str, target: str) -> None:
+    """Fetch LFS files: HTTPS file URLs of known hosts first, then git-lfs for any other host or a private repository."""
+    pointers = _lfs_pointers(target)
+    if not pointers:
+        return
+    url = urllib.parse.urlsplit(reference)
+    host = url.netloc.lower().removeprefix("www.")
+    repo = url.path.strip("/").removesuffix(".git")
+    template = LFS_FILE_URLS.get(host)
+    if template:
+        commit = subprocess.run(["git", "-C", target, "rev-parse", "HEAD"], check=True, capture_output=True, text=True).stdout.strip()
+        for relative, (sha256, size) in pointers.items():
+            file_url = template.format(repo=repo, commit=commit, path=urllib.parse.quote(relative))
+            _download_lfs(file_url, os.path.join(target, relative), sha256, size)
+        pointers = _lfs_pointers(target)
+    if pointers and shutil.which("git-lfs"):
+        try:
+            subprocess.run(["git", "-C", target, "lfs", "pull"], env=_git_env(), timeout=LFS_PULL_TIMEOUT_S, check=False)
+        except subprocess.TimeoutExpired:
+            print(f"[diffsinger] git lfs pull stopped after {LFS_PULL_TIMEOUT_S} s", flush=True)
+        pointers = _lfs_pointers(target)
+    if pointers:
+        raise DiffSingerError(
+            f"{len(pointers)} Git LFS file(s) of the repository could not be downloaded (for example {next(iter(pointers))}). "
+            "Install git-lfs and make sure this environment may reach the repository's LFS storage, "
+            "or hand over the voicebank as a folder or a .zip file")
 
 
 def _find_root(folder: str) -> str:

@@ -61,6 +61,8 @@ The toolkit renders DiffSinger voicebanks in the OpenUtau folder layout (a folde
 - An archive file: unpack it into a new empty folder outside the song project, then use that folder.
 - A link to a repository or download page the user gives: fetch exactly that into a new empty folder. Do not search for voicebanks or suggest sources. For a GitHub repository link, before fetching: if the execution environment has a tool that attaches a GitHub repository to the session, call it. Pass the owner and the repository name from the link as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused.
 
+A repository that uses Git LFS leaves pointer files after the clone (small files that start with `version https://git-lfs.github.com/spec/v1`). Clone with `GIT_LFS_SKIP_SMUDGE=1` so an unreachable LFS server cannot stop the clone. Fetch the remaining files from `https://media.githubusercontent.com/media/<owner>/<repo>/<commit>/<path>` on GitHub or from `<repository address>/resolve/<commit>/<path>` on Hugging Face, and check each against the sha256 in its pointer. Use `git lfs pull` for other hosts and for private repositories. Do not use the folder while any pointer remains.
+
 Before the first render with a bank:
 
 1. Run `voices diffsinger:<folder>` and open every file it lists under `terms_documents`, plus any terms page those files point to.
