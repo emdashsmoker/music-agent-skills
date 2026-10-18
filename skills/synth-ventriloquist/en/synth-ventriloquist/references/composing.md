@@ -63,10 +63,12 @@ The role is a mix decision, so assign it by function. An arpeggio that carries t
 | Method | Use | Example |
 |---|---|---|
 | `part.hits(at, grid, bars, pitch=None, step=0.25, vol=100, swing=0.0)` | drums | `"x---x---x---x---"`: `x` hit, `X` accent, `o` ghost, `-` rest. The grid repeats to fill `bars`. |
-| `part.seq(at, text, bars=None, step=0.25, octave=3, gate=1.0, vol=100)` | melodies and bass lines by note name | `"A2 . . C3 _ _ . E3"`: name plays, `.` rests, `_` holds, `[A2 C3 E3]` is a chord, `\|` bar lines are optional. |
+| `part.seq(at, text, bars=None, step=0.25, octave=3, gate=1.0, vol=100)` | melodies and bass lines by note name | `"A2 . . C3 _ _ . E3"`: name plays, `.` rests, `_` holds, `[A2 C3 E3]` is a chord. |
 | `part.riff(at, symbols, pattern, bars_each=1.0, step=0.25, octave=2, gate=1.0)` | one pattern that follows the chords | `"R . R 5 8 _ 5 ."`: `R` root, `3`, `5`, `7`, `8` (octave), `.` rests, `_` holds, `+`/`-` suffix shifts an octave, `!` accent, `?` ghost. |
 | `part.chords(at, symbols, bars_each=1.0, octave=3, rhythm=None, gate=0.95)` | pads, stabs, keys | `rhythm=None` holds each chord. `rhythm="x--x--x---x--x--"` plays it as stabs. Voicings are led smoothly from chord to chord. |
 | `part.notes(at, [Note(start, length, pitch, vol)])` | anything else | `Note` comes from `lmmskit.project`. Starts are beats from the clip start. `theory.note("E5")` gives the pitch number. |
+
+`|` may mark bars in the patterns of `hits`, `seq` and `riff` and in the `rhythm` of `chords`. The toolkit ignores it.
 
 Also: `part.roll(at, bars)` writes a build-up roll that gets denser and louder, and `part.loop(at, notes, bars, unit_bars)` tiles a phrase.
 
