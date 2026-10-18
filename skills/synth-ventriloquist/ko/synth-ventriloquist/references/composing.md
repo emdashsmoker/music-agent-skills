@@ -63,10 +63,12 @@ print(song.save(os.path.join(os.getcwd(), "night_drive.mmp")))
 | 메서드 | 용도 | 예 |
 |---|---|---|
 | `part.hits(at, grid, bars, pitch=None, step=0.25, vol=100, swing=0.0)` | 드럼 | `"x---x---x---x---"`: `x` 타격, `X` 악센트, `o` 고스트, `-` 쉼. 그리드는 `bars`를 채울 때까지 반복된다. |
-| `part.seq(at, text, bars=None, step=0.25, octave=3, gate=1.0, vol=100)` | 음이름으로 쓰는 멜로디와 베이스 라인 | `"A2 . . C3 _ _ . E3"`: 음이름은 연주, `.` 쉼, `_` 유지, `[A2 C3 E3]`는 화음, `\|` 마디선은 선택. |
+| `part.seq(at, text, bars=None, step=0.25, octave=3, gate=1.0, vol=100)` | 음이름으로 쓰는 멜로디와 베이스 라인 | `"A2 . . C3 _ _ . E3"`: 음이름은 연주, `.` 쉼, `_` 유지, `[A2 C3 E3]`는 화음. |
 | `part.riff(at, symbols, pattern, bars_each=1.0, step=0.25, octave=2, gate=1.0)` | 코드를 따라가는 하나의 패턴 | `"R . R 5 8 _ 5 ."`: `R` 근음, `3`, `5`, `7`, `8`(옥타브), `.` 쉼, `_` 유지, 접미사 `+`/`-`는 옥타브 이동, `!` 악센트, `?` 고스트. |
 | `part.chords(at, symbols, bars_each=1.0, octave=3, rhythm=None, gate=0.95)` | 패드, 스탭, 건반 | `rhythm=None`은 코드를 길게 유지한다. `rhythm="x--x--x---x--x--"`는 스탭으로 친다. 보이싱은 코드에서 코드로 매끄럽게 이어진다. |
 | `part.notes(at, [Note(start, length, pitch, vol)])` | 그 밖의 모든 것 | `Note`는 `lmmskit.project`에 있다. start는 클립 시작부터의 박이다. `theory.note("E5")`가 음높이 번호를 준다. |
+
+`hits`, `seq`, `riff`의 패턴과 `chords`의 `rhythm`에는 `|`로 마디를 표시할 수 있다. 도구는 이 기호를 무시한다.
 
 추가로 `part.roll(at, bars)`는 점점 촘촘해지고 커지는 빌드업 롤을 쓰고, `part.loop(at, notes, bars, unit_bars)`는 프레이즈를 이어 붙인다.
 
