@@ -30,6 +30,12 @@ def language_code(language: str | None) -> str | None:
     return WHISPER_LANGUAGES.get(base, base)
 
 
+def model_for(model: str, language: str | None) -> str:
+    """An English-only model (base.en) hears other languages as English: for them, its multilingual twin of the same size."""
+    code = language_code(language)
+    return model.removesuffix(".en") if model.endswith(".en") and code and code != "en" else model
+
+
 def _model(name: str):
     if name not in _models:
         from faster_whisper import WhisperModel
