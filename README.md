@@ -5,7 +5,7 @@ Music production agent skills that finish songs without diffusion models, follow
 화성, 리듬 같은 음악 이론과 제작 과정을 담은 스킬 지침에 따라 확산 모델 없이 곡을 완성하는 음악 제작 에이전트 스킬 모음입니다. 작곡부터 편곡, 믹싱, 마스터링까지 다룹니다. 보컬은 음성 합성 모델(Kokoro, Piper)의 목소리를 노래로 바꿔 만듭니다. 모든 스킬은 한국어 원본과 영어 번역본을 함께 제공합니다.
 
 <p align="center">
-<img src="assets/readme/studio-chain.png" width="100%" alt="A song plan runs through a drum machine, a synthesizer and a voice, then effects, a mixer and a master, and comes out as audio files and project files">
+<img src="assets/readme/studio-chain.png" width="100%" alt="A song plan runs through a drum machine, a synthesizer and a voice, then effects, a mixer and a master, and comes out as audio and project files, automated end to end by an AI agent">
 </p>
 
 <details>
