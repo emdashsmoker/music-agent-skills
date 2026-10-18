@@ -81,7 +81,7 @@ vox:
 - Syllables match notes
     + One syllable per note
     + The engine's syllable count is the reference, so follow the per-word counts shown by `lint`
-    + To spread one syllable over several notes, tie them as `E4:1~D4:1`
+    + To sing one syllable on several notes, join the notes with `~` (example : `E4:1~D4:1` sings one syllable bending from E4 to D4)
 - Last syllable on a long note
     + On notes held for two beats or more, place words that end in an open vowel or a nasal (day, go, flame, burn)
     + Words ending in a plosive or fricative have their tail cut off on a long note (`lyrics.long_note_ending`)
