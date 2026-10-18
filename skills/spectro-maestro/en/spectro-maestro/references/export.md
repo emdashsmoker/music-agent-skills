@@ -58,6 +58,7 @@
 - When there is no LMMS but the user wants the check
     + Look at the operating system and environment with `doctor`, then pick the form of distribution that suits it
     + Check the available forms, the current version and the download address directly on the official LMMS download page and in the releases of the official repository
+    + The official repository is GitHub `LMMS/lmms`. If the execution environment has a tool that attaches a GitHub repository to the session, call it before checking the releases. Pass the owner `LMMS` and the repository name `lmms` as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused
     + Do not state an address or a version from memory
     + On a personal computer get the user's consent before installing
 | Environment | Forms to consider first | Notes |
