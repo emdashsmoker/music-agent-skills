@@ -7,7 +7,8 @@ Method (WORLD analysis-synthesis):
   2. the vowel is lengthened only in its steady middle, its transitions stay as spoken;
   3. pitch follows the notes through a second-order glide (slight overshoot, like a voice),
      with delayed vibrato on long notes and a small seeded drift;
-  4. unvoiced consonants are copied from the recording instead of resynthesized, which keeps them crisp;
+  4. vowels and sonorants are sung voiced, voiced obstruents only where the speech was voiced, voiceless sounds never;
+     unvoiced consonants are copied from the recording instead of resynthesized, which keeps them crisp;
   5. syllable loudness is evened out, because speech swallows unstressed syllables and singing does not.
 """
 from __future__ import annotations
@@ -19,7 +20,8 @@ from scipy import signal
 
 from ..audio import bandpass, shelf
 from . import world
-from .phones import AFFRICATES, DIPHTHONGS, LENGTH_MARK, SINGLE_SYMBOL_DIPHTHONGS, VOICELESS, Phone, Syllable, fold_weak_syllables, syllabify
+from .phones import (AFFRICATES, DIPHTHONGS, LENGTH_MARK, SINGLE_SYMBOL_DIPHTHONGS, VOICELESS, Phone, Syllable, fold_weak_syllables, syllabify,
+                     voicing)
 from .tts import Unit
 
 FRAME_S = world.FRAME_S
@@ -380,6 +382,7 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
     source_frames = len(f0)
     source_index = np.zeros(frames)
     region = np.zeros(frames, dtype=int)                 # 0 silence, 1 consonant, 2 vowel (held or glide)
+    sound = np.full(frames, "pause", dtype="<U8")       # voicing class of what each frame sings (phones.voicing)
     owner = np.full(frames, -1)
     for segment in segments:
         first, last = int(round(segment.out_start / FRAME_S)), min(frames, int(round(segment.out_end / FRAME_S)))
@@ -388,13 +391,16 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
         ramp = (np.arange(first, last) - first + 0.5) / (last - first)
         source_index[first:last] = (segment.src_start + ramp * (segment.src_end - segment.src_start)) / FRAME_S
         region[first:last] = 1 if segment.kind == "consonant" else 2
+        sound[first:last] = voicing(segment.phone.symbol) if segment.kind == "consonant" else "vowel"
         owner[first:last] = segment.syllable
     low = np.clip(np.floor(source_index).astype(int), 0, source_frames - 1)
     high = np.clip(low + 1, 0, source_frames - 1)
     weight = (source_index - low)[:, None]
     sung_envelope = np.exp(np.log(envelope[low]) * (1 - weight) + np.log(envelope[high]) * weight)
     sung_aperiodicity = aperiodicity[low] * (1 - weight) + aperiodicity[high] * weight
-    source_voiced = f0[np.clip(np.round(source_index).astype(int), 0, source_frames - 1)] > 0
+    source_truly_voiced = world.truly_voiced(f0, envelope, aperiodicity, unit.sr)
+    source_voiced = source_truly_voiced[np.clip(np.round(source_index).astype(int), 0, source_frames - 1)]
+    voiced = _voicing(sound, source_voiced, sung_aperiodicity)
 
     # Loudness: bring each syllable's vowel toward the level of the line's stronger vowels.
     energy = envelope.sum(axis=1)
@@ -416,7 +422,6 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
         shift = 12 * np.log2(np.median(target[region == 2]) / np.median(voiced_source)) if (region == 2).any() else 0.0
         if abs(shift) > FORMANT_SHIFT_THRESHOLD_ST:      # far from the speaking pitch: move the formants a little the same way
             sung_envelope = _warp_envelope(sung_envelope, 2 ** (shift * FORMANT_SHIFT_SHARE / 12))
-    voiced = (region == 2) | ((region == 1) & source_voiced)
     sung_f0 = np.where(voiced, target, 0.0)
     silent = region == 0
     sung_envelope[silent] = 1e-12
@@ -426,6 +431,23 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
     audio = _shape_phrases(audio, unit.sr, layout)
     audio = _finish(audio, unit.sr)
     return SungLine(audio, lead_in, layout, np.where(voiced, target, 0.0), [n for g in groups for n in g])
+
+
+def _voicing(sound: np.ndarray, source_voiced: np.ndarray, sung_aperiodicity: np.ndarray) -> np.ndarray:
+    """Which output frames are sung voiced. Vowels and sonorants always are; a voiced obstruent (b, d, z, v) only where
+    the speech was really voiced there; voiceless sounds never. A pitch put under a hiss the tracker happened to
+    voice is heard as a pitched noise, so the source's voicing is the truly voiced one (world.truly_voiced).
+    A vowel or sonorant sung over a devoiced stretch of the speech borrows, in place, the periodicity of the line's
+    voiced ones: its own aperiodicity is pure noise.
+    Ported from Spectro Maestro's singing.sing voicing rule (same author, AGPL-3.0-or-later)."""
+    must_voice = np.isin(sound, ("vowel", "sonorant"))
+    voiced = must_voice | ((sound == "voiced") & source_voiced)
+    forced = must_voice & ~source_voiced
+    clean = must_voice & source_voiced
+    if forced.any() and clean.any():
+        reference = np.median(sung_aperiodicity[clean], axis=0)
+        sung_aperiodicity[forced] = np.minimum(sung_aperiodicity[forced], reference)
+    return voiced
 
 
 def _sustain_gain_db(sung_envelope: np.ndarray, layout: list[dict], strength: float) -> np.ndarray:

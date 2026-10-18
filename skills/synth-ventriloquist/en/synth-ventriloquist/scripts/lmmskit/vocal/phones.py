@@ -23,6 +23,10 @@ APPROXIMANTS = set("lɹwjɫɻɥʋʎɰrɽ")
 VOICELESS = set("ptkʔfθsʃhxçɕʂʧʦʨχɸcqʈ")
 PAUSES = set(" ,.;:!?—…\"()“”")
 MODIFIERS = set("ʰʲᵝ")
+# Voicing classes for singing (see voicing()): sonorants are always sung voiced, voiced obstruents only where the
+# speech was voiced, everything else never. The flap ɾ counts as a sonorant: it is a brief voiced tap, not a burst.
+SONORANTS = set("mnŋɲɳɱlɫɭʎɹrɾɻʀʁwjɥɰ")
+VOICED_OBSTRUENTS = set("bdɡgvzʒðɟɖʝɣβʤʣʥ")
 # Words that carry little stress in speech and blur when given a long or strong note.
 WEAK_WORDS = {"a", "an", "the", "of", "in", "to", "at", "on", "for", "and", "or", "but", "is", "it", "its", "as", "by",
               "be", "am", "are", "was", "were", "that", "this", "with", "from", "so", "if", "than", "then", "some",
@@ -60,6 +64,21 @@ def kind(symbol: str) -> str:
         if head in group:
             return name
     return "other"
+
+
+def voicing(symbol: str) -> str:
+    """vowel, sonorant, voiced (obstruent), unvoiced or pause, judged by the first character.
+    Ported from Spectro Maestro's phonetics.kind_of (same author, AGPL-3.0-or-later)."""
+    head = symbol[0] if symbol else " "
+    if head in PAUSES:
+        return "pause"
+    if head in VOWELS:
+        return "vowel"
+    if head in SONORANTS:
+        return "sonorant"
+    if head in VOICED_OBSTRUENTS:
+        return "voiced"
+    return "unvoiced"
 
 
 @dataclass
