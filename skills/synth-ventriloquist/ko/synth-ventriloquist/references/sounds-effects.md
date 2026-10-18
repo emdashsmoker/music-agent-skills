@@ -25,7 +25,7 @@ python scripts/lmms_tool.py sounds moog_bass acid_bass reese_bass --out work/aud
 
 ## 라이브러리의 드럼머신
 
-머신 킷은 LMMS 자체 드럼 합성의 원샷 녹음이고, 이름이 붙은 킥은 깨끗하게 합성한 원샷(피치가 떨어지는 사인파와 짧은 클릭)이다. 스킬은 이들을 오디오로 싣지 않는다. 킷은 곡이 처음 필요로 할 때 이 컴퓨터에서 만들어(`lmms_tool.py kit`으로 확인, `kit --build`로 즉시 생성) 킷 폴더에 보관하므로, 이후 이 컴퓨터의 모든 렌더에서 드럼이 같은 소리를 낸다. 이름이 붙은 킥은 모든 컴퓨터에서 동일하다. 노이즈가 섞인 녹음 타격(스네어, 햇, 클랩)은 같은 드럼머신의 두 테이크처럼 컴퓨터마다 조금 다르다.
+머신 킷은 LMMS 자체 드럼 합성의 원샷 녹음이고, 이름이 붙은 킥은 깨끗하게 합성한 원샷(피치가 떨어지는 사인파와 짧은 클릭)이다. 접두어가 없는 타격(`kick_acoustic`, `kick_hardcore`, `snare_harsh`, `clap`, `ohat`, `ride` 등)은 LMMS에 기본으로 들어 있는 샘플을 재생한다. 스킬은 이들을 오디오로 싣지 않는다. 킷은 곡이 처음 필요로 할 때 이 컴퓨터에서 만들어(`lmms_tool.py kit`으로 확인, `kit --build`로 즉시 생성) 킷 폴더에 보관하므로, 이후 이 컴퓨터의 모든 렌더에서 드럼이 같은 소리를 낸다. 이름이 붙은 킥은 모든 컴퓨터에서 동일하다. 노이즈가 섞인 녹음 타격(스네어, 햇, 클랩)은 같은 드럼머신의 두 테이크처럼 컴퓨터마다 조금 다르다.
 
 | 접두어 | 성격 | 대표 장르 |
 |---|---|---|
@@ -35,7 +35,8 @@ python scripts/lmms_tool.py sounds moog_bass acid_bass reese_bass --out work/aud
 | `linn_` | 자연스러운 80년대 드럼과 탐, 카바사, 탬버린 (LinnDrum 계열) | 신스팝, 신스웨이브, 두머와 포스트펑크 |
 | `cr78_` | 부드러운 빈티지 프리셋 리듬 박스 (CR-78 계열) | 콜드웨이브, 로파이, 다운템포 |
 | `electro_`, `8bit_`, `jazz_`, `amen_`, `reverb_` | 일렉트로 킷, 칩 사운드, 어쿠스틱 느낌의 타격, 게이트 리버브 타격 | 일렉트로, 칩튠, 브레이크비트, 80년대 스타일 |
-| 이름이 붙은 킥 | `trance_kick`, `house_kick`, `techno_kick`, `hard_kick`, `kick_hardcore`, `kick_distorted`, `industrial_kick`, `psy_kick`, `dnb_kick`, `boom_kick`, `kick_hiphop` | 이름에 있는 장르 |
+| 이름이 붙은 킥 | `trance_kick`, `house_kick`, `techno_kick`, `hard_kick`, `industrial_kick`, `psy_kick`, `dnb_kick`, `boom_kick` | 이름에 있는 장르 |
+| 접두어 없는 타격 (LMMS 기본 샘플) | `kick_acoustic`, `kick_hardcore`, `kick_distorted`, `kick_hiphop`, `snare_acoustic`, `snare_harsh`, `clap`, `hat`, `ohat`, `ride`, `crash`, `tom_low` 등 | 브레이크비트, 하드코어, 인더스트리얼, 힙합 |
 
 별도의 707 킷은 없다. 909와 Linn 킷이 그 영역을 맡는다. TB-303 계열 베이스 라인은 `acid_bass`와 `acid_square` 패치(LMMS의 LB302)다. 겹치는 음은 슬라이드가 되고, 악센트는 더 큰 음이다.
 
