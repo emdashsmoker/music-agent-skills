@@ -10,6 +10,10 @@ import numpy as np
 
 FRAME_S = 0.005                                  # 5 ms analysis and synthesis grid
 F0_FLOOR, F0_CEIL = 60.0, 1000.0
+PERIODIC_BAND_HZ = 4000.0                        # periodicity is read from the aperiodicity below this
+VOICED_MIN_PERIODICITY = 0.5                     # below this a frame is breath or hiss, whatever the pitch tracker says
+VOICED_LEVEL_RANGE_DB = 24.0                     # frames this far under the loud frames are closures and pauses
+LOUD_PERCENTILE = 90
 
 
 def pyworld():
@@ -42,6 +46,22 @@ def analyze(audio: np.ndarray, sr: int, f0_floor: float = F0_FLOOR, f0_ceil: flo
     envelope = pw.cheaptrick(x, f0, times, sr, f0_floor=f0_floor, fft_size=fft_size)
     aperiodicity = pw.d4c(x, f0, times, sr, fft_size=fft_size)
     return f0, envelope, aperiodicity
+
+
+def periodicity(aperiodicity: np.ndarray, sr: int) -> np.ndarray:
+    """Share of the energy below 4 kHz that is periodic, per frame (0 = noise, 1 = pure voice).
+    Ported from Spectro Maestro's singing.periodicity (same author, AGPL-3.0-or-later)."""
+    bins = max(1, int(aperiodicity.shape[1] * PERIODIC_BAND_HZ / (0.5 * sr)))
+    return 1.0 - aperiodicity[:, :bins].mean(axis=1)
+
+
+def truly_voiced(f0: np.ndarray, envelope: np.ndarray, aperiodicity: np.ndarray, sr: int) -> np.ndarray:
+    """Voiced frames. The pitch tracker reports a pitch through aspiration, hiss and even stop closures, so a frame
+    counts only when it is also periodic and not far below the loud frames of the take.
+    Ported from Spectro Maestro's singing.truly_voiced (same author, AGPL-3.0-or-later)."""
+    level = 10.0 * np.log10(envelope.sum(axis=1) + 1e-12)
+    loud = np.percentile(level, LOUD_PERCENTILE) if len(level) else 0.0
+    return (f0 > 0) & (periodicity(aperiodicity, sr) >= VOICED_MIN_PERIODICITY) & (level >= loud - VOICED_LEVEL_RANGE_DB)
 
 
 def synthesize(f0: np.ndarray, envelope: np.ndarray, aperiodicity: np.ndarray, sr: int) -> np.ndarray:

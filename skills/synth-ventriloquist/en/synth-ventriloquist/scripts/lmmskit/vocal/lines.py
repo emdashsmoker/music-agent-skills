@@ -167,7 +167,7 @@ def sing_line(voice: str, line: Line, bpm: float, *, key: str | None = None, spe
     groups, lead_beats, _ = note_groups(melody, bpm)
     unit, analysis, ending_info = speak_line(voice, line.text, speed, style.seed, cache, fix_ending)
     sung = singing.sing(unit, groups, style, analysis)
-    report = {"text": line.text, "lag_ms": round(unit.lag * 1000), "ending": ending_info,
+    report = {"text": line.text, "lag_ms": round(unit.lag * 1000), "snapped": unit.snapped, "ending": ending_info,
               "natural_pitch": theory.name(int(round(singing.natural_pitch(unit, analysis)))), "lead_rest_beats": lead_beats,
               "squeezed_syllables": [item["text"] for item in sung.layout if item["squeezed"]]}
     return sung, report

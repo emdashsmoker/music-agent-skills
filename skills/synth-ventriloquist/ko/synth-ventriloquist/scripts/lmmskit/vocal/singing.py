@@ -7,7 +7,8 @@ Method (WORLD analysis-synthesis):
   2. the vowel is lengthened only in its steady middle, its transitions stay as spoken;
   3. pitch follows the notes through a second-order glide (slight overshoot, like a voice),
      with delayed vibrato on long notes and a small seeded drift;
-  4. unvoiced consonants are copied from the recording instead of resynthesized, which keeps them crisp;
+  4. vowels and sonorants are sung voiced, voiced obstruents only where the speech was voiced, voiceless sounds never;
+     unvoiced consonants are copied from the recording instead of resynthesized, which keeps them crisp;
   5. syllable loudness is evened out, because speech swallows unstressed syllables and singing does not.
 """
 from __future__ import annotations
@@ -19,7 +20,8 @@ from scipy import signal
 
 from ..audio import bandpass, shelf
 from . import world
-from .phones import AFFRICATES, DIPHTHONGS, LENGTH_MARK, SINGLE_SYMBOL_DIPHTHONGS, VOICELESS, Phone, Syllable, fold_weak_syllables, syllabify
+from .phones import (AFFRICATES, DIPHTHONGS, LENGTH_MARK, SINGLE_SYMBOL_DIPHTHONGS, VOICELESS, Phone, Syllable, fold_weak_syllables, syllabify,
+                     voicing)
 from .tts import Unit
 
 FRAME_S = world.FRAME_S
@@ -81,14 +83,11 @@ TARGET_PEAK = 0.7
 # The engine's phone times are off by a few tens of milliseconds now and then, most often on the first word of a line:
 # the span reported as the vowel then covers the consonant before it, and the stretch holds noise ("share" came out
 # as a long "sh"). Before planning, each vowel whose reported span is mostly unvoiced is moved onto the nearest run
-# of voiced, periodic frames inside its own syllable and the halves of the consonants that touch it.
-SETTLE_PERIODIC_BAND_HZ = 4000.0        # periodicity is read from WORLD's aperiodicity below this
-SETTLE_MIN_PERIODICITY = 0.5            # a frame below this is breath or noise, whatever the pitch tracker says
+# of voiced frames (world.truly_voiced) inside its own syllable and the halves of the consonants that touch it.
 SETTLE_GOOD_SHARE = 0.6                 # a vowel whose middle is this voiced is left where the engine put it
 SETTLE_REACH_S = 0.08                   # how far past a reported edge the search may go
 SETTLE_MIN_RUN_S = 0.03                 # shorter voiced runs are transitions, not a vowel
 SETTLE_SKIP_VOWELS = set("əɐᵻɚ")        # reduced vowels are breathy by nature: a quiet schwa is the sound, not a misplacement
-GAP_SYMBOL = " "                        # the engines' word gap; when the voice is still sounding in it, the gap belongs to the vowel before
 
 
 @dataclass
@@ -125,7 +124,7 @@ class _Segment:
     out_end: float
     src_start: float
     src_end: float
-    kind: str                           # 'consonant', 'vowel', 'glide', 'silence'
+    kind: str                           # 'consonant', 'lead' (unvoiced start of a vowel), 'vowel', 'glide', 'silence'
     syllable: int
     phone: Phone | None = None
 
@@ -144,9 +143,17 @@ def assign(unit: Unit, groups: list[list[SungNote]]) -> list[Syllable]:
     return syllables
 
 
-def _plan(syllables: list[Syllable], groups: list[list[SungNote]]) -> tuple[list[_Segment], float, list[dict]]:
-    """Lay every sound of the line onto the output timeline."""
-    onsets = [_duration(s.onset) for s in syllables]
+def _plan(syllables: list[Syllable], groups: list[list[SungNote]], voiced: np.ndarray) -> tuple[list[_Segment], float, list[dict]]:
+    """Lay every sound of the line onto the output timeline. `voiced` are the speech's truly voiced frames.
+
+    The beat falls where each vowel's voice really starts: an unvoiced start of the vowel (aspiration after p, t, k
+    or h, a breathy or glottal opening) is sung before the beat together with the consonants.
+    The lead segment is ported from Spectro Maestro's singing.layout (same author, AGPL-3.0-or-later); here it keeps
+    the speech's own voicing instead of being sung voiced, so the voice does not start ahead of the beat.
+    """
+    voiced_from = [_voicing_onset(s, voiced) for s in syllables]
+    leads = [start - s.nucleus[0].start if s.nucleus else 0.0 for s, start in zip(syllables, voiced_from)]
+    onsets = [_duration(s.onset) + lead for s, lead in zip(syllables, leads)]
     codas = [_duration(s.coda) for s in syllables]
     starts = [g[0].start for g in groups]
     ends = [g[-1].start + g[-1].duration for g in groups]
@@ -185,20 +192,35 @@ def _plan(syllables: list[Syllable], groups: list[list[SungNote]]) -> tuple[list
         onset_start = lead_in + starts[i] - onsets[i] * scale_on[i]
         if onset_start > cursor + 1e-6:
             segments.append(_Segment(cursor, onset_start, 0.0, 0.0, "silence", i))
-        place(syllable.onset, onset_start, scale_on[i], i)
+        lead_start = place(syllable.onset, onset_start, scale_on[i], i)
         v0, v1 = lead_in + starts[i], lead_in + vowel_end[i]
-        segments += _vowel_segments(syllable, v0, v1, i)
+        if leads[i] > 1e-4:
+            segments.append(_Segment(lead_start, v0, syllable.nucleus[0].start, voiced_from[i], "lead", i, syllable.nucleus[0]))
+        segments += _vowel_segments(syllable, v0, v1, i, voiced_from[i])
         cursor = place(syllable.coda, v1, scale_co[i], i)
         layout.append({"text": syllable.text, "vowel_start": v0, "vowel_end": v1, "end": cursor, "legato": legato[i],
                        "pitches": [n.pitch for n in groups[i]], "squeezed": min(scale_on[i], scale_co[i]) < 0.999})
     return segments, lead_in, layout
 
 
-def _vowel_segments(syllable: Syllable, out_start: float, out_end: float, index: int) -> list[_Segment]:
-    """Map the vowel onto its note: transitions at spoken speed, steady part stretched, diphthong glide at the end."""
+def _voicing_onset(syllable: Syllable, voiced: np.ndarray) -> float:
+    """When the voice really starts inside the syllable's vowel, searched over the first half of its first sound.
+    Breath, aspiration or a glottal gap before it belongs ahead of the beat, with the consonants.
+    Ported from Spectro Maestro's singing.voicing_onset (same author, AGPL-3.0-or-later)."""
+    if not syllable.nucleus:
+        return 0.0
+    first = syllable.nucleus[0]
+    a, b = int(first.start / FRAME_S), min(int((first.start + 0.5 * first.duration) / FRAME_S), len(voiced))
+    found = np.nonzero(voiced[a:b])[0]
+    return first.start if len(found) == 0 else max(first.start, (a + float(found[0])) * FRAME_S)
+
+
+def _vowel_segments(syllable: Syllable, out_start: float, out_end: float, index: int, src_start: float) -> list[_Segment]:
+    """Map the vowel onto its note: transitions at spoken speed, steady part stretched, diphthong glide at the end.
+    `src_start` is where the vowel's voice starts in the speech (the beat falls there)."""
     if not syllable.nucleus:
         return [_Segment(out_start, out_end, 0.0, 0.0, "silence", index)]
-    src_start, src_end = syllable.nucleus[0].start, syllable.nucleus[-1].end
+    src_end = syllable.nucleus[-1].end
     src_length, out_length = src_end - src_start, out_end - out_start
     first = syllable.nucleus[0].symbol.replace(LENGTH_MARK, "")
     has_glide = len(syllable.nucleus) > 1 or first in SINGLE_SYMBOL_DIPHTHONGS or first in DIPHTHONGS
@@ -282,28 +304,7 @@ def _warp_envelope(envelope: np.ndarray, ratio: float) -> np.ndarray:
     return envelope[:, low] * (1 - weight) + envelope[:, high] * weight
 
 
-def _absorb_voiced_gaps(phones: list[Phone], voiced: np.ndarray) -> int:
-    """Extend a vowel through the word gap after it for as long as the voice keeps sounding, in place. Returns how many.
-
-    The engines report a gap between words that often still holds the end of the vowel; left as a gap it is cut, and
-    the note is built from the vowel's onset instead of its steady middle.
-    """
-    moved = 0
-    for index in range(len(phones) - 1):
-        vowel, gap = phones[index], phones[index + 1]
-        if not vowel.vowel or gap.symbol != GAP_SYMBOL or gap.duration <= 0:
-            continue
-        start, end = int(gap.start / FRAME_S), min(len(voiced), int(gap.end / FRAME_S))
-        run = start
-        while run < end and voiced[run]:
-            run += 1
-        if run > start:
-            vowel.end = gap.start = min(run * FRAME_S, gap.end)
-            moved += 1
-    return moved
-
-
-def _settle_nuclei(syllables: list[Syllable], f0: np.ndarray, aperiodicity: np.ndarray, sr: int, phones: list[Phone] | None = None) -> int:
+def _settle_nuclei(syllables: list[Syllable], voiced: np.ndarray) -> int:
     """Move each badly placed vowel onto the voiced frames near it, in place on the phones. Returns how many moved.
 
     Reduced vowels are left alone (see SETTLE_SKIP_VOWELS).
@@ -312,11 +313,8 @@ def _settle_nuclei(syllables: list[Syllable], f0: np.ndarray, aperiodicity: np.n
     taking the neighbour's frames would sing that vowel twice. Of the voiced runs found, the one nearest the reported
     span is taken, trimmed to the reported length; the consonants that touch the vowel follow its new edges.
     """
-    bins = aperiodicity.shape[1]
-    low = max(1, int(bins * SETTLE_PERIODIC_BAND_HZ / (sr / 2)))
-    voiced = (f0 > 0) & (1 - aperiodicity[:, :low].mean(axis=1) >= SETTLE_MIN_PERIODICITY)
     frames = len(voiced)
-    moved = _absorb_voiced_gaps(phones, voiced) if phones is not None else 0
+    moved = 0
     for position, syllable in enumerate(syllables):
         if not syllable.nucleus:
             continue
@@ -373,13 +371,15 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
     style = style or Style()
     syllables = assign(unit, groups)
     f0, envelope, aperiodicity = analysis if analysis is not None else world.analyze(unit.audio, unit.sr)
-    _settle_nuclei(syllables, f0, aperiodicity, unit.sr, unit.phones)
-    segments, lead_in, layout = _plan(syllables, groups)
+    source_truly_voiced = world.truly_voiced(f0, envelope, aperiodicity, unit.sr)
+    _settle_nuclei(syllables, source_truly_voiced)
+    segments, lead_in, layout = _plan(syllables, groups, source_truly_voiced)
     total = segments[-1].out_end + PHRASE_FADE_OUT_S
     frames = int(np.ceil(total / FRAME_S))
     source_frames = len(f0)
     source_index = np.zeros(frames)
     region = np.zeros(frames, dtype=int)                 # 0 silence, 1 consonant, 2 vowel (held or glide)
+    sound = np.full(frames, "pause", dtype="<U8")       # voicing class of what each frame sings (phones.voicing)
     owner = np.full(frames, -1)
     for segment in segments:
         first, last = int(round(segment.out_start / FRAME_S)), min(frames, int(round(segment.out_end / FRAME_S)))
@@ -387,14 +387,17 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
             continue
         ramp = (np.arange(first, last) - first + 0.5) / (last - first)
         source_index[first:last] = (segment.src_start + ramp * (segment.src_end - segment.src_start)) / FRAME_S
-        region[first:last] = 1 if segment.kind == "consonant" else 2
+        region[first:last] = 1 if segment.kind in ("consonant", "lead") else 2
+        # A lead (the unvoiced start of a vowel, sung before the beat) keeps the speech's voicing, like a voiced obstruent.
+        sound[first:last] = {"consonant": voicing(segment.phone.symbol), "lead": "voiced"}.get(segment.kind, "vowel")
         owner[first:last] = segment.syllable
     low = np.clip(np.floor(source_index).astype(int), 0, source_frames - 1)
     high = np.clip(low + 1, 0, source_frames - 1)
     weight = (source_index - low)[:, None]
     sung_envelope = np.exp(np.log(envelope[low]) * (1 - weight) + np.log(envelope[high]) * weight)
     sung_aperiodicity = aperiodicity[low] * (1 - weight) + aperiodicity[high] * weight
-    source_voiced = f0[np.clip(np.round(source_index).astype(int), 0, source_frames - 1)] > 0
+    source_voiced = source_truly_voiced[np.clip(np.round(source_index).astype(int), 0, source_frames - 1)]
+    voiced = _voicing(sound, source_voiced, sung_aperiodicity)
 
     # Loudness: bring each syllable's vowel toward the level of the line's stronger vowels.
     energy = envelope.sum(axis=1)
@@ -416,7 +419,6 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
         shift = 12 * np.log2(np.median(target[region == 2]) / np.median(voiced_source)) if (region == 2).any() else 0.0
         if abs(shift) > FORMANT_SHIFT_THRESHOLD_ST:      # far from the speaking pitch: move the formants a little the same way
             sung_envelope = _warp_envelope(sung_envelope, 2 ** (shift * FORMANT_SHIFT_SHARE / 12))
-    voiced = (region == 2) | ((region == 1) & source_voiced)
     sung_f0 = np.where(voiced, target, 0.0)
     silent = region == 0
     sung_envelope[silent] = 1e-12
@@ -426,6 +428,23 @@ def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, a
     audio = _shape_phrases(audio, unit.sr, layout)
     audio = _finish(audio, unit.sr)
     return SungLine(audio, lead_in, layout, np.where(voiced, target, 0.0), [n for g in groups for n in g])
+
+
+def _voicing(sound: np.ndarray, source_voiced: np.ndarray, sung_aperiodicity: np.ndarray) -> np.ndarray:
+    """Which output frames are sung voiced. Vowels and sonorants always are; a voiced obstruent (b, d, z, v) only where
+    the speech was really voiced there; voiceless sounds never. A pitch put under a hiss the tracker happened to
+    voice is heard as a pitched noise, so the source's voicing is the truly voiced one (world.truly_voiced).
+    A vowel or sonorant sung over a devoiced stretch of the speech borrows, in place, the periodicity of the line's
+    voiced ones: its own aperiodicity is pure noise.
+    Ported from Spectro Maestro's singing.sing voicing rule (same author, AGPL-3.0-or-later)."""
+    must_voice = np.isin(sound, ("vowel", "sonorant"))
+    voiced = must_voice | ((sound == "voiced") & source_voiced)
+    forced = must_voice & ~source_voiced
+    clean = must_voice & source_voiced
+    if forced.any() and clean.any():
+        reference = np.median(sung_aperiodicity[clean], axis=0)
+        sung_aperiodicity[forced] = np.minimum(sung_aperiodicity[forced], reference)
+    return voiced
 
 
 def _sustain_gain_db(sung_envelope: np.ndarray, layout: list[dict], strength: float) -> np.ndarray:
