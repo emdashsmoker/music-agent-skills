@@ -15,9 +15,9 @@
 ## Choosing an engine
 | Engine | Method | Strengths | Weaknesses |
 |---|---|---|---|
-| `kokoro` | A speech voice converted to singing | Light to install, clear diction, the same result every time | Timbre stays close to reading aloud, 24 kHz bandwidth |
-| `piper` | A speech voice converted to singing | Wide choice of voices and languages | Quality varies a lot between voices, 22 kHz bandwidth |
-| `diffsinger` | A dedicated singing voicebank | The most natural singing, 44.1 kHz | The user has to supply the voicebank, rendering is slow |
+| `kokoro` | A speech voice converted to singing | Light to install, clear diction, the same result every time | Timbre stays close to reading aloud, 24 kHz sample rate |
+| `piper` | A speech voice converted to singing | Wide choice of voices and languages | Quality varies a lot between voices, 22 kHz sample rate for most voices |
+| `diffsinger` | A dedicated singing voicebank | The most natural singing, 44.1 kHz sample rate | The user has to supply the voicebank, rendering is slow |
 - See the list of voices with the `voices` command
     + Default female voice : `kokoro` / `af_heart`
     + Default male voice : `kokoro` / `am_michael`
