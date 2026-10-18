@@ -499,7 +499,11 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                 except Exception:
                     continue
             else:
-                phones = line.get("phonemes") or backend.phonemize(line["text"])
+                try:
+                    phones = line.get("phonemes") or backend.phonemize(line["text"])
+                except VocalError as error:             # characters the voice's language cannot read (speech.espeak_phonemes)
+                    issue("error", "lyrics.unreadable", where, str(error))
+                    continue
             symbols = ["^"] + list(phones) + ["$"]
             plist = phonetics.phones_from_tokens(symbols, [0.05] * len(symbols))
             syllables = phonetics.syllabify(plist)

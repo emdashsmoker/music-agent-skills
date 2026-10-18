@@ -316,7 +316,7 @@ def check_lyrics(vocals: list[dict], bpm: float, beats_per_bar: float = 4.0) -> 
         for row in part.get("lines", []):
             try:
                 hits = lyrics.lint_line(part["voice"], line_tools.Line(row["text"], row["melody"], row.get("start_beat", 0.0)), bpm,
-                                        role=row.get("kind", "verse"), beats_per_bar=beats_per_bar)
+                                        role=row.get("kind", "verse"), beats_per_bar=beats_per_bar, lang=part.get("lang", "en"))
             except Exception as error:                          # pronunciation failure: say so once and move on
                 found.append(finding("warn", "lyrics_unchecked", f"{part['part']}: lyric checks skipped ({error})"))
                 break

@@ -11,6 +11,7 @@ The words of the line are matched to the tokens in order, by syllable.
 from __future__ import annotations
 
 import os
+import unicodedata
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -30,6 +31,12 @@ class Line:
     start_beat: float = 0.0                       # song position of the line's first token (in beats)
     harmony: int = 0                              # diatonic steps above the melody (0 = lead, 2 = a third up)
     meta: dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        # Text typed or pasted on another system can arrive decomposed (NFD: 한 as ㅎ ㅏ ㄴ, й as и plus a breve). The
+        # engines, the voicebank dictionaries and the recogniser read composed text, so a decomposed line was sung
+        # with extra syllables or stopped at a word the dictionary holds.
+        self.text = unicodedata.normalize("NFC", self.text)
 
 
 def parse_melody(melody: str) -> list[list[tuple[int, float]] | float]:
@@ -120,10 +127,11 @@ def harmonize(melody: str, key: str, steps: int, chord_tones=None) -> str:
     return " ".join(tokens)
 
 
-def speak_line(voice: str, text: str, speed: float = 1.0, seed: int = 0, cache: str | None = None, fix_ending: bool = True):
+def speak_line(voice: str, text: str, speed: float = 1.0, seed: int = 0, cache: str | None = None, fix_ending: bool = True,
+               lang: str | None = None):
     """Spoken unit for a line, its WORLD analysis, and what happened to the ending. Cached on disk when cache is set."""
-    backend = tts.backend(voice)
-    unit = tts.speak(voice, text, speed, seed, cache)
+    backend = tts.backend(voice, lang)
+    unit = tts.speak(voice, text, speed, seed, cache, lang)
     analysis = _analysis(unit, cache, tts.unit_key(backend.identity, text, speed, seed))
     report = ending.ending_report(unit, analysis[0])
     report["repaired"] = False
@@ -160,12 +168,12 @@ def _analysis(unit: tts.Unit, cache: str | None, key: str):
 
 
 def sing_line(voice: str, line: Line, bpm: float, *, key: str | None = None, speed: float = 1.0, style: Style | None = None,
-              cache: str | None = None, fix_ending: bool = True) -> tuple[SungLine, dict]:
-    """Render one line with a TTS voice. Returns the sung audio and a small report (lag, ending, natural pitch)."""
+              cache: str | None = None, fix_ending: bool = True, lang: str | None = None) -> tuple[SungLine, dict]:
+    """Render one line with a TTS voice in `lang` (en, ko, ja, zh, ru ...). Returns the sung audio and a small report."""
     style = style or Style()
     melody = harmonize(line.melody, key, line.harmony) if line.harmony and key else line.melody
     groups, lead_beats, _ = note_groups(melody, bpm)
-    unit, analysis, ending_info = speak_line(voice, line.text, speed, style.seed, cache, fix_ending)
+    unit, analysis, ending_info = speak_line(voice, line.text, speed, style.seed, cache, fix_ending, lang)
     sung = singing.sing(unit, groups, style, analysis)
     report = {"text": line.text, "lag_ms": round(unit.lag * 1000), "snapped": unit.snapped, "ending": ending_info,
               "natural_pitch": theory.name(int(round(singing.natural_pitch(unit, analysis)))), "lead_rest_beats": lead_beats,
