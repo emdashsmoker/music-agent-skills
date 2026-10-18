@@ -34,7 +34,7 @@ SETTINGS = {
     "compiler": (None, "C compiler command (default: cc, gcc or clang found on PATH)"),
     "ffmpeg": (None, "ffmpeg command, used for mp3 only when the audio library cannot write mp3 itself"),
     "lmms": (None, "command that starts LMMS, e.g. a path to an AppImage or 'flatpak run io.lmms.LMMS' (optional tool)"),
-    "asr_model": ("base.en", "faster-whisper model for vocal checks; 'base' or 'small' for languages other than English"),
+    "asr_model": ("base.en", "faster-whisper model for vocal checks; an English-only model (.en) switches to its multilingual twin for tracks in other languages"),
 }
 TRUE_WORDS = ("1", "true", "yes", "on")
 FALSE_WORDS = ("0", "false", "no", "off", "")
