@@ -103,7 +103,7 @@ song.duck_for_vocals(4.0, presence_db=6.0)                               # optio
 One token per sung syllable, separated by spaces:
 
 - `E4/1` sings the syllable on E4 for one beat.
-- `E4/0.5~G4/0.5` slurs one syllable over two notes.
+- Joining notes with `~` sings one syllable on several notes. For example, `E4/0.5~G4/0.5` bends one syllable from E4 to G4.
 - `R/0.5` is a rest of half a beat.
 
 The words are matched to the tokens by syllable, in order. If the counts differ, the tool stops with a table of syllables per word. Fix the melody or the words. Words whose syllable count is unstable in speech (fire, hour, every, different) are best given one long note or replaced.
