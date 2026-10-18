@@ -48,7 +48,7 @@
 | `ceiling` | -1 | 트루 피크 상한(dBTP) |
 | `glue` | true | 버스를 묶는 가벼운 컴프레서 |
 | `clip` | true | 가장 높은 순간 피크만 깎는 소프트 클립 |
-| `eq` | 없음 | 마스터 EQ 밴드 |
+| `eq` | 없음 | 마스터 EQ 밴드 (표기는 `sound.md`의 `eq`와 같음) |
 | `vocal_carve` | -2.5 | 보컬이 울리는 동안 music 버스의 1.3-5 kHz를 덜어내는 양(dB) |
 | `mono_below` | 110 | 이 주파수 아래를 모노로 합침 |
 | `sidechain_release` | 0.5 | 사이드체인 회복 시간(박) |

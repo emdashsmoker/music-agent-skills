@@ -149,6 +149,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 ## Step 4 Vocals
 - Read the lyric writing rules first : `references/vocals.md`
 - Order
+    + Check the strengths and weaknesses of the chosen engine and voice, and choose words and sentence structure to suit them
     + Fix the rhythm of the melody, write the lyrics, check syllable counts and stress with `lint`
     + `studio vocal-check song.yaml` : sing the vocal alone before mixing and check the recognition match per line, rough syllables (`ROUGH`) and pitch error
     + For weak lines and lines marked `ROUGH`, look at the picture and the solo clip
