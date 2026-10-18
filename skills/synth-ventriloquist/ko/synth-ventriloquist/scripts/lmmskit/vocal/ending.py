@@ -79,4 +79,4 @@ def repair(backend, unit: Unit, speed: float, seed: int) -> Unit | None:
     shift = cut - fade / sr - donor_cut
     first_index = unit.phones.index(last_plain.phones[0])
     spliced = [Phone(p.symbol, p.start + shift, p.end + shift, last_plain.word, p.stressed) for p in last_donor.phones]
-    return Unit(audio, sr, unit.phones[:first_index] + spliced, unit.text, unit.lag)
+    return Unit(audio, sr, unit.phones[:first_index] + spliced, unit.text, unit.lag, snapped=unit.snapped)
