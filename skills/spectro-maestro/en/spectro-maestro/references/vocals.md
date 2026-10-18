@@ -82,7 +82,7 @@ vox:
 
 | Rules | For | What they cover |
 |---|---|---|
-| Singing craft | Any voice, a human singer included | Stress on the strong beats, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats |
+| Singing craft | Any voice, a human singer included | Stress on the strong beats, note lengths that follow the spoken stress, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats |
 | Model-voice habits | Speech voices and singing voicebanks alike | Consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak |
 | Speech-voice repairs | Speech voices only | The thin held ee and `vowel_body`, `consonant_ceiling` for stinging consonants, the line-ending repair, the strong-form spelling |
 - Rules for a voicebank
@@ -105,6 +105,16 @@ vox:
 - Stress
     + Put the stressed syllable of a multi-syllable word on the stronger beat (`lyrics.stress`)
     + Order of beat strength : first beat, third beat, second and fourth beat, the off-beat eighth, sixteenth positions
+- Spoken stress and note length
+    + After writing a line, mark each syllable strong or weak as it is spoken and set the marks beside the note lengths ("Rise and fall" runs strong, weak, strong)
+    + The longest note of a line goes to a content word
+    + When a function word or a weak syllable takes the longest note and the stressed syllable after it is clipped short, the stress is reversed ("Rise and fall" with "and" held for two beats and "fall" cut to half a beat)
+    + A human singer struggles with such a line too, so give the stressed syllable the long note
+- Rhythm at the end of a line
+    + The end of a line keeps the rhythm shape of its start
+    + When only the last note is clipped far shorter than the notes before it, or a burst of fast syllables runs into a long note, the singer has no place to breathe (six sixteenth-note syllables rushing into a last word held for three beats)
+    + If the shape is intended (a chant or a staccato hook), note the reason in `notes`
+    + Otherwise even out the rhythm or cut syllables from the run (`lyrics.fast_syllables` points at fast runs)
 - Note length
     + One syllable needs 110 ms or more (`lyrics.short_notes`)
     + In fast songs avoid syllables shorter than an eighth note
