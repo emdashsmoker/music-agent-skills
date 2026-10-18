@@ -20,6 +20,7 @@ import hashlib
 import json
 import os
 import re
+import unicodedata
 
 import numpy as np
 import yaml
@@ -275,7 +276,7 @@ def _english_fallback(word: str) -> list | None:
         return [re.sub(r"\d", "", p).lower() for p in hit[0]]
     try:
         from kokoro_onnx.tokenizer import Tokenizer
-        ipa = Tokenizer().phonemize(word, "en-us")
+        ipa = speech.espeak_phonemes(Tokenizer(), word, "en-us")
     except Exception:
         return None
     out, index = [], 0
@@ -330,7 +331,9 @@ def line_words(bank: Voicebank, line: dict, lang: str) -> list:
     """[[phonemes of word 1], ...]. A line may carry 'phonemes': 'en/hh en/ah | en/l en/ow' to override."""
     if line.get("phonemes"):
         return [chunk.split() for chunk in str(line["phonemes"]).split("|") if chunk.strip()]
-    return [p for p in (word_phonemes(bank, word, lang) for word in re.split(r"[\s\-]+", line["text"])) if p]
+    # Punctuation outside ASCII (、。，！？「」) separates words like its ASCII forms; the typographic apostrophe stays in a word.
+    text = "".join(" " if c != "’" and not c.isascii() and unicodedata.category(c).startswith("P") else c for c in line["text"])
+    return [p for p in (word_phonemes(bank, word, lang) for word in re.split(r"[\s\-]+", text)) if p]
 
 
 def _is_vowel(bank: Voicebank, lang: str, symbol: str) -> bool:

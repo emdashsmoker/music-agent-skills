@@ -24,6 +24,9 @@
     + Piper voices have different usage terms per dataset, so check the model card of a voice before choosing it and tell the user
 - For other languages, name a Kokoro or Piper voice of that language; it sings through the same conversion path
     + Use a multilingual recognition model with `vocal-check --asr-model base` or `small`
+    + Set `lang` in the track's `vocal` settings to the lyrics' language code (ko, ja, zh, ru ...). The voice reads the text with that pronunciation, and `vocal-check` listens for that language
+    + Kokoro reads Japanese through espeak, which reads kana but not kanji, so write Kokoro's Japanese lyrics in kana. A Piper Japanese voice reads kanji (it needs the `pyopenjtalk` package)
+    + `lint` reports a line with words its language cannot read (kanji under `ja`, a `~` after a word) as `lyrics.unreadable`, with those words
 - Ask the user about engine and voice in the planning step
     + If the user owns a singing voicebank, suggest `diffsinger` first
 
@@ -284,6 +287,7 @@ vox:
 - Only voicebanks the user provides are used
     + Give `voice` a folder path (the toolkit neither unpacks archives nor downloads links)
     + Unpack an archive into a new empty folder outside the song project, then give `voice` that folder. Do not unpack an archive with entries that point outside that folder (absolute paths or `..`)
+    + Unpack with `python -m zipfile -e <archive> <folder>`, which keeps file names written in other scripts (a terms document named in Japanese or Russian). `unzip` garbles them where the system language is not UTF-8. When names still come out garbled (an archive made on Japanese Windows), add `--metadata-encoding cp932`
     + For a repository or download link the user hands over, fetch exactly that into a new empty folder outside the song project, then give `voice` that folder
     + Do not search for or download a voicebank the user did not hand over
 - Fetching a link
@@ -327,6 +331,10 @@ vocal:
 - Reproducibility
     + Every line starts from the same seed, so the same input gives the same sound
     + A double is a separate take with a different seed and timbre
+- Lyric spelling
+    + The voicebank's dictionary decides the spelling of the lyrics. Japanese dictionaries usually hold kana and Chinese ones pinyin, so write the lyrics that way
+    + A word the dictionary lacks stops the line (`lyrics.pronunciation`). Respell it or give the line a `phonemes` entry in the voicebank's own symbols
+    + A bank whose dictionary holds no words of a language (its OpenUtau phonemizer converts them in code) sings that language only through `phonemes`
 - Render time
     + About 10 seconds per line (on a 2-core CPU); results are cached and reused on re-render
 
@@ -336,6 +344,7 @@ vocal:
     + More than an octave away from the speaking pitch the timbre turns thin or muddy
 - The recognition match is most trustworthy in English
     + For other languages trust it only as far as the multilingual recognition model is accurate
+    + The recogniser writes Japanese and Chinese in a script of its own choosing (kanji for kana lyrics, katakana, traditional characters). This lowers the match even when the words come through, so read the heard text next to the score
 - Fast rap and runs of sixteenth-note singing blur the syllables
 - The stress check runs only for speech voice engines
     + Voicebank dictionaries carry no stress marks, so DiffSinger tracks get the syllable count, pronunciation and the other checks of the singing craft and the model-voice habits

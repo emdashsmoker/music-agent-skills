@@ -80,7 +80,7 @@ class NativeKokoro:
         return f"kokoro-native:{self.voice}:{tts.KOKORO_REVISION[:8]}"
 
     def phonemize(self, text: str) -> str:
-        return self._tokenizer.phonemize(text, self.lang)
+        return tts.espeak_phonemes(self._tokenizer, text, self.lang)
 
     def tokens(self, text: str) -> tuple[list[str], np.ndarray, np.ndarray]:
         phonemes = self.phonemize(text)
@@ -111,11 +111,12 @@ class NativeKokoro:
 _singers: dict[str, NativeKokoro] = {}
 
 
-def singer(voice: str) -> NativeKokoro:
+def singer(voice: str, lang: str | None = None) -> NativeKokoro:
     name = voice.split(":", 1)[-1]
-    if name not in _singers:
-        _singers[name] = NativeKokoro(name, tts.VOICES.get(f"kokoro:{name}", {}).get("lang", "en-us"))
-    return _singers[name]
+    language = tts.speech_language(f"kokoro:{name}", lang)
+    if f"{name}|{language}" not in _singers:
+        _singers[f"{name}|{language}"] = NativeKokoro(name, language)
+    return _singers[f"{name}|{language}"]
 
 
 def _token_syllables(symbols: list[str], frames: np.ndarray, wanted: int):
@@ -250,7 +251,8 @@ def level_vowels(audio: np.ndarray, sr: int, layout: list[dict], evenness: float
     return audio * 10 ** (curve / 20)
 
 
-def sing_in_range(voice: str, text: str, groups: list[list[SungNote]], style: Style | None = None, speed: float = 1.0) -> tuple[SungLine, dict]:
+def sing_in_range(voice: str, text: str, groups: list[list[SungNote]], style: Style | None = None, speed: float = 1.0,
+                  lang: str | None = None) -> tuple[SungLine, dict]:
     """Sing a line with Kokoro's decoder, lowering it first when the melody goes above the voice's clean range.
 
     A lowered line is sung cleanly in range and then raised to the written key with a formant-preserving
@@ -260,11 +262,11 @@ def sing_in_range(voice: str, text: str, groups: list[list[SungNote]], style: St
     top = max(n.pitch for g in groups for n in g)
     lowered = int(max(0, np.ceil(top - limits["high"])))
     if lowered == 0:
-        line, report = sing(voice, text, groups, style, speed)
+        line, report = sing(voice, text, groups, style, speed, lang)
         report["raised_semitones"] = 0
         return line, report
     shifted = [[SungNote(n.start, n.duration, n.pitch - lowered) for n in g] for g in groups]
-    line, report = sing(voice, text, shifted, style, speed)
+    line, report = sing(voice, text, shifted, style, speed, lang)
     f0, envelope, aperiodicity = world.analyze(line.audio, OUTPUT_SR)
     ratio = 2.0 ** (lowered / 12.0)
     raised = world.synthesize(f0 * ratio, _warp_envelope(envelope, ratio ** RAISE_FORMANT_SHARE), aperiodicity, OUTPUT_SR)[:len(line.audio)]
@@ -277,10 +279,11 @@ def sing_in_range(voice: str, text: str, groups: list[list[SungNote]], style: St
     return line, report
 
 
-def sing(voice: str, text: str, groups: list[list[SungNote]], style: Style | None = None, speed: float = 1.0) -> tuple[SungLine, dict]:
+def sing(voice: str, text: str, groups: list[list[SungNote]], style: Style | None = None, speed: float = 1.0,
+         lang: str | None = None) -> tuple[SungLine, dict]:
     """Sing a line with Kokoro's decoder at the written pitch. Returns the line and a report (decoder lag, natural pitch)."""
     style = style or Style()
-    engine = singer(voice)
+    engine = singer(voice, lang)
     symbols, ids, voice_style = engine.tokens(text)
     natural = engine.natural_frames(ids, voice_style, speed)
     frames, layout, lead_in, _ = plan_frames(symbols, natural, groups)

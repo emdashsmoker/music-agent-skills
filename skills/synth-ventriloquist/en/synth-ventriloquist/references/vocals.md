@@ -58,7 +58,7 @@ Some built-in voices carry licence notes (shown by `voices`). Pass them on when 
 The toolkit renders DiffSinger voicebanks in the OpenUtau folder layout (a folder containing `dsconfig.yaml`). It contains no voicebank, names none, and downloads none on its own initiative. Handle only what the user hands over:
 
 - A folder path: use it directly. `voices diffsinger:<folder>` confirms that it loads.
-- An archive file: unpack it into a new empty folder outside the song project, then use that folder.
+- An archive file: unpack it into a new empty folder outside the song project, then use that folder. Unpack with `python -m zipfile -e <archive> <folder>`, which keeps file names written in other scripts (a terms document named in Japanese or Russian). `unzip` garbles them where the system language is not UTF-8. When names still come out garbled (an archive made on Japanese Windows), add `--metadata-encoding cp932`.
 - A link to a repository or download page the user gives: fetch exactly that into a new empty folder. Do not search for voicebanks or suggest sources. For a GitHub repository link, before fetching: if the execution environment has a tool that attaches a GitHub repository to the session, call it. Pass the owner and the repository name from the link as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused.
 
 A repository that uses Git LFS leaves pointer files after the clone (small files that start with `version https://git-lfs.github.com/spec/v1`). Clone with `GIT_LFS_SKIP_SMUDGE=1` so an unreachable LFS server cannot stop the clone. Fetch the remaining files from `https://media.githubusercontent.com/media/<owner>/<repo>/<commit>/<path>` on GitHub or from `<repository address>/resolve/<commit>/<path>` on Hugging Face, and check each against the sha256 in its pointer. Use `git lfs pull` for other hosts and for private repositories. Do not use the folder while any pointer remains.
@@ -79,7 +79,8 @@ vocal = song.vocal("lead vocal", "diffsinger:/path/to/bank#Soft", lang="en", ste
 ```
 
 - `#name` picks a voice colour when the bank has several. Without it the first one is used.
-- `lang` must be one of the bank's languages. Words missing from the bank's English dictionary are pronounced through a built-in fallback. Languages written without spaces are looked up character by character.
+- `lang` must be one of the bank's languages. Words missing from the bank's English dictionary are pronounced through a built-in fallback. Languages written without spaces are looked up by the longest dictionary entries from the left, so a kana pair such as きゃ counts as one entry.
+- The bank's dictionary decides the spelling of the lyrics. Japanese dictionaries usually hold kana and Chinese ones pinyin, so write the lyrics that way. A bank whose dictionary holds no words of a language (its OpenUtau phonemizer converts them in code) cannot sing that language here.
 - Options: `steps` (quality against time, default 20), `gender` (−1 to 1, formant shift), `velocity` (consonant speed), `tension`, `breathiness`, `expressiveness` (how far the bank's own pitch model moves from the notes, default 1.0), `own_pitch=False` to draw the pitch curve from the Style settings instead of the bank's pitch model.
 - A bank's pitch model sings each note with slides and swings of its own, so the start of a note can sit well off the written pitch. When notes sound slightly off, lower `expressiveness` from its default 1.0 (try 0.5) or set `own_pitch=False`. The measured effect is under Measurements behind this page.
 - Renders are repeatable: the same line gives the same audio.
@@ -159,7 +160,7 @@ When the user has chosen a voicebank, write the lyrics by the singing craft and 
 - Leave air between lines: one or two beats of rest so the reverb tail and the listener can catch up.
 - Rhyme by vowel sound. Spelling is no guide (move and love do not rhyme).
 
-`python scripts/lmms_tool.py lyric-lint --voice <id> --text "..." --melody "..." --bpm 132` checks a line against these habits before anything is sung. Run it on each line as you write it. Once the project exists, `lint song.mmp` repeats the same checks on every lead line (`lyrics_*` findings). For a line that does not start on the downbeat, pass its starting beat within the bar (`--start-beat 0.5`) so the stress check sees the right beat strengths.
+`python scripts/lmms_tool.py lyric-lint --voice <id> --text "..." --melody "..." --bpm 132` checks a line against these habits before anything is sung. Run it on each line as you write it, with `--lang` for lyrics outside English (`--lang ko`). Once the project exists, `lint song.mmp` repeats the same checks on every lead line (`lyrics_*` findings). For a line that does not start on the downbeat, pass its starting beat within the bar (`--start-beat 0.5`) so the stress check sees the right beat strengths.
 
 ## Word-choice procedure
 
@@ -246,10 +247,12 @@ Ask for the user's verdict on the words before polishing the mix around them.
 
 ## Other languages
 
+- `lang` (en, ko, ja, zh, ru ...) is the language of the lyrics for every engine. A speech voice reads the text with that language's pronunciation, a voicebank looks the words up in that dictionary, and the recogniser listens for that language. Give the same code to `song.vocal(..., lang=)`, `sing`, `compare` and `lyric-lint`.
 - Singer voicebanks sing the languages they list.
-- Piper has voices for many languages: `piper:<voice id>` with the id from the Piper voice list (for example `piper:de_DE-thorsten-medium`, `piper:es_ES-davefx-medium`), plus `lang="de"`. The voice is downloaded on first use. Recognition switches to a multilingual model automatically.
+- Piper has voices for many languages: `piper:<voice id>` with the id from the Piper voice list (for example `piper:de_DE-thorsten-medium`, `piper:ko_KR-kss-medium`, `piper:ru_RU-irina-medium`), plus `lang="de"`. The voice is downloaded on first use. Recognition switches to a multilingual model automatically. The Piper Japanese voice needs the `pyopenjtalk` package.
+- Kokoro's built-in list here holds English voices. Its Japanese (`kokoro:jf_alpha`) and Mandarin (`kokoro:zf_xiaobei`) voices also sing, with `lang="ja"` or `lang="zh"`. Kokoro reads Japanese through espeak, which reads kana but not kanji, so write Kokoro's Japanese lyrics in kana. The Piper Japanese voice reads kanji. A line with words its language cannot read (kanji under `ja`, a `~` after a word) gets an `unreadable_text` error that names them. An English Kokoro voice reading another language keeps a strong English accent, so choose a voice of that language.
 - Outside English, expect lower recognition scores, no line-ending repair until a carrier word is registered, and lyric-craft hints that only partly apply (the weak-word list is English). Check syllable counts with `lyric-lint` and judge by listening.
-- Kokoro's built-in voices here are English.
+- The recogniser writes Japanese and Chinese in a script of its own choosing (kanji for kana lyrics, katakana, traditional characters). This lowers the score even when the words come through, so read what it heard next to the score.
 
 ## Known limits
 
