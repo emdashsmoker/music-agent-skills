@@ -77,6 +77,8 @@ Uplifting trance, 136 to 142 BPM, 7 to 15 minutes (extend the groove, breakdown 
 
 Hard trance uses a harder kick and an off-beat bass. Goa uses phrygian dominant scales and layered acid lines. Progressive trance is slower and subtler, with long filter movements and fewer big breakdowns.
 
+With a vocal over trance, take the vocal rhythm from the spoken-stress rules in `vocals.md` and let the lead follow or answer it. Risers, snare rolls and impacts carry the build-up and the drop.
+
 ## Psytrance family
 
 Psytrance, dark psytrance, goa. 138 to 150 BPM, dark psy 148 to 180.
@@ -176,11 +178,12 @@ Futurepop, 125 to 140 BPM: EBM's sequenced bass under trance's melodies, with cl
 - `ebm_bass` 16th line plus `sub_bass`, a `trance_pluck` arpeggio, `string_pad`, and a `supersaw_lead` hook stated in the intro and between verses.
 - Minor key, anthem-like chorus over `VI VII i` movements (F G Am in A minor). Verse 8 to 16 bars, pre-chorus, chorus with a held last note and a harmony voice.
 - The vocal is in front (profile: vocal +0, lead −3). The lead synth rests while the voice sings and returns in the gaps.
+- Take the vocal rhythm from the spoken-stress rules in `vocals.md` and let the lead hook follow or answer it.
 - For a harder edge, closer to the EBM side of the style: a punchy `909_kick` in place of the soft trance kick, `electro_snare` on 2 and 4 with the clap layered 3 dB under it in the big sections, a rim shot on off-16ths (`-------x--x----x`), a pickup kick at the end of every fourth bar, half-bar snare fills into new sections, hat accents on the off-8ths, and a little saturation on the sequenced bass. Keep the kick clean: a noisy or distorted kick reads as dirt in this style and costs loudness. `examples/signal_fires_futurepop` holds both arrangements in one script.
 
 ## Synth styles: synthpop, synthwave, darksynth, doomer
 
-Synthpop, 100 to 130 BPM: verse and chorus song form, Linn or 808 kit with a snare on 2 and 4, a simple 8th-note bass (`moog_bass`, `fm_bass`), bright hooks on `square_lead` or `bell`, major or minor keys, chorus melody doubled by a synth.
+Synthpop, 100 to 130 BPM: verse and chorus song form, Linn or 808 kit with a snare on 2 and 4, a simple 8th-note bass (`moog_bass`, `fm_bass`), bright hooks on `square_lead` or `bell`, major or minor keys, chorus melody doubled by a synth. Fix the chorus vocal line first by the spoken-stress rules in `vocals.md`, then let the synth double its rhythm.
 
 Synthwave, 80 to 118 BPM: the 1980s film score sound.
 
