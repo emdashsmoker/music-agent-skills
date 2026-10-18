@@ -283,6 +283,7 @@ vocal:
   speaker: normal       # optional; can be mixed as {normal: 0.7, soft: 0.3}
   steps: 20             # sampling steps of the timbre model; higher is slower and finer
   pitch: model          # model is the voicebank's pitch model, curve is the built-in pitch curve
+  expr: 1.0             # how far the pitch model moves away from the notes (default 1.0, pitch: model only)
   gender: 0             # timbre shift (-1 to 1)
   breathiness: 0        # more or less breath (dB)
   tension: 0            # more or less tension
@@ -294,6 +295,10 @@ vocal:
     + Every voicebank has its own comfortable range
     + Too low or too high, breath increases and the pitch error grows
     + If lines with a `vocal-check` pitch error above 25 cents cluster, move the melody (the part's `octave` or `transpose`)
+- Pitch
+    + The voicebank's pitch model sings each note with slides and swings of its own, so the start of a note can sit well off the written pitch
+    + When notes sound slightly off, lower `expr` from its default 1.0 (try 0.5)
+    + Measured on two voicebanks over 27 lines of two songs: in the first 90 ms of a note the pitch sat a median 21 cents from the written note (105 cents at the 90th percentile) and 14 cents across the held part. With `expr: 0.5` the three figures were 4.2, 9.3 and 4.2 cents and the recognition match rose from 0.94 to 0.95. `pitch: curve` gave 13, 53 and 8.7 cents
 - Pronunciation
     + Words missing from the voicebank's dictionary are filled in from a general pronouncing dictionary and a grapheme-to-phoneme converter
     + A syllable group starts at its vowel, and the first consonant of the next syllable sits at the end of the previous note

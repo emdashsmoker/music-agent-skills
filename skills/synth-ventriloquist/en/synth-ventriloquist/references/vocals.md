@@ -80,8 +80,8 @@ vocal = song.vocal("lead vocal", "diffsinger:/path/to/bank#Soft", lang="en", ste
 
 - `#name` picks a voice colour when the bank has several. Without it the first one is used.
 - `lang` must be one of the bank's languages. Words missing from the bank's English dictionary are pronounced through a built-in fallback. Languages written without spaces are looked up character by character.
-- Options: `steps` (quality against time, default 20), `gender` (−1 to 1, formant shift), `velocity` (consonant speed), `tension`, `breathiness`, `expressiveness` (how much the bank's own pitch model moves), `own_pitch=False` to draw the pitch curve from the Style settings instead of the bank's pitch model.
-- A bank's pitch model sings each note with slides and swings of its own, so the start of a note can sit well off the written pitch. When notes sound slightly off, lower `expressiveness` (try 0.5) or set `own_pitch=False`. The measured effect is under Measurements behind this page.
+- Options: `steps` (quality against time, default 20), `gender` (−1 to 1, formant shift), `velocity` (consonant speed), `tension`, `breathiness`, `expressiveness` (how far the bank's own pitch model moves from the notes, default 1.0), `own_pitch=False` to draw the pitch curve from the Style settings instead of the bank's pitch model.
+- A bank's pitch model sings each note with slides and swings of its own, so the start of a note can sit well off the written pitch. When notes sound slightly off, lower `expressiveness` from its default 1.0 (try 0.5) or set `own_pitch=False`. The measured effect is under Measurements behind this page.
 - Renders are repeatable: the same line gives the same audio.
 - To find the range a bank is comfortable in, sing one line at several transpositions and compare scores, or measure the pitch of the demo recording that often ships with a bank.
 
