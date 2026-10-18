@@ -45,7 +45,7 @@ These packages are installed separately by the user (`requirements.txt`, `requir
 | huggingface_hub, tokenizers | model download and decoding for recognition | Apache-2.0 |
 | cmudict | pronunciations for DiffSinger voicebanks | package GPL-3.0-or-later; dictionary data Copyright (C) 1993-2015 Carnegie Mellon University, BSD-style |
 
-Optional outside programs, started only when present: a C compiler, FFmpeg (LGPL-2.1-or-later or GPL depending on the build), LMMS (GPL-2.0-or-later), git.
+Optional outside programs, started only when present: a C compiler, FFmpeg (LGPL-2.1-or-later or GPL depending on the build), LMMS (GPL-2.0-or-later).
 
 ## 5. Voice models and voicebanks
 Models are downloaded on first use or supplied by the user. None is contained in this skill.
