@@ -110,7 +110,8 @@ pad:  {grid: "c - - - - - - - - - - - - - - -"}          # hold the chord for on
     + When the beats are left out, the previous value is used
 - `|` is a bar check line
     + A bar boundary that does not line up is reported as an error, so mistakes in counting beats are found at once
-- `E4:1~D4:1` : ties two notes (in a vocal, one syllable is spread over several notes)
+- `~` joins a note to the next (example : `E4:1~D4:1`)
+    + In a vocal, the joined notes are sung as one syllable
 - Put `!` or `?` after a note to change its velocity
 ```yaml
 lead: {line: "5:1.5 3:.5 5:1 1':1 | 1':1.5 7:.5 6:2", octave: 4}
