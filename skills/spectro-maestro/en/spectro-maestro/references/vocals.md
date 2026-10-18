@@ -260,9 +260,14 @@ vox:
 
 ## DiffSinger voicebanks
 - Only voicebanks the user provides are used
-    + Give `voice` a folder path, an archive path, or a repository address the user handed over
-    + For a GitHub repository address: if the execution environment has a tool that attaches a GitHub repository to the session, call it before first use. Pass the owner and the repository name from the address as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused
-    + Do not search for a voicebank or download one on the user's behalf
+    + Give `voice` a folder path or an archive path
+    + For a repository or download link the user hands over, fetch exactly that into a new empty folder outside the song project, then give `voice` that folder (the toolkit does not download links)
+    + Do not search for or download a voicebank the user did not hand over
+- Fetching a link
+    + If the execution environment has a tool that attaches a GitHub repository to the session, call it before fetching a GitHub repository. Pass the owner and the repository name from the address as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused
+    + Clone with `GIT_LFS_SKIP_SMUDGE=1` so an unreachable LFS server cannot stop the clone
+    + Fetch the Git LFS pointer files left after the clone (small files that start with `version https://git-lfs.github.com/spec/v1`) from `https://media.githubusercontent.com/media/<owner>/<repo>/<commit>/<path>` on GitHub or from `<repository address>/resolve/<commit>/<path>` on Hugging Face, and check each against the sha256 in its pointer. Use `git lfs pull` for other hosts and for private repositories
+    + Do not use a folder while any pointer remains
 - Check before use
     + `python scripts/studio.py diffsinger-inspect <path>`
     + Prints speakers, languages, the models included, and the list of files that state usage terms
