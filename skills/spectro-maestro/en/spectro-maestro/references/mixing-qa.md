@@ -39,7 +39,7 @@
     + The profile is the `profile` entry of `assets/genres/<id>.yaml`
 - The sidechain lowers a track briefly whenever the kick sounds
     + It does nothing in genres or sections without a kick
-    + Deeper settings turn it into the audible pumping of some genres (trance, electro house)
+    + Deeper settings turn it into the audible pumping of some genres (trance, electro house, etc.)
 
 ## Master settings
 | Key | Default | Meaning |
@@ -54,7 +54,7 @@
 | `sidechain_release` | 0.5 | Sidechain recovery time (beats) |
 | `fade_out` | 0 | Fade at the end of the song (beats) |
 - Starting points for target loudness by genre
-    + Quiet and dynamic genres (ambient, lo-fi, doomer) : -17 to -12
+    + Quiet and dynamic genres (ambient, lo-fi, doomer, etc.) : -17 to -12
     + Pop and the house family : -11 to -9
     + Hard club genres (hardstyle, gabber, big room) : -8 to -7
 - The harder the limiter works, the more the kick is squashed and pumping appears
