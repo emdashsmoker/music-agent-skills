@@ -57,11 +57,11 @@ Where the foreground sits in the track is taste, so it is asked in the planning 
 
 | Style | What it sounds like | Level offsets (LU) | Ducking shift (depth, presence dB) | Vocal window (densest section) |
 |---|---|---|---|---|
-| `forward` | A pop or radio mix: the voice and the backbeat on top of the track | clap +2, snare +1.5, lead +1, vocal +3 | +1, +1 (3.5 and 7.0 by default) | body +2 to +11, consonants +4 or more |
+| `forward` | A pop or radio mix: the voice and the backbeat on top of the track | clap +2, snare +1.5, lead +1, vocal +3 | +1, +1 (3.5 and 7.0 by default) | body +1.5 to +10.5, consonants +3.5 or more |
 | `balanced` (default) | The backbeat and the voice a little forward | clap +1.5, snare +1, vocal +1.5 | 0, 0 (2.5 and 6.0 by default) | body 0 to +9, consonants +2 or more |
 | `blended` | A club mix: the voice and the lead inside the track | lead -1, the rest at the plain role levels | -1, -2 (1.5 and 4.0 by default) | body -2 to +7, consonants 0 or more |
 
-The judging window moves with the style because a balance the user chose would otherwise come back as a warning on every render and turn the report into noise. In forward, the voice in the chorus has to sit 2 dB or more above the body of the backing to count as "in front"; in blended, 2 dB under the backing is still the intended place. The presence lift (`vocal_presence`) also aims at the consonant floor of that window.
+The judging window moves with the style because a balance the user chose would otherwise come back as a warning on every render and turn the report into noise. The shift follows what the offsets did to the measured vocal margins: in the test songs forward moved them 1.3 to 2.0 dB up and blended 1.1 to 1.9 dB down (measurements at the end of this page). The presence lift (`vocal_presence`) also aims at the consonant floor of that window.
 
 `--mix-style` on `produce`, `check` and `balance` overrides the plan file's style for that run. The levels and the window change, but the ducking automation under sung lines is written when the script saves the project, so a vocal song changes style in the script and is saved again. For an existing project without a script, the option is the only way to set the style.
 
