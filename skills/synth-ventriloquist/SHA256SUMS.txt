@@ -1,2 +1,2 @@
-92566fe074cdacdb5724a27e6fc37d017702fcbd602518aca9daaf55925808d4  synth-ventriloquist-ko.skill
+0d2aed03f66c430aa494a531e01a60ee4f6f844d935a3931bdce12e899150fd7  synth-ventriloquist-ko.skill
 523a263ffe1169bd8a569ee14e3c242759c52874c0974c8dc0e95b9dacf13597  synth-ventriloquist-en.skill
