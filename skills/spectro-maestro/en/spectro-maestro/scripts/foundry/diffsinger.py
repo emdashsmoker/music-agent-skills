@@ -154,9 +154,9 @@ class Stage:
         total = np.zeros(int(self.config.get("hidden_size", 256)), dtype=np.float32)
         used = False
         for name, weight in mix.items():
-            match = next((k for k in table if k.lower() == str(name).lower()), None)
-            if match is None:
-                raise DiffSingerError(f"speaker {name!r} not found; available: {sorted(table)}")
+            # A stage exported with fewer speakers than the acoustic model (a pitch model with one) sings for all
+            # of the bank's voices: it gets its own first speaker. The names were checked against the acoustic model.
+            match = next((k for k in table if k.lower() == str(name).lower()), None) or next(iter(table))
             if match not in self._embeds:
                 self._embeds[match] = np.fromfile(self.path(table[match] + ".emb"), dtype=np.float32)
             if not used:
@@ -418,6 +418,10 @@ def sing_phrase(bank: Voicebank, groups: list, word_cut: list, notes: list, sett
     frame_s = bank.acoustic.frame_s
     mix = settings["speaker"] if isinstance(settings["speaker"], dict) else \
         {settings["speaker"] or (bank.acoustic.speakers() or [None])[0]: 1.0}
+    known = bank.acoustic.speakers()
+    for name in mix:
+        if known and not any(k.lower() == str(name).lower() for k in known):
+            raise DiffSingerError(f"speaker {name!r} not found; available: {sorted(known)}")
 
     # --- lay the groups on the timeline; a rest inside the phrase becomes a silence group that also
     # holds the consonants leading into the next note
