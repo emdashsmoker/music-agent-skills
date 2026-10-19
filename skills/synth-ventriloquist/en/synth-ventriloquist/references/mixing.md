@@ -163,14 +163,15 @@ Four vocal songs (the demos Second Brain and Anyway, and a futurepop song and a 
 - In the instrumentals the measured snare, clap and lead levels move by exactly the offsets (forward +1, +1, +1; blended -1, -1.5, -1), and `drums_vs_rest` agrees within 0.5 LU.
 - Vocal margins in the densest section (body / consonants, dB):
 
-| Song | Balanced | Forward | Blended |
-|---|---|---|---|
-| Second Brain | +5.0 / +2.7 | +6.2 / +3.9 | +3.9 / +1.6 |
-| Anyway (whole song) | +3.3 / +2.7 | +4.8 / +4.2 | +1.7 / +0.8 |
-| Futurepop (test song) | +0.5 / +4.1 | +2.1 / +5.1 | -1.2 / +2.8 |
-| Doomer (test song) | +2.6 / +2.7 | +3.9 / +4.3 | +1.3 / +1.2 |
+| Song | Balanced | Forward | Vocal | Blended |
+|---|---|---|---|---|
+| Second Brain | +5.0 / +2.7 | +6.2 / +3.9 | +6.3 / +4.2 | +3.9 / +1.6 |
+| Anyway (whole song) | +3.3 / +2.7 | +4.8 / +4.2 | +4.8 / +4.2 | +1.7 / +0.8 |
+| Futurepop (test song) | +0.5 / +4.1 | +2.1 / +5.1 | +2.2 / +5.7 | -1.2 / +2.8 |
+| Doomer (test song) | +2.6 / +2.7 | +3.9 / +4.3 | +4.1 / +4.2 | +1.3 / +1.2 |
 
 - Forward lifts the body by 1.2 to 1.6 dB and the consonants by 1.0 to 1.6 dB; blended lowers the body by 1.1 to 1.7 dB and the consonants by 1.1 to 1.9 dB. The window therefore moves by +1.5 in forward and -2 in blended: a 2 dB forward shift would leave the futurepop test song's chorus on the floor.
+- Vocal lifts the body by 1.2 to 1.7 dB and the consonants by 1.3 to 1.6 dB and uses the forward window. Its drum peaks do not grow, so the master comes out 0.2 to 0.3 LU louder than forward. Backbeat was not rendered on its own: its effect on the vocal margins is the difference between forward and vocal (within 0.3 dB), and in an instrumental it moves by the snare and clap offsets alone.
 - The futurepop test song sits at +0.5 dB of body in its chorus in balanced, on the floor of the window: a voice covered by a dense chorus, which forward moves into the middle of the window.
 - A dark voice turned up lowers the brightness reading of the densest passage: Second Brain crossed into the `brightness` warning in forward (-7.7 dB against a floor of -7.5). The remedies are those of the brightness row in the findings table.
 - The same songs were also rendered with singer voicebanks. A standard colour moved by the same amounts as the Kokoro voices; one soft colour had negative consonant margins in all three styles, which the 6 dB presence lift could not close. That is the voice, not the style, and is handled per voice with EQ and level as `vocals.md` says.
