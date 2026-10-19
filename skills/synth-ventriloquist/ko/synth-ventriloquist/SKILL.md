@@ -8,7 +8,7 @@ license: AGPL-3.0-or-later
 
 > **라이선스.** Copyright (C) 2026 Em Dash Smoker. 이 스킬(지침 문서, 스크립트, 예제 곡)은 자유 소프트웨어다. GNU Affero General Public License 버전 3 또는 (선택에 따라) 그 이후 버전의 조건으로 재배포하고 수정할 수 있다. 어떠한 보증도 없다. 전문은 `LICENSE`에 있다.
 >
-> **서드 파티 고지.** 스킬에는 오디오가 들어 있지 않다. 스킬에 든 타인의 저작물은 Bitwig의 MIT 라이선스 저작물인 DAWproject 스키마와 LMMS DrumSynth 프리셋 파일 사본(GPL-2.0-or-later)이다. 프리셋 사본은 녹음한 드럼 소리의 원본으로 함께 보관한다. LMMS, FFmpeg, Python 패키지, TTS 모델은 스킬에 들어 있지 않으며 각자의 라이선스로 따로 설치한다. 드럼 킷은 처음 쓸 때 사용자의 컴퓨터에서 만들며, 일부는 사용자 자신의 LMMS 프리셋을 녹음한 것이다. 상세 내용은 `THIRD_PARTY_NOTICES.md`에 있다.
+> **서드 파티 고지.** 스킬에는 오디오가 들어 있지 않다. 스킬에 든 타인의 저작물은 Bitwig의 MIT 라이선스 저작물인 DAWproject 스키마, OpenUtau에서 옮긴 G2P 표(MIT, StAkira), LMMS DrumSynth 프리셋 파일 사본(GPL-2.0-or-later)이다. 프리셋 사본은 녹음한 드럼 소리의 원본으로 함께 보관한다. LMMS, FFmpeg, Python 패키지, TTS 모델은 스킬에 들어 있지 않으며 각자의 라이선스로 따로 설치한다. 드럼 킷은 처음 쓸 때 사용자의 컴퓨터에서 만들며, 일부는 사용자 자신의 LMMS 프리셋을 녹음한 것이다. 상세 내용은 `THIRD_PARTY_NOTICES.md`에 있다.
 >
 > **산출물은 이 라이선스의 대상이 아니다.** 스킬을 실행해 만든 곡, 오디오, MIDI, LMMS와 DAW 프로젝트 파일, 가사, 그림, 리포트는 만든 사람의 것이며 이 라이선스가 적용되지 않는다. 곡에 가져다 쓴 목소리, 보이스뱅크, 샘플에는 각자의 조건이 그대로 적용된다.
 

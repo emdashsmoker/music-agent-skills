@@ -161,6 +161,7 @@ Speech and recognition models are downloaded on first use into `cache_dir` and t
 - Kokoro speech model with timing output, pinned to a fixed revision: about 330 MB, plus under 1 MB per voice.
 - A Piper voice: 60 to 115 MB each.
 - Recognition model (`base.en`, or `base` for other languages): about 140 MB.
+- OpenUtau G2P language pack, when a singer voicebank sings German, French, Spanish, Italian, Portuguese and Russian words its dictionary lacks: 1.7 to 2.6 MB per language, from OpenUtau's GitHub repository at a fixed commit, checked by SHA-256.
 
 Tell the user before the first vocal render that these downloads will happen. If the download host is blocked, the error message names the file and the place to put it by hand. Singer voicebanks are never downloaded by the toolkit. The user supplies them (see `vocals.md`).
 
