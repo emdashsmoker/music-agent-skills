@@ -57,7 +57,7 @@ Where the foreground sits in the track is taste, so it is asked in the planning 
 
 | Style | What it sounds like | Level offsets (LU) | Ducking shift (depth, presence dB) | Vocal window (densest section) |
 |---|---|---|---|---|
-| `forward` | A pop or radio mix: the voice and the backbeat on top of the track | clap +2, snare +1.5, lead +1, vocal +3 | +1, +1 (3.5 and 7.0 by default) | body +1.5 to +10.5, consonants +3.5 or more |
+| `forward` | A pop or radio mix: the voice and the backbeat on top of the track | clap +2.5, snare +2, lead +1, vocal +3 | +1, +1 (3.5 and 7.0 by default) | body +1.5 to +10.5, consonants +3.5 or more |
 | `balanced` (default) | The backbeat and the voice a little forward | clap +1.5, snare +1, vocal +1.5 | 0, 0 (2.5 and 6.0 by default) | body 0 to +9, consonants +2 or more |
 | `blended` | A club mix: the voice and the lead inside the track | lead -1, the rest at the plain role levels | -1, -2 (1.5 and 4.0 by default) | body -2 to +7, consonants 0 or more |
 

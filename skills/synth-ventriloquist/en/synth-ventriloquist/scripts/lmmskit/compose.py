@@ -55,7 +55,7 @@ PEAK_OF_ROLE = {"kick": 0.0, "snare": -1.0, "clap": -3.0, "hat": -7.0, "cymbal":
 # mixing.md): forward lifted the vocal 1.3 to 2.0 dB over the backing, blended lowered it 1.1 to 1.9 dB. A style
 # is a starting point: Part.level_db and Song.duck_for_vocals still move single parts and the ducking.
 MIX_STYLES = {
-    "forward": {"levels": {"clap": 2.0, "snare": 1.5, "lead": 1.0, "vocal": 3.0}, "vocal_duck": (1.0, 1.0), "vocal_window": 1.5},
+    "forward": {"levels": {"clap": 2.5, "snare": 2.0, "lead": 1.0, "vocal": 3.0}, "vocal_duck": (1.0, 1.0), "vocal_window": 1.5},
     "balanced": {"levels": {"clap": 1.5, "snare": 1.0, "vocal": 1.5}, "vocal_duck": (0.0, 0.0), "vocal_window": 0.0},
     "blended": {"levels": {"lead": -1.0}, "vocal_duck": (-1.0, -2.0), "vocal_window": -2.0},
 }
