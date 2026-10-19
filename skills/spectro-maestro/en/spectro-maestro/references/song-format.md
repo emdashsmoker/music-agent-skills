@@ -136,7 +136,7 @@ vox:
     + `bar`, `beat` : where the line starts inside the section
     + `text` : the lyric
     + `notes` : melody notation, one note per syllable
-    + `phonemes` : give the engine's phonetic symbols directly (optional)
+    + `phonemes` : give the engine's phonetic symbols directly (optional). A voicebank ignores an entry that is not in its own symbols and sings the words
 - When the number of syllables and the number of notes differ, `lint` reports it with the syllable count of each word
 - To sing one syllable on several notes, join the notes with `~`
 - Vocal settings and lyric writing rules are in `vocals.md`
