@@ -70,13 +70,13 @@
 
 | Style | What it sounds like | Role `gain_db` offsets | `vocal_carve` shift | Vocal windows |
 |---|---|---|---|---|
-| `forward` | A pop or radio mix: the voice and the backbeat on top of the track | snare +1.5, lead +1, vocal +1.5 | -1.5 (-4 by default) | body 2 - 14, consonants 4 - 16 |
+| `forward` | A pop or radio mix: the voice and the backbeat on top of the track | snare +1.5, lead +1, vocal +1.5 | -1.5 (-4 by default) | body 1 - 13, consonants 3 - 15 |
 | `balanced` (default) | The plain role defaults | none | 0 (-2.5 by default) | body 0 - 12, consonants 2 - 14 |
 | `blended` | A club mix: the voice and the lead inside the track | lead -1, vocal -1.5 | +1.5 (-1 by default) | body -2 - 10, consonants 0 - 12 |
 
 - Why the judging window moves with the style
     + A balance the user chose would otherwise come back as a finding on every render and turn the review into noise
-    + In forward the vocal has to sit 2 dB or more above the body of the backing to count as "in front"; in blended 2 dB under is still the intended place
+    + The shift follows what the offsets did to the measured vocal margins: about 1 dB up in forward, about 2 dB down in blended (measurements below)
 - `studio render --mix-style <name>` overrides the song file's style for that run only
     + Use it to render the same song in each style and compare
 - The values of the three styles were set by rendering test songs in each style
@@ -111,8 +111,8 @@
 | `mono_loss_db` | -3 or higher | Loss of level in mono playback |
 | `drums_vs_rest_db` | -5 - 7 | Low: the beat is buried. High: the beat swallows the mix |
 | `kick_vs_bass_db` | -3 or higher | The bass covers the kick where the kick hits |
-| `vocal_body_db` | 0 - 12 (balanced; ±2 with the mix style) | Low: the vocal is buried. High: the vocal sits apart from the backing |
-| `vocal_consonant_db` | 2 - 14 (balanced; ±2 with the mix style) | Low: the words are masked |
+| `vocal_body_db` | 0 - 12 (balanced; forward +1, blended -2) | Low: the vocal is buried. High: the vocal sits apart from the backing |
+| `vocal_consonant_db` | 2 - 14 (balanced; forward +1, blended -2) | Low: the words are masked |
 | `energy_rank_correlation` | 0.5 or higher | Section loudness does not follow the planned energy curve |
 | `ending_drop_db` | 18 or lower | The song stops dead with the last bar still full |
 | `silences_s` | empty list | Unexpected silence inside the song |
@@ -188,3 +188,21 @@
     + Drum noise, humanize and the small variations of the vocal are all derived from the seed
 - Speech engines and singing models also run with fixed seeds
 - Intermediate results are cached in `build/` of the output folder, so only changed tracks are recomputed
+
+## Measurements behind the mix styles
+- Four vocal songs (the demos Abundance and Coat by the Door, and a futurepop song and a doomer song supplied for the test, all with Kokoro voices) and six instrumentals (the examples First Light and Silver Box, and the four vocal songs with their vocal tracks removed) were rendered in each style
+    + Loudness, limiter work and crest factor agree within 0.1 LU across the three styles: a style moves only level targets and the carve, so the master does not change
+    + In the instrumentals the snare and lead targets move by exactly the offsets (forward +1.5 and +1, blended lead -1), and `drums_vs_rest_db` agrees within 0.5 dB
+- `vocal_body_db` and `vocal_consonant_db` of the vocal songs (whole song; in brackets the section with the lowest consonant margin)
+
+| Song | Balanced body / consonants | Forward body / consonants | Blended body / consonants |
+|---|---|---|---|
+| Abundance | 2.9 / 4.2 (3.2) | 4.1 / 5.1 (3.9) | 1.5 / 2.7 (1.5) |
+| Coat by the Door | 3.9 / 3.9 (2.6) | 5.0 / 5.1 (4.0) | 2.5 / 2.3 (0.9) |
+| Futurepop (test song) | 2.3 / 5.0 (3.9) | 3.5 / 5.7 (4.5) | 1.0 / 3.4 (2.1) |
+| Doomer (test song) | 3.4 / 3.8 (2.5) | 4.3 / 4.7 (3.4) | 2.0 / 2.3 (0.9) |
+
+- Forward lifts the body by 1.0 to 1.2 dB and the consonants by 0.7 to 1.3 dB; blended lowers the body by 1.3 to 2.5 dB and the consonants by 1.5 to 2.2 dB
+    + With the forward window moved up by 2 dB, the lowest section's consonants fell short in three of the four songs, so the window moves by 1 dB
+    + With the blended window moved down by 2 dB, all four songs sit inside it without a finding
+
