@@ -25,6 +25,11 @@ Departures from OpenUtau, each measured on its packs:
   when the word has no note left, adds it to the last one; the skills give one note per written syllable.
 - Such a glide with no symbol in the bank is sung with the symbol of its vowel (Scheme.stand_ins): a bank whose
   Spanish dictionary lacks the semivowel I would otherwise stop at hoy, muy and rey.
+- The German packs write the r after a vowel as a vowel (mehr: m ee ex, für: f ue ex), so der, wir, mehr and Herz
+  each asked for two notes. That r closes its vowel's syllable (Offglide) while the word has more pack vowels than
+  written vowel groups: früher and näher keep their second syllable, and so does the r after a diphthong (Feuer).
+  On the packs' dictionaries this made the vowel count match the spelling for 30088 of 31560 words (22858 before)
+  and 2673 of 2716 (2302 before), and no word that matched before stopped matching.
 """
 from __future__ import annotations
 
@@ -59,12 +64,17 @@ class Scheme:
     lower_dictionary: bool = False    # Spanish pack: dict.txt words are matched lower-cased
     strip_stress: bool = False        # Italian pack: dict.txt and phones.txt symbols carry stress digits
     stand_ins: tuple = ()             # (glide, its vowel or glide): used when the bank has no symbol for the glide
+    vocalised_r: frozenset = frozenset()    # vowel symbols that can be an r closing the vowel before it (German)
+    diphthongs: frozenset = frozenset()     # vowel symbols after which such an r stays a syllable of its own
+    written_vowels: str = ""                # regular expression for one written vowel group of the language
 
 
 def _scheme(lang, pack, sha256, dictionary, letters, symbols, vowels, consonants, **options) -> Scheme:
     return Scheme(lang, pack, sha256, dictionary, letters, tuple(symbols.split()), frozenset(vowels.split()),
                   frozenset(consonants.split()), **options)
 
+
+GERMAN_WRITTEN_VOWELS = r"aa|ee|oo|ie|ei|ai|au|eu|äu|ey|ay|[aeiouäöüy]"
 
 # Tables from OpenUtau.Core/G2p/<Language>G2p.cs and DiffSinger/Phonemizers/DiffSinger<Language>Phonemizer.cs.
 SCHEMES = {
@@ -74,13 +84,15 @@ SCHEMES = {
                 "aa ae ah ao aw ax ay b cc ch d dh ee eh er ex f g hh ih iy jh k l m n ng oe ohh ooh oy p pf q r rr s sh "
                 "t th ts ue uh uw v w x y yy z zh",
                 "aa ae ah ao aw ax ay ee eh er ex ih iy oe ohh ooh oy ue uh uw yy",
-                "b cc ch d dh f g hh jh k l m n ng p pf q r rr s sh t th ts v w x y z zh"),
+                "b cc ch d dh f g hh jh k l m n ng p pf q r rr s sh t th ts v w x y z zh",
+                vocalised_r=frozenset({"ex"}), diphthongs=frozenset({"ay", "aw", "oy"}), written_vowels=GERMAN_WRITTEN_VOWELS),
         _scheme("de", "g2p-de-marzipan.zip", "a991a6aefb2de24e326d186c4dfae4bb7b8c871ae58d29fc379133acc642595c",
                 "dsdict-de-marzipan.yaml", "abcdefghijklmnopqrstuvwxyzäöüß",
                 "a er eh e ih i uh u oh o ueh ue oeh oe ex ei au eu w j p t k f s sh ch xh h pf ts tsh th m n ng b d g v "
                 "z l r dsh zh rh rr rx dh q vf cl",
                 "a er eh e ih i uh u oh o ueh ue oeh oe ex ei au eu",
-                "j p t k f s sh ch xh h pf ts tsh th m n ng b d g v z l r dsh zh rh rr rx dh q vf cl"),
+                "j p t k f s sh ch xh h pf ts tsh th m n ng b d g v z l r dsh zh rh rr rx dh q vf cl",
+                vocalised_r=frozenset({"er"}), diphthongs=frozenset({"ei", "au", "eu"}), written_vowels=GERMAN_WRITTEN_VOWELS),
     ),
     "fr": (
         _scheme("fr", "g2p-fr-millefeuille.zip", "f5407ec5b57441b60a958224e668e7c44326ae34f1b233a13565be4c631bb42d",
@@ -280,8 +292,26 @@ class Route:
         if not found:
             return None
         mapped = [self.mapping.get(s, s) for s in found]
-        return [Offglide(m) if i and s not in self.scheme.vowels and m in self.vowels and found[i - 1] in self.scheme.vowels
+        closing = self._closing_r(word, found)
+        return [Offglide(m) if i in closing or (i and s not in self.scheme.vowels and m in self.vowels
+                                                 and found[i - 1] in self.scheme.vowels)
                 else m for i, (s, m) in enumerate(zip(found, mapped))]
+
+    def _closing_r(self, word: str, found: list) -> set:
+        """Positions of the r-vowels that close the vowel before them (German mehr: m ee ex), leftmost first, while
+        the word has more pack vowels than written vowel groups. After a diphthong the r stays a syllable (Feuer)."""
+        scheme = self.scheme
+        if not scheme.vocalised_r:
+            return set()
+        excess = sum(s in scheme.vowels for s in found) - len(re.findall(scheme.written_vowels, word.lower()))
+        closing = set()
+        for i, s in enumerate(found):
+            if excess <= 0:
+                break
+            if i and s in scheme.vocalised_r and found[i - 1] in scheme.vowels and found[i - 1] not in scheme.diphthongs:
+                closing.add(i)
+                excess -= 1
+        return closing
 
     def _dictionary(self, word: str) -> list | None:
         for form in _forms(word):
