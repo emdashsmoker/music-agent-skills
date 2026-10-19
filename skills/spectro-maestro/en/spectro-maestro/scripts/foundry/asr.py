@@ -18,7 +18,7 @@ from scipy import signal
 from . import settings, speech
 
 ASR_RATE = 16000
-WHISPER_LANGUAGES = {"cmn": "zh"}        # espeak's language names -> the recogniser's, where the two differ
+WHISPER_LANGUAGES = {"cmn": "zh", "nb": "no"}   # espeak's language names -> the recogniser's, where the two differ
 _models = {}
 
 

@@ -134,6 +134,7 @@ Every setting is looked up in this order: an environment variable, a settings fi
 | `stem_workers` | `LMMSKIT_STEM_WORKERS` | Parallel LMMS renders for stems. 0 means one per CPU core. Lower it on a machine the user is working on |
 | `render_timeout_s` | `LMMSKIT_RENDER_TIMEOUT` | Longest a single render may take |
 | `qt_platform` | `QT_QPA_PLATFORM` | Qt platform plugin for rendering, `offscreen` by default |
+| `asr_model` | `LMMSKIT_ASR_MODEL` | faster-whisper model for the vocal checks, `base.en` by default. An English-only model (`.en`) switches to its multilingual twin for lyrics in another language (`base.en` becomes `base`). `sing`, `compare`, `check` and `produce` also take `--asr-model` for one run |
 | `figure_fonts` | `LMMSKIT_FONTS` | Font families tried in order for the figures |
 
 - In a container, set environment variables. Nothing needs to be written.
@@ -160,7 +161,8 @@ Speech and recognition models are downloaded on first use into `cache_dir` and t
 
 - Kokoro speech model with timing output, pinned to a fixed revision: about 330 MB, plus under 1 MB per voice.
 - A Piper voice: 60 to 115 MB each.
-- Recognition model (`base.en`, or `base` for other languages): about 140 MB.
+- Recognition model (`base.en`, or `base` for other languages): about 140 MB. A larger one set with `asr_model` (for example `small`, about 460 MB) downloads on first use.
+- OpenUtau G2P language pack, when a singer voicebank sings German, French, Spanish, Italian, Portuguese and Russian words its dictionary lacks: 1.7 to 2.6 MB per language, from OpenUtau's GitHub repository at a fixed commit, checked by SHA-256.
 
 Tell the user before the first vocal render that these downloads will happen. If the download host is blocked, the error message names the file and the place to put it by hand. Singer voicebanks are never downloaded by the toolkit. The user supplies them (see `vocals.md`).
 

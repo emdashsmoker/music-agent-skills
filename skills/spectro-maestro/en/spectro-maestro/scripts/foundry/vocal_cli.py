@@ -7,6 +7,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import unicodedata
 
 WEAK_SCORE = 0.85
 LINE_TAIL_S = 0.35
@@ -124,6 +125,8 @@ def check_track(project: dict, track: dict, build: str, out_dir: str, plots_for:
                "lag_ms": info.get("lag_ms"), "ending": info.get("ending"), "speed": info.get("speed"),
                "forced_voiced_frames": info.get("forced_voiced_frames"),
                "source_median_midi": info.get("source_median_midi"), "range": f"{info.get('lowest')}..{info.get('highest')}"}
+        if info.get("cut_s"):
+            row["cut_s"] = info["cut_s"]
         if info.get("vowel_spans"):
             row["rough"] = rough_syllables(audio, start, notes, info["vowel_spans"], info.get("syllables", []))
         rows.append(row)
@@ -168,7 +171,8 @@ def cmd_vocal_check(args) -> int:
                 mark = "weak" if r["score"] < WEAK_SCORE else "ok  "
                 fixed = "ending resung" if ending.get("fixed") else ("ending dies" if ending.get("dies") else "")
                 rough = "  ROUGH: " + ", ".join(f"/{x['syllable']}/ {x['problem']}" for x in r["rough"]) if r.get("rough") else ""
-                print(f"  {r['line']:2d} {mark} {r['score']:.2f}  pitch±{r['pitch_error_cents']}c  {r['text']!r} -> {r['heard']!r}  {fixed}{rough}")
+                cut = "  CUT: " + vocal.CUT_ADVICE.format(cut=r["cut_s"]) if r.get("cut_s") else ""
+                print(f"  {r['line']:2d} {mark} {r['score']:.2f}  pitch±{r['pitch_error_cents']}c  {r['text']!r} -> {r['heard']!r}  {fixed}{rough}{cut}")
             voices = [r["source_median_midi"] for r in rows if r["source_median_midi"]]
             if voices:
                 from . import theory
@@ -198,7 +202,9 @@ def cmd_vocal_try(args) -> int:
     os.makedirs(os.path.join(out_dir, "vocals"), exist_ok=True)
     length = line["notes"][-1][0] + line["notes"][-1][1]
     print(f"line {args.line}: {line['text']!r} on {len(line['notes'])} notes")
-    for number, text in enumerate([line["text"]] + list(args.text or [])):
+    # Typed wordings arrive as the terminal sends them; a decomposed one (NFD) lost its accents (schön sung as schon).
+    wordings = [unicodedata.normalize("NFC", text) for text in args.text or []]
+    for number, text in enumerate([line["text"]] + wordings):
         trial = copy.deepcopy(project)
         trial["meta"]["beats"] = length + 8
         trial_track = copy.deepcopy(track)

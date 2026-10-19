@@ -28,9 +28,11 @@ def _sections_in_seconds(plan: dict | None) -> list[tuple[float, str]]:
 
 
 def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs: float | None = None, figures: bool = True,
-          wav_path: str | None = None, vocals: bool = True, stems: dict[str, str] | None = None, mix_style: str | None = None) -> dict:
+          wav_path: str | None = None, vocals: bool = True, stems: dict[str, str] | None = None, mix_style: str | None = None,
+          asr_model: str | None = None) -> dict:
     """Render (unless wav_path and stems are given), run every check and draw the review figures. Returns the report.
-    mix_style overrides the plan file's style for the checks (a compose.MIX_STYLES name)."""
+    mix_style overrides the plan file's style for the checks (a compose.MIX_STYLES name); asr_model picks the
+    recognition model of the vocal check (default: the setting asr_model, else base.en)."""
     os.makedirs(out_dir, exist_ok=True)
     project = Project.load(project_path)
     plan = compose.load_plan(project_path)
@@ -59,7 +61,7 @@ def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs
         folder = os.path.dirname(os.path.abspath(project_path))
         for item in rendered:
             item["stem"] = os.path.join(folder, item["stem"])          # stored relative to the project
-            findings += vocal_part.check_part(item, project.bpm, figure_dir=os.path.join(out_dir, "vocals") if figures else None,
+            findings += vocal_part.check_part(item, project.bpm, asr_model, figure_dir=os.path.join(out_dir, "vocals") if figures else None,
                                               beats_per_bar=project.beats_per_bar)
         vocal_part.save_report(os.path.join(out_dir, "vocals.json"), rendered)
     figure_paths = {}
@@ -87,7 +89,7 @@ def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs
 
 def produce(project_path: str, out_dir: str, genre: str | None = None, target_lufs: float | None = None,
             formats: tuple[str, ...] = AUDIO_FORMATS, balance: bool = True, exports: bool = True, title: str | None = None,
-            repeat_check: bool = True, tone_fit: bool = True, mix_style: str | None = None) -> dict:
+            repeat_check: bool = True, tone_fit: bool = True, mix_style: str | None = None, asr_model: str | None = None) -> dict:
     """Full finishing pass: balance, loudness, checks, figures, audio files, MIDI, DAWproject and JSON.
 
     mix_style overrides the plan file's style (a compose.MIX_STYLES name) for the balance and the checks. The ducking
@@ -108,7 +110,7 @@ def produce(project_path: str, out_dir: str, genre: str | None = None, target_lu
     loudness = log["loudness"]
     # A master held back to keep the limiter clean is judged against the loudness it reached, and the report says so.
     report = check(project_path, out_dir, genre, loudness["reached_lufs"] if loudness["capped"] else target, wav_path=loudness["wav"], stems=stems,
-                   mix_style=style["name"])
+                   mix_style=style["name"], asr_model=asr_model)
     severity = "warn" if loudness["capped"] and loudness["reached_lufs"] < target - CLEAN_LOUDNESS_GAP_LU else "info"
     report["findings"].append(finding(severity, "limiter", f"master limiter cuts {loudness['limiter_reduction_db']} dB from the loudest moments "
                                       f"(limit {mix.MAX_LIMITER_REDUCTION_DB:g}); loudness {loudness['reached_lufs']} LUFS, genre target {target:g}"
