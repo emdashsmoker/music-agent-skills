@@ -8,7 +8,7 @@ license: AGPL-3.0-or-later
 
 > **License.** Copyright (C) 2026 Em Dash Smoker. This skill (its instructions, scripts and example songs) is free software: you may redistribute and modify it under the GNU Affero General Public License, version 3 or (at your option) any later version. It comes without any warranty. The full text is in `LICENSE`.
 >
-> **Third-party notices.** The skill contains no audio. The third-party material in it is the DAWproject schema, MIT-licensed work of Bitwig, and copies of LMMS DrumSynth preset files under GPL-2.0-or-later, kept as the source of the recorded drum hits. LMMS, FFmpeg, the Python packages and the speech models are not part of the skill and are installed separately under their own licenses. The drum kit is made on the user's machine at first use, partly by recording presets of the user's own LMMS. Details: `THIRD_PARTY_NOTICES.md`.
+> **Third-party notices.** The skill contains no audio. The third-party material in it is the DAWproject schema, MIT-licensed work of Bitwig, the G2P tables ported from OpenUtau (MIT, StAkira), and copies of LMMS DrumSynth preset files under GPL-2.0-or-later, kept as the source of the recorded drum hits. LMMS, FFmpeg, the Python packages and the speech models are not part of the skill and are installed separately under their own licenses. The drum kit is made on the user's machine at first use, partly by recording presets of the user's own LMMS. Details: `THIRD_PARTY_NOTICES.md`.
 >
 > **What is made with the skill is not covered.** Songs, audio, MIDI, LMMS and DAW project files, lyrics, figures and reports produced by running the skill belong to the person who made them and are not subject to this license. Voices, voicebanks and samples brought into a song keep their own terms.
 >

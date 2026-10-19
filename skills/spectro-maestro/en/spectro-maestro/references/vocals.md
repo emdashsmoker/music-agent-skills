@@ -76,7 +76,7 @@ vox:
     + A speech voice reads to with a weak vowel, so it sinks on a beat or a long note (see 'Reduced vowels and weak function words' below)
 - Words a pronunciation dictionary is unlikely to hold (proper nouns, invented words, abbreviations, foreign words)
     + A speech voice guesses their pronunciation from the spelling, so it may read them differently than intended
-    + A singing voicebank sings an English word missing from its dictionary with a guessed pronunciation, and in other languages it stops at such a word
+    + A singing voicebank sings a word missing from its dictionary with a guessed pronunciation in English, German, French, Spanish, Italian, Portuguese and Russian, and stops at such a word in other languages
     + Write numbers and symbols out as the words to be sung
     + For a word the song needs, write the line containing it first and listen with `vocal-try`; if it is misread, give that line a `phonemes` entry
     + A `phonemes` entry is written in the symbols of the engine used at the time. After a change of engine, a voicebank ignores an entry that is not in its own symbols, leaves a note and sings the words, so listen again with the new engine and, if needed, write the entry in its symbols
@@ -327,7 +327,7 @@ vocal:
     + When notes sound slightly off, lower `expr` from its default 1.0 (try 0.5)
     + Measured on two voicebanks over 27 lines of two songs: in the first 90 ms of a note the pitch sat a median 21 cents from the written note (105 cents at the 90th percentile) and 14 cents across the held part. With `expr: 0.5` the three figures were 4.2, 9.3 and 4.2 cents and the recognition match rose from 0.94 to 0.95. `pitch: curve` gave 13, 53 and 8.7 cents
 - Pronunciation
-    + Words missing from the voicebank's dictionary are filled in from a general pronouncing dictionary and a grapheme-to-phoneme converter
+    + Words missing from the voicebank's dictionary are filled in: English from a general pronouncing dictionary and a grapheme-to-phoneme converter, German, French, Spanish, Italian, Portuguese and Russian from OpenUtau's G2P (a pronouncing dictionary and a small model per language, downloaded once into `models_dir`, about 2 MB each)
     + A syllable group starts at its vowel, and the first consonant of the next syllable sits at the end of the previous note
 - Reproducibility
     + Every line starts from the same seed, so the same input gives the same sound
@@ -335,7 +335,8 @@ vocal:
 - Lyric spelling
     + The voicebank's dictionary decides the spelling of the lyrics. Japanese dictionaries usually hold kana and Chinese ones pinyin, so write the lyrics that way
     + A word the dictionary lacks stops the line (`lyrics.pronunciation`). Respell it or give the line a `phonemes` entry in the voicebank's own symbols
-    + A bank whose dictionary holds no words of a language (its OpenUtau phonemizer converts them in code) sings that language only through `phonemes`
+    + A bank whose dictionary holds no words of a language (its OpenUtau phonemizer converts them in code) sings German, French, Spanish, Italian, Portuguese and Russian through that G2P, and any other such language only through `phonemes`
+    + In those languages a word with a sound the bank lacks stops the line with an error naming the sound, and a bank that lists its languages refuses one it neither lists nor has a dictionary file for
 - Render time
     + About 10 seconds per line (on a 2-core CPU); results are cached and reused on re-render
 

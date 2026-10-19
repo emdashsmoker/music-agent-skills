@@ -10,7 +10,8 @@ of the voicebank they choose; the agent finds and reads them in the voicebank fo
 before use (references/vocals.md), since their file names follow no convention.
 
 Pipeline per lyric line
-  words -> phonemes (voicebank dictionary, then CMUdict for English, then espeak when available)
+  words -> phonemes (voicebank dictionary, then CMUdict for English, then espeak when available; in German, French,
+           Spanish, Italian, Portuguese and Russian, OpenUtau's G2P (g2p.py) for words the dictionary lacks)
   phonemes -> notes (each vowel starts a note; consonants before it are sung ahead of the beat)
   duration model -> pitch model (or the built-in pitch curve) -> variance model -> acoustic model -> vocoder"""
 from __future__ import annotations
@@ -25,7 +26,7 @@ import unicodedata
 import numpy as np
 import yaml
 
-from . import singing, speech, theory
+from . import g2p, singing, speech, theory
 from .dsp import SR
 
 ENGINE_SEED = speech.ENGINE_SEED
@@ -216,7 +217,10 @@ class Voicebank:
         return self._vocoder
 
     def dictionary(self, lang: str) -> dict:
-        """{'entries': {grapheme: [phonemes]}, 'types': {symbol: type}} from dsdict-<lang>.yaml or dsdict.yaml."""
+        """{'entries': {grapheme: [phonemes]}, 'types': {symbol: type}} from dsdict-<lang>.yaml or dsdict.yaml.
+        For the languages of g2p.LANGUAGES, the dictionary OpenUtau's phonemizer reads, with a G2P 'route'."""
+        if lang not in self._dictionaries and lang in g2p.LANGUAGES:
+            self._dictionaries[lang] = self._g2p_dictionary(lang)
         if lang not in self._dictionaries:
             folder = self.stages["dsdur"].folder
             path = next((p for p in (os.path.join(folder, f"dsdict-{lang}.yaml"), os.path.join(folder, "dsdict.yaml"))
@@ -230,6 +234,42 @@ class Voicebank:
             self._dictionaries[lang] = {"entries": entries, "types": types, "replacements": replacements,
                                         "longest": max((len(g) for g in entries), default=1)}
         return self._dictionaries[lang]
+
+    def _g2p_dictionary(self, lang: str) -> dict:
+        """The bank dictionary for a G2P language (g2p.choose), read as YAML 1.2, and the route for words it lacks.
+        The generic dsdict.yaml lends its symbols, not its words: in multilingual banks those are kana and pinyin."""
+        stage = self.stages["dsdur"]
+        files = {os.path.basename(p): p for p in glob.glob(os.path.join(glob.escape(stage.folder), "dsdict*.yaml"))}
+        own_file = any(name == f"dsdict-{lang}.yaml" or name.startswith(f"dsdict-{lang}-") for name in files)
+        if self.acoustic.languages and lang not in self.acoustic.languages and not own_file:
+            raise DiffSingerError(f"this voicebank does not sing {lang!r}; its languages are {', '.join(sorted(self.acoustic.languages))}")
+        documents = {name: g2p.load_yaml(path) for name, path in files.items()}
+
+        def replacements(document: dict) -> dict:
+            return {str(r["from"]): str(r["to"]) for r in document.get("replacements") or []}
+        use_lang_id = bool(stage.config.get("use_lang_id"))
+        scheme, name = g2p.choose(lang, {n: replacements(d) for n, d in documents.items()}, set(stage.tokens), use_lang_id)
+        document = documents.get(name) or {}
+        entries = {} if name == g2p.GENERIC_DICTIONARY else \
+            {str(e["grapheme"]): [str(p) for p in e["phonemes"]] for e in document.get("entries") or []}
+        types = {str(s["symbol"]): str(s["type"]) for s in document.get("symbols") or []}
+
+        def load_pack():
+            try:
+                return g2p.pack(scheme, os.path.join(speech.models_dir(), "g2p"), speech.fetch)
+            except ValueError as error:                 # the downloaded pack is not the pinned one
+                raise DiffSingerError(str(error)) from error
+        route = g2p.Route(scheme, load_pack, entries, replacements(document), set(stage.tokens), use_lang_id,
+                          {s for s, kind in types.items() if kind == "vowel"})
+        for symbol, kind in route.kinds().items():
+            types.setdefault(symbol, kind)
+        return {"entries": entries, "types": types, "replacements": replacements(document),
+                "longest": max((len(g) for g in entries), default=1), "route": route}
+
+    def singable(self, symbols: list) -> list:
+        """The symbols some model of the bank has no token for (a pitch model can lack symbols the duration model has)."""
+        stages = [self.acoustic] + list(self.stages.values())
+        return sorted({s for s in symbols if any(s not in stage.tokens for stage in stages)})
 
 
 _banks = {}
@@ -312,6 +352,16 @@ def word_phonemes(bank: Voicebank, word: str, lang: str) -> list:
                     raise DiffSingerError(f"word {word!r}: phoneme {phoneme!r} has no match in this voicebank")
                 out.append(mapped)
             return out
+    if "route" in book:                                 # German, French, Spanish, Italian, Portuguese, Russian
+        found = book["route"].phonemes(clean)
+        if not found:
+            raise DiffSingerError(f"cannot pronounce {word!r} in {lang}: it has no letters the {lang} G2P reads. "
+                                  f"Give the line a 'phonemes' entry in the voicebank's own symbols.")
+        missing = bank.singable(found)
+        if missing:
+            raise DiffSingerError(f"word {word!r} ({' '.join(found)}): this voicebank has no {', '.join(missing)} for {lang}. "
+                                  f"Respell the word or give the line a 'phonemes' entry in the voicebank's own symbols.")
+        return found
     # Scripts without spaces between syllables (kana, hangul, hanzi): longest dictionary match from the left.
     out, index = [], 0
     while index < len(clean):
@@ -347,6 +397,8 @@ def line_words(bank: Voicebank, line: dict, lang: str) -> list:
 
 
 def _is_vowel(bank: Voicebank, lang: str, symbol: str) -> bool:
+    if isinstance(symbol, g2p.Offglide):               # sung at the end of the syllable before it
+        return False
     kind = bank.dictionary(lang)["types"].get(symbol)
     if kind is None:
         return symbol.split("/")[-1] in ARPABET_VOWELS
@@ -354,6 +406,8 @@ def _is_vowel(bank: Voicebank, lang: str, symbol: str) -> bool:
 
 
 def _is_glide(bank: Voicebank, lang: str, symbol: str) -> bool:
+    if isinstance(symbol, g2p.Offglide):
+        return True
     return bank.dictionary(lang)["types"].get(symbol) in ("semivowel", "liquid")
 
 

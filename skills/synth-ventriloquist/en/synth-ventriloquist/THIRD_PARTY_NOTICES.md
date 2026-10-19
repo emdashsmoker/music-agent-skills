@@ -7,6 +7,7 @@ Synth Ventriloquist is Copyright (C) 2026 Em Dash Smoker and is licensed under t
 | What | Where | Origin | License |
 |---|---|---|---|
 | DAWproject schema files | `scripts/lmmskit/schemas/Project.xsd`, `MetaData.xsd` | Copyright (c) 2020 Bitwig, https://github.com/bitwig/dawproject | MIT, full text in `scripts/lmmskit/schemas/LICENSE-dawproject.txt` |
+| OpenUtau's G2P: letter and phoneme tables, phonemizer symbol lists and decoding steps, ported to Python | `scripts/lmmskit/vocal/g2p.py` | OpenUtau, Copyright (c) 2014 StAkira, https://github.com/stakira/OpenUtau | MIT, full text in `scripts/lmmskit/vocal/LICENSE-openutau.txt` |
 | DrumSynth preset files (69 `.ds` files, text) | `scripts/lmmskit/drumsynth/` | LMMS 1.2.2, https://github.com/LMMS/lmms/tree/v1.2.2/data/samples/drumsynth, DrumSynth (c) 1998-2000 Paul Kellett, mda-vst.com, and the LMMS developers | GPL-2.0-or-later, full text in `scripts/lmmskit/drumsynth/COPYING` |
 
 The preset files are carried unchanged as the source of the recorded drum-machine hits (next section), so that the hits can be passed on together with their source. The skill does not play them: recordings are always made from the presets of the installed LMMS.
@@ -41,6 +42,7 @@ The skill starts these as separate programs or loads them as libraries. None of 
 | pyworld, WORLD vocoder | Turning speech into singing | MIT, modified BSD |
 | faster-whisper, Whisper models | Recognition check of sung lines | MIT |
 | PyYAML | Reading singer voicebank settings | MIT |
+| OpenUtau G2P language packs (downloaded on first use) | German, French, Spanish, Italian, Portuguese and Russian words missing from a singer voicebank's dictionary | MIT (OpenUtau repository) |
 | xmlschema | Validating DAWproject files | MIT |
 | imageio-ffmpeg | An optional way to obtain FFmpeg | BSD-2-Clause, and it downloads an FFmpeg build |
 

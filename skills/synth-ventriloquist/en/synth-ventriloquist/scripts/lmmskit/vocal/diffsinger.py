@@ -7,7 +7,8 @@ speaker embeddings and ONNX models for duration, pitch, variance, acoustic featu
 Nothing here downloads or names a voicebank; every bank comes with its own terms, which the user
 must read and accept before it is used (the agent finds them in the folder: references/vocals.md).
 
-Pipeline: words -> phonemes (bank dictionary, then a built-in English fallback) -> phoneme lengths
+Pipeline: words -> phonemes (bank dictionary, then a built-in English fallback; in German, French, Spanish,
+Italian, Portuguese and Russian, OpenUtau's G2P (g2p.py) for words the dictionary lacks) -> phoneme lengths
 (duration model, then fitted so every vowel starts on its note) -> pitch curve (the bank's pitch
 model) -> breathiness / voicing / tension (variance model) -> mel spectrogram (acoustic model) ->
 waveform (vocoder).
@@ -23,6 +24,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from . import g2p
 from .phones import merge_tokens, to_arpabet
 from .singing import LEGATO_GAP_S, OUTPUT_SR, Style, SungLine, SungNote, _finish
 
@@ -103,6 +105,7 @@ class Voicebank:
         self.hop = int(self.acoustic.config.get("hop_size", 512))
         self.frame_s = self.hop / self.sample_rate
         self._dictionaries: dict[str, tuple[dict, dict]] = {}
+        self._routes: dict[str, g2p.Route] = {}
 
     # -- loading ----------------------------------------------------------------------------------
     def _stage(self, folder: str) -> _Stage:
@@ -169,7 +172,10 @@ class Voicebank:
 
     # -- words to phonemes ------------------------------------------------------------------------
     def _dictionary(self, lang: str) -> tuple[dict, dict]:
-        """(word -> phonemes, phoneme -> type) from dsdict-<lang>.yaml, else the bank's generic dsdict.yaml."""
+        """(word -> phonemes, phoneme -> type) from dsdict-<lang>.yaml, else the bank's generic dsdict.yaml.
+        For the languages of g2p.LANGUAGES, the dictionary OpenUtau's phonemizer reads (_g2p_dictionary)."""
+        if lang not in self._dictionaries and lang in g2p.LANGUAGES:
+            self._dictionaries[lang] = self._g2p_dictionary(lang)
         if lang not in self._dictionaries:
             entries, kinds = {}, {}
             for name in (f"dsdict-{lang}.yaml", "dsdict.yaml"):
@@ -185,6 +191,39 @@ class Voicebank:
                     break
             self._dictionaries[lang] = (entries, kinds)
         return self._dictionaries[lang]
+
+    def _g2p_dictionary(self, lang: str) -> tuple[dict, dict]:
+        """The bank dictionary for a G2P language (g2p.choose), read as YAML 1.2, plus the route for words it lacks.
+        Ported from Spectro Maestro's Voicebank._g2p_dictionary (same author, AGPL-3.0-or-later). A language file
+        with no words still counts as the language's dictionary, and the generic dsdict.yaml lends its symbols, not
+        its words: in multilingual banks those are kana and pinyin, which sang French as Japanese."""
+        from . import tts
+        files = {os.path.basename(p): p for p in glob.glob(os.path.join(glob.escape(self.duration.folder), "dsdict*.yaml"))}
+        own_file = any(name == f"dsdict-{lang}.yaml" or name.startswith(f"dsdict-{lang}-") for name in files)
+        if self.acoustic.languages and lang not in self.acoustic.languages and not own_file:
+            raise KeyError(f"this voicebank does not sing '{lang}'; its languages are {', '.join(sorted(self.acoustic.languages))}")
+        documents = {name: g2p.load_yaml(path) for name, path in files.items()}
+
+        def replacements(document: dict) -> dict:
+            return {str(r["from"]): str(r["to"]) for r in document.get("replacements") or []}
+        use_lang_id = bool(self.duration.config.get("use_lang_id"))
+        tokens = set(self.duration.phonemes)
+        scheme, name = g2p.choose(lang, {n: replacements(d) for n, d in documents.items()}, tokens, use_lang_id)
+        document = documents.get(name) or {}
+        entries = {} if name == g2p.GENERIC_DICTIONARY else \
+            {str(e["grapheme"]).lower(): [str(p) for p in e["phonemes"]] for e in document.get("entries") or []}
+        kinds = {str(s["symbol"]): s.get("type", "") for s in document.get("symbols") or []}
+        route = g2p.Route(scheme, lambda: g2p.pack(scheme, tts.cache_dir("g2p"), tts.fetch), entries,
+                          replacements(document), tokens, use_lang_id, {s for s, kind in kinds.items() if kind == VOWEL_TYPE})
+        for symbol, kind in route.kinds().items():
+            kinds.setdefault(symbol, kind)
+        self._routes[lang] = route
+        return entries, kinds
+
+    def _unsingable(self, phonemes: list[str]) -> list[str]:
+        """The phonemes some model of the bank has no token for (a pitch model can lack symbols the duration model has)."""
+        stages = [stage for stage in (self.duration, self.pitch, self.variance, self.acoustic) if stage is not None]
+        return sorted({p for p in phonemes if any(p not in stage.phonemes for stage in stages)})
 
     def _known(self, phoneme: str, lang: str) -> str | None:
         table = self.acoustic.phonemes
@@ -221,13 +260,31 @@ class Voicebank:
             if pieces is not None:
                 result += [[self._known(p.split("/")[-1], lang) or p for p in piece] for piece in pieces]
                 continue
+            if lang in self._routes:                   # German, French, Spanish, Italian, Portuguese, Russian
+                result.append(self._route_phonemes(word, lang))
+                continue
             fallback = self._fallback_english(word) if lang == "en" else None
             if fallback is None:
                 raise KeyError(f"the voicebank's {lang} dictionary has no entry for '{word}'; respell it or choose another word")
             result.append(fallback)
         return result
 
+    def _route_phonemes(self, word: str, lang: str) -> list[str]:
+        """A word the bank's dictionary lacks, through OpenUtau's G2P for the language (g2p.Route)."""
+        try:
+            found = self._routes[lang].phonemes(word)
+        except ValueError as error:                     # the downloaded pack is not the pinned one
+            raise KeyError(str(error)) from error
+        if not found:
+            raise KeyError(f"'{word}' has no letters the {lang} G2P reads; respell it or choose another word")
+        missing = self._unsingable(found)
+        if missing:
+            raise KeyError(f"'{word}' ({' '.join(found)}): this voicebank has no {', '.join(missing)} for {lang}; respell it or choose another word")
+        return found
+
     def is_vowel(self, phoneme: str, lang: str) -> bool:
+        if isinstance(phoneme, g2p.Offglide):          # sung at the end of the syllable before it
+            return False
         _, kinds = self._dictionary(lang)
         return kinds.get(phoneme, kinds.get(phoneme.split("/")[-1], "")) == VOWEL_TYPE
 
