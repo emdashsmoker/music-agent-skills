@@ -145,11 +145,12 @@ def cmd_lint(args) -> int:
 
 
 def cmd_render(args) -> int:
-    from foundry import mixer, plots, qa
+    from foundry import mixer, mixprofile, plots, qa
     started = time.time()
     try:
         project = songfile.load(args.song, args.sections)
-    except (spec.SpecError, KeyError) as error:
+        style = mixprofile.style_of(project, args.mix_style)
+    except (spec.SpecError, KeyError, ValueError) as error:
         return _fail(error)
     out_dir = _out_dir(args)
     build = os.path.join(out_dir, "build")
@@ -157,7 +158,7 @@ def cmd_render(args) -> int:
     profile = genres.profile_of(project["meta"].get("genre"))
     only = [name.strip() for name in args.only.split(",")] if args.only else None
     stem_dir = os.path.join(out_dir, "stems")
-    rendered = mixer.render(project, build, profile, only, stem_dir if args.stems else None)
+    rendered = mixer.render(project, build, profile, only, stem_dir if args.stems else None, style)
     name = os.path.splitext(os.path.basename(args.song))[0].replace(".project", "")
     written = []
     for fmt in [f.strip() for f in args.formats.split(",") if f.strip()]:
@@ -170,8 +171,8 @@ def cmd_render(args) -> int:
     if not args.no_qa:
         qa_dir = os.path.join(out_dir, "qa")
         metrics = qa.measure(project, rendered)
-        found = qa.findings(metrics, profile.get("qa"))
-        report.update({"metrics": metrics, "findings": found})
+        found = qa.findings(metrics, qa.thresholds_for(profile.get("qa"), style["vocal_window"]))
+        report.update({"metrics": metrics, "findings": found, "mix_style": style["name"]})
         pictures = [plots.overview(project, rendered, os.path.join(qa_dir, "overview.png")),
                     plots.spectrogram(rendered["master"], os.path.join(qa_dir, "spectrogram.png"), project),
                     plots.spectrum(rendered, os.path.join(qa_dir, "spectrum.png"),
@@ -328,6 +329,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--only", help="render only these tracks")
     p.add_argument("--stems", action="store_true", help="also write one stem per track")
     p.add_argument("--no-qa", action="store_true")
+    p.add_argument("--mix-style", choices=("forward", "vocal", "backbeat", "balanced", "blended"), default=None,
+                   help="where the foreground sits, overriding the song's mix.style (default: balanced)")
     p.add_argument("--models", help="directory holding voice models")
     p.set_defaults(run=cmd_render)
 

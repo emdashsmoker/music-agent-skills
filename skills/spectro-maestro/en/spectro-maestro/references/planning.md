@@ -17,7 +17,8 @@
 | Structure | The genre's standard structure | Present the section list and bar counts as a table |
 | Vocals | None | If wanted, ask the vocal questions below |
 | Delivery formats | ogg, mp3, MIDI, the song file and the project JSON | wav, flac, stems, LMMS and DAWproject on request |
-| Loudness target | Genre profile | Reflect a stated purpose such as streaming or club play |
+| Mix style | Balanced, flexible | Where the foreground (the backbeat, the lead, the lead vocal) sits in the track. Forward is a pop or radio mix, vocal puts only the voice and the lead forward (where the vocal demos sit), backbeat only the backbeat, balanced is the default, blended a club mix. Offer instrumentals the list without vocal. Adherence is flexible (the style is a starting point, adjusted 1 to 2 dB at a time as the review asks) or fixed (the foreground parts and the carve stay at the style's values). Record the choice as `mix.style` and in `notes` (Mix styles in `mixing-qa.md`) |
+| Loudness target | Genre profile | Reflect a stated purpose such as streaming or club play. For a hot master raise the target by 1 to 2 LU and watch `limiter_p95_db` for overwork |
 - Extra questions when there are vocals
     + Engine and voice (show the `voices` list, ask whether the user has a singing voicebank)
     + Language
@@ -36,6 +37,7 @@ Structure : intro 8 - verse 16 - chorus 16 - ... (N bars in total, M min S s)
 Chords : verse i VI III VII / chorus VI VII i i
 Core idea : (one or two lines on the hook, the timbre, the development)
 Vocals : engine, voice, range, lyric theme
+Mix : style (balanced), adherence (flexible), loudness target
 Deliverables : ogg, mp3, MIDI, song file, project JSON, ...
 ```
 - Show this summary to the user and start composing after it is confirmed

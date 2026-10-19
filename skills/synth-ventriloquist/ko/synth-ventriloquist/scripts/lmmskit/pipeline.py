@@ -28,12 +28,14 @@ def _sections_in_seconds(plan: dict | None) -> list[tuple[float, str]]:
 
 
 def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs: float | None = None, figures: bool = True,
-          wav_path: str | None = None, vocals: bool = True, stems: dict[str, str] | None = None) -> dict:
-    """Render (unless wav_path and stems are given), run every check and draw the review figures. Returns the report."""
+          wav_path: str | None = None, vocals: bool = True, stems: dict[str, str] | None = None, mix_style: str | None = None) -> dict:
+    """Render (unless wav_path and stems are given), run every check and draw the review figures. Returns the report.
+    mix_style overrides the plan file's style for the checks (a compose.MIX_STYLES name)."""
     os.makedirs(out_dir, exist_ok=True)
     project = Project.load(project_path)
     plan = compose.load_plan(project_path)
     genre = genre or (plan or {}).get("genre")
+    style = mix.style_of(plan, mix_style)
     roles = mix.roles_of(project_path, project)
     role_names = {name: info["role"] for name, info in roles.items()}
     wav = wav_path or os.path.join(out_dir, "mix.wav")
@@ -50,7 +52,7 @@ def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs
         with open(vocal_file, encoding="utf-8") as handle:
             rendered = json.load(handle)
     sung = [(row["audio_start_s"], row["audio_end_s"]) for item in rendered or [] if item["role"] == "vocal" for row in item["lines"]]
-    findings += mix.check_stems(stems, roles, genre, plan, sung or None)
+    findings += mix.check_stems(stems, roles, genre, plan, sung or None, style)
     findings += mix.check_sections(x, rate, plan)
     if rendered is not None:
         from .vocal import part as vocal_part
@@ -74,8 +76,8 @@ def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs
             "stems": visual.stem_spectra({n: p for n, p in stems.items() if "trigger" not in n.lower()}, os.path.join(out_dir, "fig_stems.png"),
                                          highlight=[n for n, r in role_names.items() if r in ("vocal", "kick")], title="average spectrum of every part"),
         }
-    report = {"project": project_path, "genre": genre, "worst": worst(findings), "findings": findings, "figures": figure_paths,
-              "wav": wav, "stems": stems}
+    report = {"project": project_path, "genre": genre, "mix_style": style["name"], "worst": worst(findings), "findings": findings,
+              "figures": figure_paths, "wav": wav, "stems": stems}
     with open(os.path.join(out_dir, "report.json"), "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=1, ensure_ascii=False, default=float)
     with open(os.path.join(out_dir, "report.txt"), "w", encoding="utf-8") as handle:
@@ -85,22 +87,28 @@ def check(project_path: str, out_dir: str, genre: str | None = None, target_lufs
 
 def produce(project_path: str, out_dir: str, genre: str | None = None, target_lufs: float | None = None,
             formats: tuple[str, ...] = AUDIO_FORMATS, balance: bool = True, exports: bool = True, title: str | None = None,
-            repeat_check: bool = True, tone_fit: bool = True) -> dict:
-    """Full finishing pass: balance, loudness, checks, figures, audio files, MIDI, DAWproject and JSON."""
+            repeat_check: bool = True, tone_fit: bool = True, mix_style: str | None = None) -> dict:
+    """Full finishing pass: balance, loudness, checks, figures, audio files, MIDI, DAWproject and JSON.
+
+    mix_style overrides the plan file's style (a compose.MIX_STYLES name) for the balance and the checks. The ducking
+    under sung lines is written when the song script saves the project, so a vocal song changes style in the script.
+    """
     os.makedirs(out_dir, exist_ok=True)
     plan = compose.load_plan(project_path)
     genre = genre or (plan or {}).get("genre")
     target = target_lufs if target_lufs is not None else genres.get(genre)["lufs"]
+    style = mix.style_of(plan, mix_style)
     log = {}
     if balance:
-        log["balance"] = mix.balance(project_path, out_dir, genre, tone_fit=tone_fit)
+        log["balance"] = mix.balance(project_path, out_dir, genre, tone_fit=tone_fit, style=style)
         stems = log["balance"].pop("stems")
     else:
         stems = mix.render_stems(project_path, os.path.join(out_dir, "stems"))
     log["loudness"] = mix.master_to_loudness(project_path, out_dir, target)
     loudness = log["loudness"]
     # A master held back to keep the limiter clean is judged against the loudness it reached, and the report says so.
-    report = check(project_path, out_dir, genre, loudness["reached_lufs"] if loudness["capped"] else target, wav_path=loudness["wav"], stems=stems)
+    report = check(project_path, out_dir, genre, loudness["reached_lufs"] if loudness["capped"] else target, wav_path=loudness["wav"], stems=stems,
+                   mix_style=style["name"])
     severity = "warn" if loudness["capped"] and loudness["reached_lufs"] < target - CLEAN_LOUDNESS_GAP_LU else "info"
     report["findings"].append(finding(severity, "limiter", f"master limiter cuts {loudness['limiter_reduction_db']} dB from the loudest moments "
                                       f"(limit {mix.MAX_LIMITER_REDUCTION_DB:g}); loudness {loudness['reached_lufs']} LUFS, genre target {target:g}"
