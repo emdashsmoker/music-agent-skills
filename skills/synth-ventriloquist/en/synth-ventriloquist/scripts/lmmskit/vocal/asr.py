@@ -20,7 +20,7 @@ PADDINGS_S = (0.0, 0.25, 0.5)             # silence added around a line for the 
 MORE_PADDINGS_S = tuple(i * 0.0625 for i in range(9) if i not in (0, 4, 8))   # the six extra passes when the first three disagree
 STEADY_SPREAD = 0.1                       # first passes within this of each other need no extra passes
 ASR_SAMPLE_RATE = 16000
-WHISPER_LANGUAGES = {"cmn": "zh"}        # espeak's language names -> the recogniser's, where the two differ
+WHISPER_LANGUAGES = {"cmn": "zh", "nb": "no"}   # espeak's language names -> the recogniser's, where the two differ
 _models: dict[str, object] = {}
 
 

@@ -33,7 +33,9 @@ SIBILANT_SHARE = 0.35           # share of energy above 4 kHz that marks a sibil
 SILENCE_DB = -45.0
 KOKORO_LANG = {"a": "en-us", "b": "en-gb", "e": "es", "f": "fr-fr", "h": "hi", "i": "it", "p": "pt-br",
                "j": "ja", "z": "cmn"}
-ESPEAK_LANGUAGES = {"zh": "cmn"}       # a song's language code -> espeak's name for it, where the two differ
+ESPEAK_LANGUAGES = {"zh": "cmn", "fr": "fr-fr", "no": "nb", "nn": "nb"}   # a song's language code -> espeak's name for it, where the two differ
+# Vowels Kokoro has no symbol for, and the nearest it has: dropped, they took their syllable with them (German Glück).
+KOKORO_FALLBACK_VOWELS = {"ʏ": "y", "ɵ": "ø", "ʉ": "u"}
 # espeak marks the words it reads with another language's rules, e.g. "(en)tʃˈaɪniːz(ja)lˈetə" for a kanji in Japanese.
 # Kokoro's tokenizer keeps those marks, and the voice sang them as letters: "(ko)" became an extra syllable "ko".
 LANGUAGE_SWITCH = re.compile(r"\([a-z]+\)")
@@ -51,10 +53,11 @@ def espeak_language(lang: str | None, voice: str) -> str:
 
 def _vocab_phonemes(tokenizer, text: str, lang: str) -> str:
     """What Kokoro's tokenizer.phonemize returns, except that a letter outside its vocabulary keeps its base letter.
-    espeak writes the Japanese a as the precomposed ä, which the tokenizer dropped: every a of a Japanese line went unsung."""
+    espeak writes the Japanese a as the precomposed ä, which the tokenizer dropped: every a of a Japanese line went unsung.
+    A vowel with no base letter in the vocabulary takes the nearest vowel (KOKORO_FALLBACK_VOWELS)."""
     import phonemizer
     raw = phonemizer.phonemize(text.strip(), lang, preserve_punctuation=True, with_stress=True)    # as the tokenizer runs it
-    kept = "".join(c if c in tokenizer.vocab else unicodedata.normalize("NFD", c) for c in raw)
+    kept = "".join(c if c in tokenizer.vocab else KOKORO_FALLBACK_VOWELS.get(c) or unicodedata.normalize("NFD", c) for c in raw)
     return "".join(c for c in kept if c in tokenizer.vocab).strip()
 
 

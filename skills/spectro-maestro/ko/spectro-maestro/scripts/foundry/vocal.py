@@ -82,9 +82,9 @@ def _speed_for(notes: list, config: dict) -> float:
 class LineSource:
     """Everything known about one spoken line: unit (aligned), WORLD analysis, syllables."""
 
-    def __init__(self, unit, analysis: dict, frames: dict, key: str):
+    def __init__(self, unit, analysis: dict, frames: dict, key: str, lang: str | None = None):
         self.unit, self.analysis, self.frames, self.key = unit, analysis, frames, key
-        self.syllables = phonetics.syllabify(unit.phones)
+        self.syllables = phonetics.syllabify(unit.phones, lang)
 
 
 def _raw_unit(backend, cache: speech.UnitCache, phones: str, speed: float) -> tuple:
@@ -114,7 +114,7 @@ def _raw_unit(backend, cache: speech.UnitCache, phones: str, speed: float) -> tu
 def _aligned(backend, cache, phones: str, speed: float, fallback_lag: float | None) -> LineSource:
     unit, frames, analysis, key = _raw_unit(backend, cache, phones, speed)
     speech.align_unit(unit, frames, None if fallback_lag is None else fallback_lag / speed)
-    source = LineSource(unit, analysis, frames, key)
+    source = LineSource(unit, analysis, frames, key, backend.lang)
     unit.info["vowel_edges_moved"] = singing.settle_vowels(unit.phones, source.syllables, analysis)
     return source
 
@@ -211,7 +211,7 @@ def with_sung_ending(backend, cache, source: LineSource, text: str, speed: float
     analysis = {k: (v[:n] if k != "sr" else v) for k, v in analysis.items()}
     frames = {name: values[:n] for name, values in frames.items()}
     frames["voiced"] = analysis["f0"] > 0
-    return LineSource(unit, analysis, frames, source.key + ".ending")
+    return LineSource(unit, analysis, frames, source.key + ".ending", backend.lang)
 
 
 # ---------------------------------------------------------------- one line, one take
@@ -491,6 +491,7 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                 issue("error", "vocal.engine", track["name"], f"cannot load {config['engine']}:{config['voice']} ({error})")
                 continue
         endings, low, high = [], 127, 0
+        language = backend.lang if backend is not None else config.get("lang")
         for number, line in enumerate(track.get("lines", [])):
             where = f"{track['name']} line {number + 1} {line['text']!r}"
             if bank is not None:
@@ -506,7 +507,7 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                     continue
             symbols = ["^"] + list(phones) + ["$"]
             plist = phonetics.phones_from_tokens(symbols, [0.05] * len(symbols))
-            syllables = phonetics.syllabify(plist)
+            syllables = phonetics.syllabify(plist, language)
             groups = singing.note_groups(_line_seconds(line, spb))
             if len(syllables) != len(groups):
                 if backend is None:                     # the bank's own lint has reported it with the bank's spelling
@@ -515,7 +516,7 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                 for word in line["text"].split():
                     alone = backend.phonemize(word)
                     wp = phonetics.phones_from_tokens(list(alone), [0.05] * len(alone))
-                    words.append(f"{word}={len(phonetics.syllabify(wp))}")
+                    words.append(f"{word}={len(phonetics.syllabify(wp, language))}")
                 issue("error", "lyrics.syllables", where,
                       f"spoken in {len(syllables)} syllables but {len(groups)} notes. Per word: {' '.join(words)}. "
                       f"Syllables: {' | '.join(phonetics.syllable_text(plist, s) for s in syllables)}")

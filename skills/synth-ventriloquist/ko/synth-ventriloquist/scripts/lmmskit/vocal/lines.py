@@ -133,7 +133,7 @@ def speak_line(voice: str, text: str, speed: float = 1.0, seed: int = 0, cache: 
     backend = tts.backend(voice, lang)
     unit = tts.speak(voice, text, speed, seed, cache, lang)
     analysis = _analysis(unit, cache, tts.unit_key(backend.identity, text, speed, seed))
-    report = ending.ending_report(unit, analysis[0])
+    report = ending.ending_report(unit, analysis[0], lang)
     report["repaired"] = False
     if fix_ending and report["dying"]:
         key = tts.unit_key(backend.identity + ":ending", text, speed, seed)
@@ -144,12 +144,12 @@ def speak_line(voice: str, text: str, speed: float = 1.0, seed: int = 0, cache: 
         elif marker and os.path.exists(marker):
             fixed = None
         else:
-            fixed = ending.repair(backend, unit, speed, seed)
+            fixed = ending.repair(backend, unit, speed, seed, lang)
             if path:
                 tts.save_unit(path, fixed) if fixed is not None else open(marker, "w").close()
         if fixed is not None:
             unit, analysis = fixed, _analysis(fixed, cache, key)
-            report.update({"repaired": True, "after": ending.ending_report(fixed, analysis[0])})
+            report.update({"repaired": True, "after": ending.ending_report(fixed, analysis[0], lang)})
     return unit, analysis, report
 
 
@@ -174,7 +174,7 @@ def sing_line(voice: str, line: Line, bpm: float, *, key: str | None = None, spe
     melody = harmonize(line.melody, key, line.harmony) if line.harmony and key else line.melody
     groups, lead_beats, _ = note_groups(melody, bpm)
     unit, analysis, ending_info = speak_line(voice, line.text, speed, style.seed, cache, fix_ending, lang)
-    sung = singing.sing(unit, groups, style, analysis)
+    sung = singing.sing(unit, groups, style, analysis, lang)
     report = {"text": line.text, "lag_ms": round(unit.lag * 1000), "snapped": unit.snapped, "ending": ending_info,
               "natural_pitch": theory.name(int(round(singing.natural_pitch(unit, analysis)))), "lead_rest_beats": lead_beats,
               "squeezed_syllables": [item["text"] for item in sung.layout if item["squeezed"]]}
