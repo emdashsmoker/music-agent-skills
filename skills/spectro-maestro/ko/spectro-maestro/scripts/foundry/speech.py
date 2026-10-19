@@ -42,12 +42,15 @@ LANGUAGE_SWITCH = re.compile(r"\([a-z]+\)")
 
 
 def espeak_language(lang: str | None, voice: str) -> str:
-    """espeak language for a Kokoro voice: its own without `lang`, its own English accent for 'en', espeak's name otherwise."""
+    """espeak language for a Kokoro voice: its own without `lang` and for its own language (pt with pf_dora reads
+    Brazilian Portuguese), its own English accent for 'en', espeak's name otherwise."""
     own = KOKORO_LANG.get(voice[0], "en-us")
     if not lang:
         return own
     if lang.lower() == "en":
         return own if own.startswith("en") else "en-us"
+    if lang.lower() == own.split("-")[0]:
+        return own
     return ESPEAK_LANGUAGES.get(lang.lower(), lang.lower())
 
 
