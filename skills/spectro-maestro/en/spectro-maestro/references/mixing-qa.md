@@ -66,7 +66,7 @@
 - Where the foreground (the backbeat, the lead, the lead vocal) sits in the track is taste, so it is asked in the plan and recorded as `mix.style` in the song file
     + An instrumental moves only the backbeat and the lead; a vocal song moves the vocal level, `vocal_carve` and the judging window with them
     + Brightness, space and the other values of the genre profile stay as they are
-    + Vocal and backbeat are the two halves of forward. In an instrumental vocal only lifts the lead by 1 dB, so it is not offered for instrumentals
+    + Vocal and backbeat are the two halves of forward. In an instrumental vocal only lifts the lead by 1 dB, so it is not offered for instrumentals. Backbeat acts on the snare role only, so it is not offered for a song that runs on kick and hats alone
 - The offsets of the styles
 
 | Style | What it sounds like | Role `gain_db` offsets | `vocal_carve` shift | Vocal windows |

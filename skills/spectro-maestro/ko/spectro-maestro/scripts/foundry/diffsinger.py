@@ -328,9 +328,19 @@ def word_phonemes(bank: Voicebank, word: str, lang: str) -> list:
 
 
 def line_words(bank: Voicebank, line: dict, lang: str) -> list:
-    """[[phonemes of word 1], ...]. A line may carry 'phonemes': 'en/hh en/ah | en/l en/ow' to override."""
+    """[[phonemes of word 1], ...]. A line may carry 'phonemes': 'en/hh en/ah | en/l en/ow' to override.
+
+    An override is used only when every symbol is one of this voicebank's. A song moved from a speech voice keeps
+    that engine's IPA in the entry; read as bank symbols it collapsed a line into one syllable and stopped the
+    render, so such an entry is ignored with a note and the line is sung from its words.
+    """
     if line.get("phonemes"):
-        return [chunk.split() for chunk in str(line["phonemes"]).split("|") if chunk.strip()]
+        tokens = bank.stages["dsdur"].tokens
+        groups = [[s if s in tokens else f"{lang}/{s}" for s in chunk.split()] for chunk in str(line["phonemes"]).split("|") if chunk.strip()]
+        if all(s in tokens for group in groups for s in group):
+            return groups
+        print(f"[vocal] {line['text']!r}: its phonemes entry is not written in this voicebank's symbols (another engine's?), "
+              "so the line is sung from its words", flush=True)
     # Punctuation outside ASCII (、。，！？「」) separates words like its ASCII forms; the typographic apostrophe stays in a word.
     text = "".join(" " if c != "’" and not c.isascii() and unicodedata.category(c).startswith("P") else c for c in line["text"])
     return [p for p in (word_phonemes(bank, word, lang) for word in re.split(r"[\s\-]+", text)) if p]
