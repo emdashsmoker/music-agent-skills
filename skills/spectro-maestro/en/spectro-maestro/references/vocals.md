@@ -23,7 +23,7 @@
     + Default male voice : `kokoro` / `am_michael`
     + Piper voices have different usage terms per dataset, so check the model card of a voice before choosing it and tell the user
 - For other languages, name a Kokoro or Piper voice of that language; it sings through the same conversion path
-    + When the track's `lang` is not English, `vocal-check` and `vocal-try` switch the English-only recognition model to the multilingual one of the same size (base.en becomes base). Pass `--asr-model small` for a larger one
+    + When the track's `lang` is not English, `vocal-check` and `vocal-try` switch the English-only recognition model to the multilingual one of the same size (base.en becomes base). Pass `--asr-model small` for a larger one, or set `asr_model` so every check uses it. Measured on a 4-core CPU checking one 5-second line: base 402 MB of memory and 5.7 s, small 869 MB and 8.7 s, medium 2.1 GB and 23 s; the first use downloads 142 MB, 464 MB and 1.5 GB
     + Set `lang` in the track's `vocal` settings to the lyrics' language code (ko, ja, zh, ru ...). The voice reads the text with that pronunciation, and `vocal-check` listens for that language. A Kokoro voice of that language keeps its own variant: `pt` with a Brazilian voice (pf_dora) reads Brazilian Portuguese
     + Kokoro reads Japanese through espeak, which reads kana but not kanji, so write Kokoro's Japanese lyrics in kana. A Piper Japanese voice reads kanji (it needs the `pyopenjtalk` package)
     + `lint` reports a line with words its language cannot read (kanji under `ja`, a `~` after a word) as `lyrics.unreadable`, with those words

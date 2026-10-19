@@ -23,7 +23,7 @@
     + 기본 남성 목소리 : `kokoro` / `am_michael`
     + Piper 목소리는 데이터셋마다 이용 조건이 다르므로 선택 전에 해당 목소리의 모델 카드를 확인하여 사용자에게 고지
 - 다른 언어는 해당 언어의 Kokoro 목소리 또는 Piper 목소리를 지정하면 같은 변환 경로로 가창
-    + 트랙의 `lang`이 영어가 아니면 `vocal-check`와 `vocal-try`가 영어 전용 인식 모델을 같은 크기의 다국어 모델로 자동 전환(base.en은 base로). 더 큰 모델은 `--asr-model small`로 지정
+    + 트랙의 `lang`이 영어가 아니면 `vocal-check`와 `vocal-try`가 영어 전용 인식 모델을 같은 크기의 다국어 모델로 자동 전환(base.en은 base로). 더 큰 모델은 `--asr-model small`로 지정하거나, 모든 점검에 쓰도록 `asr_model`로 설정. 4코어 CPU에서 5초짜리 줄 하나를 점검한 측정값: base는 메모리 402 MB와 5.7초, small은 869 MB와 8.7초, medium은 2.1 GB와 23초. 처음 쓸 때 각각 142 MB, 464 MB, 1.5 GB를 내려받음
     + 트랙 `vocal` 설정의 `lang`에 가사의 언어 코드(ko, ja, zh, ru 등)를 지정. 목소리는 그 언어의 발음으로 가사를 읽고 `vocal-check`는 그 언어로 인식. 그 언어의 Kokoro 목소리는 자신의 변이형을 유지: 브라질 목소리(pf_dora)의 `pt`는 브라질 포르투갈어로 읽음
     + Kokoro는 일본어를 espeak로 읽음. espeak는 가나를 읽지만 한자는 읽지 못하므로 Kokoro용 일본어 가사는 가나로 작성. Piper 일본어 목소리는 한자를 읽음(`pyopenjtalk` 패키지 필요)
     + 언어가 읽지 못하는 단어(`ja`의 한자, 단어 뒤의 `~`)가 든 줄은 `lint`가 그 단어와 함께 `lyrics.unreadable`로 보고
