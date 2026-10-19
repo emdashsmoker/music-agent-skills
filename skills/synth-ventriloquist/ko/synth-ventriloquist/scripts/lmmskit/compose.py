@@ -50,7 +50,7 @@ PEAK_OF_ROLE = {"kick": 0.0, "snare": -1.0, "clap": -3.0, "hat": -7.0, "cymbal":
 #   balanced  the default: the backbeat and the lead vocal a little forward, more than a tucked-in modern mix, well
 #             short of an 80s-size snare. These are the plain numbers the toolkit was tuned with.
 #   forward   a pop or radio balance: the voice and the backbeat on top of the track, the lead a little louder.
-#   vocal     the voice and the lead of forward with the backbeat of balanced (the balance of the vocal demos).
+#   vocal     the voice and the lead of forward with the backbeat of balanced.
 #   backbeat  the backbeat of forward with the voice and the lead of balanced.
 #   blended   a club balance: the voice and the lead inside the track, the backbeat at its plain role level.
 # The window shifts follow what the offsets did to the measured vocal margins in the test renders (references/
