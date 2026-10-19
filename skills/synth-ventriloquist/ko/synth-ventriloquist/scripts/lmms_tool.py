@@ -164,8 +164,9 @@ def cmd_render(args) -> None:
 
 
 def cmd_balance(args) -> None:
-    from lmmskit import mix
-    _print(mix.balance(args.project, args.work, args.genre, tone_fit=not args.no_tone_fit))
+    from lmmskit import compose, mix
+    style = compose.style_of(args.mix_style) if args.mix_style else None
+    _print(mix.balance(args.project, args.work, args.genre, tone_fit=not args.no_tone_fit, style=style))
 
 
 def cmd_master(args) -> None:
@@ -176,7 +177,7 @@ def cmd_master(args) -> None:
 def cmd_check(args) -> None:
     from lmmskit import pipeline
     from lmmskit.findings import format_findings
-    report = pipeline.check(args.project, args.out, args.genre, args.lufs, figures=not args.no_figures)
+    report = pipeline.check(args.project, args.out, args.genre, args.lufs, figures=not args.no_figures, mix_style=args.mix_style)
     print(format_findings(report["findings"]))
     print("figures:", report["figures"])
 
@@ -185,7 +186,7 @@ def cmd_produce(args) -> None:
     from lmmskit import pipeline
     from lmmskit.findings import format_findings
     report = pipeline.produce(args.project, args.out, args.genre, args.lufs, balance=not args.no_balance, repeat_check=not args.no_repeat_check,
-                              tone_fit=not args.no_tone_fit)
+                              tone_fit=not args.no_tone_fit, mix_style=args.mix_style)
     print(format_findings(report["findings"]))
     _print({"files": report["files"], "figures": report["figures"], "steps": report["steps"]})
 
@@ -350,11 +351,14 @@ def main() -> None:
         (("--bars",), {"default": None, "help": "first:count, e.g. 33:8 renders 8 bars from LMMS bar 33"}),
         (("--trim",), {"action": "store_true", "help": "lower to -1 dBTP if needed"}))
     tone = (("--no-tone-fit",), {"action": "store_true", "help": "keep the tone as mixed: no high shelf on a dull mix"})
-    add("balance", cmd_balance, project, genre, tone, (("--work",), {"required": True, "help": "work folder for stems"}))
+    style = (("--mix-style",), {"default": None, "choices": ("forward", "balanced", "blended"),
+                                "help": "where the foreground sits (default: the plan file's style, else balanced); the ducking under "
+                                        "sung lines is written by the song script, so a vocal song sets Song.mix_style there"})
+    add("balance", cmd_balance, project, genre, tone, style, (("--work",), {"required": True, "help": "work folder for stems"}))
     add("master", cmd_master, project, (("--lufs",), {"type": float, "required": True}), (("--work",), {"required": True}))
-    add("check", cmd_check, project, genre, (("-o", "--out"), {"required": True}), (("--lufs",), {"type": float, "default": None}),
+    add("check", cmd_check, project, genre, style, (("-o", "--out"), {"required": True}), (("--lufs",), {"type": float, "default": None}),
         (("--no-figures",), {"action": "store_true"}))
-    add("produce", cmd_produce, project, genre, (("-o", "--out"), {"required": True}), (("--lufs",), {"type": float, "default": None}),
+    add("produce", cmd_produce, project, genre, style, (("-o", "--out"), {"required": True}), (("--lufs",), {"type": float, "default": None}),
         (("--no-balance",), {"action": "store_true", "help": "keep the fader levels as they are"}), tone,
         (("--no-repeat-check",), {"action": "store_true", "help": "skip the second render that proves the result is repeatable"}))
     add("export", cmd_export, project, (("--midi",), {"default": None}), (("--json",), {"default": None}), (("--dawproject",), {"default": None}),

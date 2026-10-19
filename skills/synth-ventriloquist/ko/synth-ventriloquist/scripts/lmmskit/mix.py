@@ -196,17 +196,23 @@ def _anchor(measured: dict, roles: dict) -> str | None:
     return max(alive, key=lambda n: measured[n]["loudness"]) if alive else None
 
 
-def level_targets(measured: dict, roles: dict, genre: str | None) -> tuple[str | None, dict[str, float]]:
+def style_of(plan: dict | None, name: str | None = None) -> dict:
+    """The mix style to balance and check with: `name` (a command-line override), else the plan file's, else the default."""
+    return compose.style_of(name or (plan or {}).get("mix_style"))
+
+
+def level_targets(measured: dict, roles: dict, genre: str | None, style: dict | None = None) -> tuple[str | None, dict[str, float]]:
     """Target active loudness per part, relative to the anchor.
 
-    Every part gets the role's loudness (role level + genre shift + the part's own offset). Percussive roles
-    also have a peak ceiling against the kick's peak (same shifts) and take the lower of the two, because a
-    loudness meter under-reads short sounds.
+    Every part gets the role's loudness (role level + genre shift + the mix style's offset + the part's own offset).
+    Percussive roles also have a peak ceiling against the kick's peak (same shifts) and take the lower of the two,
+    because a loudness meter under-reads short sounds. style is a compose.MIX_STYLES entry (default: balanced).
     """
     anchor = _anchor(measured, roles)
     if anchor is None:
         return None, {}
     profile = genres.get(genre)
+    taste = (style or compose.style_of(None))["levels"]
     anchor_role = roles[anchor]["role"]
     if anchor_role in compose.DRUM_ROLES:
         anchor_target = measured[anchor]["loudness"] + (ANCHOR_PEAK_DB - measured[anchor]["peak_db"])
@@ -216,7 +222,7 @@ def level_targets(measured: dict, roles: dict, genre: str | None) -> tuple[str |
 
     def offset(name: str) -> float:
         role = roles[name]["role"]
-        return (profile["levels"].get(role, compose.LEVEL_OF_ROLE.get(role, -6.0)) + compose.MIX_TASTE.get(role, 0.0)
+        return (profile["levels"].get(role, compose.LEVEL_OF_ROLE.get(role, -6.0)) + taste.get(role, 0.0)
                 + roles[name].get("level_db", 0.0))
 
     def shift(name: str) -> float:
@@ -260,23 +266,26 @@ def apply_level(project: Project, name: str, delta_db: float) -> None:
         track.param("vol").set(round(min(track.param("vol").get() * factor, MAX_TRACK_VOLUME), 2))
 
 
-def balance(project_path: str, work_dir: str, genre: str | None = None, verify: bool = False, tone_fit: bool = True) -> dict:
+def balance(project_path: str, work_dir: str, genre: str | None = None, verify: bool = False, tone_fit: bool = True,
+            style: dict | None = None) -> dict:
     """Set every part's level so its stem sits at the role target. Rewrites the project file.
 
     One stem pass is enough: fader gain is linear, so the stems are scaled by the same amount
     instead of being rendered again. verify=True renders them again and reports what is left.
+    style is the mix style to balance with (default: the plan file's, else balanced).
     """
     project = Project.load(project_path)
     roles = roles_of(project_path, project)
+    style = style or style_of(compose.load_plan(project_path))
     stems = render_stems(project_path, os.path.join(work_dir, "stems"))
     measured = measure_stems(stems)
-    anchor, targets = level_targets(measured, roles, genre)
+    anchor, targets = level_targets(measured, roles, genre, style)
     tone = None
     if tone_fit:
         tone = fit_tone(project, stems, roles, genre, {n: targets[n] - measured[n]["loudness"] for n in targets})
         if tone and tone["shelf_db"]:                     # the shelf changed loudness and peaks: set the levels from the lifted stems
             measured = measure_stems(stems)
-            anchor, targets = level_targets(measured, roles, genre)
+            anchor, targets = level_targets(measured, roles, genre, style)
     changes, skipped = {}, []
     for name, target in targets.items():
         delta = target - measured[name]["loudness"]
@@ -292,8 +301,8 @@ def balance(project_path: str, work_dir: str, genre: str | None = None, verify: 
         audio.save(stems[name], x * 10 ** (delta / 20), rate)
         changes[name] = round(delta, 2)
     project.save(project_path)
-    result = {"anchor": anchor, "changes_db": changes, "not_adjusted": skipped, "stems": stems, "tone": tone,
-              "vocal_presence": fit_vocal_presence(project_path, stems, work_dir)}
+    result = {"anchor": anchor, "mix_style": style["name"], "changes_db": changes, "not_adjusted": skipped, "stems": stems, "tone": tone,
+              "vocal_presence": fit_vocal_presence(project_path, stems, work_dir, style)}
     if verify:
         stems = render_stems(project_path, os.path.join(work_dir, "stems"))
         again = measure_stems(stems)
@@ -364,15 +373,16 @@ def fit_tone(project: Project, stems: dict[str, str], roles: dict[str, dict], ge
     return result
 
 
-def fit_vocal_presence(project_path: str, stems: dict[str, str], work_dir: str) -> dict | None:
+def fit_vocal_presence(project_path: str, stems: dict[str, str], work_dir: str, style: dict | None = None) -> dict | None:
     """Lift the lead vocal's presence band until its consonants clear the backing. Rewrites the project file.
 
     Voices differ by many dB in how much they carry between 1.3 and 5 kHz, so the lift is fitted to the measured
     margin instead of being a fixed EQ setting. Only the vocal stems are rendered again. What the largest lift
-    cannot close is left for the vocal checks to report.
+    cannot close is left for the vocal checks to report. The margin aimed for follows the mix style's window.
     """
     project = Project.load(project_path)
     roles = roles_of(project_path, project)
+    need = VOCAL_CONSONANT_MARGIN_DB + (style or style_of(compose.load_plan(project_path)))["vocal_window"]
     leads = [n for n in stems if roles.get(n, {}).get("role") == "vocal" and _own_channel(project, n) is not None]
     backing = [n for n in stems if roles.get(n, {}).get("role") not in ("vocal", "vocal_bg") and "trigger" not in n.lower()]
     if not leads or not backing:
@@ -380,9 +390,9 @@ def fit_vocal_presence(project_path: str, stems: dict[str, str], work_dir: str) 
     (voice, rate), (rest, _) = _sum_stems(stems, leads), _sum_stems(stems, backing)
     heard = voice_frames(voice, rate)
     margin = presence_db(voice, rest, rate, audio.CONSONANT_BAND, heard)
-    if margin is None or margin >= VOCAL_CONSONANT_MARGIN_DB + PRESENCE_SAFETY_DB:
+    if margin is None or margin >= need + PRESENCE_SAFETY_DB:
         return None if margin is None else {"margin_db": round(margin, 1), "lift_db": 0.0}
-    lift = round(min(VOCAL_CONSONANT_MARGIN_DB + PRESENCE_SAFETY_DB - margin, MAX_PRESENCE_LIFT_DB), 1)
+    lift = round(min(need + PRESENCE_SAFETY_DB - margin, MAX_PRESENCE_LIFT_DB), 1)
     for name in leads:
         fx.eq(project.mixer.fx(_own_channel(project, name)), peaks=[(PRESENCE_HZ, lift, PRESENCE_OCTAVES)])
     project.save(project_path)
@@ -661,23 +671,26 @@ def _consonant_advice(stems: dict[str, str], backing: list[str], role, voice: np
 
 
 def check_stems(stems: dict[str, str], roles: dict[str, dict], genre: str | None = None, plan: dict | None = None,
-                sung_spans: list[tuple[float, float]] | None = None) -> list[dict]:
+                sung_spans: list[tuple[float, float]] | None = None, style: dict | None = None) -> list[dict]:
     """Part-balance checks from solo stems: role levels, kick and vocal presence, drums against the rest, masking.
 
     plan (the song's plan file) gives the sections, so the vocal margins are also reported per section. sung_spans
     are the (start s, end s) of the lead lines when the song's vocals file is known; the vocal margins are then
-    measured on exactly those moments, otherwise on the frames where the voice is heard.
+    measured on exactly those moments, otherwise on the frames where the voice is heard. style is the mix style
+    the targets and the vocal window follow (default: the plan file's, else balanced).
     """
     found = []
+    style = style or style_of(plan)
     measured = measure_stems(stems)
     alive = [n for n in stems if not measured[n]["silent"] and "trigger" not in n.lower()]
     role = lambda name: roles.get(name, {}).get("role", "lead")
-    anchor, targets = level_targets(measured, roles, genre)
+    anchor, targets = level_targets(measured, roles, genre, style)
     table = {n: {"role": role(n), "loudness": round(measured[n]["loudness"], 1), "target": round(targets[n], 1),
                  "off_by": round(measured[n]["loudness"] - targets[n], 1), "peak_db": round(measured[n]["peak_db"], 1)} for n in alive if n in targets}
     rows = [f"{name:16s} {row['role']:8s} {row['loudness']:6.1f} LUFS while playing, target {row['target']:6.1f} ({row['off_by']:+.1f}), peak {row['peak_db']:6.1f} dBFS"
             for name, row in table.items()]
-    found.append(finding("info", "part_levels", f"part loudness against role targets (anchor: {anchor})", parts=table, table=rows))
+    found.append(finding("info", "part_levels", f"part loudness against role targets (anchor: {anchor}, mix style {style['name']})",
+                         parts=table, table=rows, mix_style=style["name"]))
     for name, row in table.items():
         if abs(row["off_by"]) > LEVEL_TOLERANCE_LU * 2:
             word = "louder" if row["off_by"] > 0 else "quieter"
@@ -723,8 +736,10 @@ def check_stems(stems: dict[str, str], roles: dict[str, dict], genre: str | None
         (v, rate), (b, _) = _sum_stems(stems, vocals), _sum_stems(stems, backing)
         sections = _section_seconds(plan)
         heard = voice_frames(v, rate, sung_spans)
-        for code, band, need in (("vocal_body", audio.VOCAL_BODY_BAND, VOCAL_BODY_MARGIN_DB),
-                                 ("vocal_consonants", audio.CONSONANT_BAND, VOCAL_CONSONANT_MARGIN_DB)):
+        shift = style["vocal_window"]                     # a forward style expects more vocal, a blended one less
+        ceiling = VOCAL_MAX_MARGIN_DB + shift
+        for code, band, need in (("vocal_body", audio.VOCAL_BODY_BAND, VOCAL_BODY_MARGIN_DB + shift),
+                                 ("vocal_consonants", audio.CONSONANT_BAND, VOCAL_CONSONANT_MARGIN_DB + shift)):
             margins = band_margins(v, b, rate, band, sections, heard)
             if margins is None:
                 continue
@@ -732,12 +747,12 @@ def check_stems(stems: dict[str, str], roles: dict[str, dict], genre: str | None
             # Floor and ceiling are both judged where the backing is densest (usually a chorus): a sparse verse lifts
             # the whole-song value and would hide a chorus where the voice is covered, or call it 'too loud'.
             judged = margins["sections"][densest] if densest else margin
-            severity = "warn" if judged < need or judged > VOCAL_MAX_MARGIN_DB else "info"
+            severity = "warn" if judged < need or judged > ceiling else "info"
             hint = (" - words will be hard to follow: " + _consonant_advice(stems, backing, role, v, rate, need - judged, heard)
                     if judged < need and code == "vocal_consonants" else " - the voice is covered: lower pads and leads under it or raise the vocal" if judged < need
-                    else " - the vocal towers over the music: lower it or fill the backing" if judged > VOCAL_MAX_MARGIN_DB else "")
-            where = (f", {judged:+.1f} dB in the densest section {densest} (judged there: {need:+.0f} to {VOCAL_MAX_MARGIN_DB:+.0f})" if densest
-                     else f" (need {need:+.0f} to {VOCAL_MAX_MARGIN_DB:+.0f})")
+                    else " - the vocal towers over the music: lower it or fill the backing" if judged > ceiling else "")
+            where = (f", {judged:+.1f} dB in the densest section {densest} (judged there: {need:+.0f} to {ceiling:+.0f}, mix style {style['name']})"
+                     if densest else f" (need {need:+.0f} to {ceiling:+.0f}, mix style {style['name']})")
             rows = [f"{name:14s} {value:+6.1f} dB" + (" (densest)" if name == densest else "") for name, value in margins["sections"].items()]
             found.append(finding(severity, code, f"lead vocal is {margin:+.1f} dB against the backing in {band[0]}-{band[1]} Hz over the song{where}{hint}",
                                  margin_db=round(margin, 1), densest_section=densest, densest_margin_db=round(judged, 1),

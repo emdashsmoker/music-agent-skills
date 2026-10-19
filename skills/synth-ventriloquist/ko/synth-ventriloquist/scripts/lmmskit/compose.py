@@ -43,10 +43,22 @@ LEVEL_OF_ROLE = {"kick": 0.0, "snare": -2.0, "clap": -3.0, "hat": -8.0, "cymbal"
 # through far too hot: a loudness meter averages over 400 ms, so a 50 ms clap reads quiet, gets turned up, and
 # then towers 6 dB over the kick as a peak that the limiter has to crush. Sustained parts are set by loudness only.
 PEAK_OF_ROLE = {"kick": 0.0, "snare": -1.0, "clap": -3.0, "hat": -7.0, "cymbal": -8.0, "perc": -5.0}
-# Mix taste: offsets in LU on top of the role and genre levels (and with them the peak ceilings). The default keeps
-# the backbeat and the lead vocal a little forward: more than a tucked-in modern mix, well short of an 80s-size
-# snare. Change it in 1 dB steps and run the checks again; {} gives the plain role levels.
-MIX_TASTE = {"clap": 1.5, "snare": 1.0, "vocal": 1.5}
+# Mix styles: where the foreground (the backbeat, the lead, the lead vocal) sits against the rest of the track. Each
+# style holds offsets in LU on top of the role and genre levels (and with them the peak ceilings), a shift in dB of
+# the music-bus ducking under sung lead lines (depth, presence), and a shift of the window the vocal margins are
+# judged in. The user chooses the style in the plan (Song.mix_style); nothing else in the mix changes with it.
+#   balanced  the default: the backbeat and the lead vocal a little forward, more than a tucked-in modern mix, well
+#             short of an 80s-size snare. These are the plain numbers the toolkit was tuned with.
+#   forward   a pop or radio balance: the voice and the backbeat on top of the track, the lead a little louder.
+#   blended   a club balance: the voice and the lead inside the track, the backbeat at its plain role level.
+# The forward and blended values were set from renders of eight test songs (see references/mixing.md). A style is
+# a starting point: Part.level_db and Song.duck_for_vocals still move single parts and the ducking.
+MIX_STYLES = {
+    "forward": {"levels": {"clap": 2.0, "snare": 1.5, "lead": 1.0, "vocal": 3.0}, "vocal_duck": (1.0, 1.0), "vocal_window": 2.0},
+    "balanced": {"levels": {"clap": 1.5, "snare": 1.0, "vocal": 1.5}, "vocal_duck": (0.0, 0.0), "vocal_window": 0.0},
+    "blended": {"levels": {"lead": -1.0}, "vocal_duck": (-1.0, -2.0), "vocal_window": -2.0},
+}
+DEFAULT_MIX_STYLE = "balanced"
 SIDECHAIN_TARGET_BUSES = ("bass", "music")
 FULL_VOLUME_PERCENT = 100.0
 LOWEST_BASS_ROOT = 28                             # E1
@@ -66,6 +78,14 @@ VOCAL_DUCK_DB, VOCAL_PRESENCE_DB = 2.5, 6.0
 # Split frequency of the optional de-esser (Song.vocal(deesser=...)). The bundled Calf Deesser cuts everything above
 # its split whatever its threshold, so it is off by default and, when asked for, placed above the sibilance band.
 DEESSER_SPLIT_HZ = 9000.0
+
+
+def style_of(name: str | None) -> dict:
+    """The mix style of that name (None: the default), with the name under 'name'. Unknown names raise ValueError."""
+    name = name or DEFAULT_MIX_STYLE
+    if name not in MIX_STYLES:
+        raise ValueError(f"unknown mix style {name!r}; the styles are {', '.join(MIX_STYLES)}")
+    return {"name": name, **MIX_STYLES[name]}
 
 
 @dataclass
@@ -216,6 +236,7 @@ class Song:
         self.vocal_duck_db: float | None = None          # None until decided: the script's call, else the genre, else the default
         self.vocal_presence_db: float | None = None
         self.vocal_presence_octaves: float | None = None     # None: VOCAL_PRESENCE_OCTAVES
+        self.style = DEFAULT_MIX_STYLE                       # MIX_STYLES name, chosen with mix_style()
         self.tail_bars = 2
         for bus in BUS_ORDER:
             self._buses[bus] = self.mixer.add_channel(bus.upper())
@@ -360,12 +381,22 @@ class Song:
         if presence_octaves is not None:
             self.vocal_presence_octaves = abs(presence_octaves)
 
+    def mix_style(self, name: str) -> None:
+        """Choose where the foreground sits, as agreed in the plan: a MIX_STYLES name (forward, balanced, blended).
+
+        The style's level offsets apply when `produce` balances the parts, its ducking shift when the project is saved,
+        and its window shift when the vocal margins are checked. Call it before save().
+        """
+        self.style = style_of(name)["name"]
+
     def vocal_ducking(self) -> tuple[float, float]:
-        """(depth_db, presence_db) that will be written: the script's call wins, then the genre profile, then the default."""
+        """(depth_db, presence_db) that will be written: the script's call wins, then the genre profile or the default,
+        shifted by the mix style."""
         if self.vocal_duck_db is not None:
             return self.vocal_duck_db, self.vocal_presence_db
         depth, presence = genres.get(self.genre).get("vocal_duck", (VOCAL_DUCK_DB, VOCAL_PRESENCE_DB))
-        return abs(depth), abs(presence)
+        depth_shift, presence_shift = MIX_STYLES[self.style]["vocal_duck"]
+        return max(0.0, abs(depth) + depth_shift), max(0.0, abs(presence) + presence_shift)
 
     def render_vocals(self, project_path: str, cache: str | None = None) -> list[dict]:
         """Sing every vocal part into <project folder>/samples/<project name>/<part>.flac and put it on a track."""
@@ -592,7 +623,7 @@ class Song:
     # -- output -------------------------------------------------------------------------------------
     def plan(self) -> dict:
         return {
-            "title": self.title, "bpm": self.bpm, "key": self.key, "genre": self.genre,
+            "title": self.title, "bpm": self.bpm, "key": self.key, "genre": self.genre, "mix_style": self.style,
             "timesig": list(self.project.timesig),
             "sections": [{"name": s.name, "start_bar": s.start_bar, "bars": s.bars} for s in self.sections],
             "parts": {name: {"role": p.role, "bus": BUS_OF_ROLE[p.role], "level_db": p.level_db,

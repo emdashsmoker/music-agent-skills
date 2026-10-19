@@ -105,7 +105,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + Skipping the check of an earlier step widens what has to be fixed later
 
 ## Step 1 Planning
-- Agree with the user on genre, mood, tempo, key, length, structure, vocals or not, and delivery formats
+- Agree with the user on genre, mood, tempo, key, length, structure, vocals or not, mix style, loudness target, and delivery formats
     + Offer a default for each item so the user only answers what they want changed
     + The questions, defaults and summary form are in `references/planning.md`
 - Start by reading the genre's conventions with `studio genres <id>`

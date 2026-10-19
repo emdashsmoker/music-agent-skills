@@ -226,8 +226,22 @@ EXPLAIN = {
 }
 
 
+VOCAL_WINDOW_KEYS = ("vocal_body_db", "vocal_consonant_db")
+
+
+def thresholds_for(profile_qa: dict | None, vocal_window_shift: float = 0.0) -> dict:
+    """The QA limits in force: the defaults, the genre profile's overrides, and the vocal windows moved by the mix
+    style's shift (a forward style expects more vocal, a blended one less)."""
+    limits = {**THRESHOLDS, **(profile_qa or {})}
+    for key in VOCAL_WINDOW_KEYS:
+        low, high = limits[key]
+        limits[key] = (low + vocal_window_shift, high + vocal_window_shift)
+    return limits
+
+
 def findings(metrics: dict, thresholds: dict | None = None) -> list:
-    """Turn out-of-range metrics into findings: [{'key', 'value', 'range', 'message', 'try'}]."""
+    """Turn out-of-range metrics into findings: [{'key', 'value', 'range', 'message', 'try'}].
+    thresholds are the limits in force (thresholds_for), else the defaults."""
     limits = {**THRESHOLDS, **(thresholds or {})}
     out = []
     for key, (low, high) in limits.items():
