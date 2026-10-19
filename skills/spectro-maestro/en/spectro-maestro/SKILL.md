@@ -16,7 +16,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + Material from the genre files and starter songs that ends up in such output may also be used without the conditions of the AGPL (additional permission under section 7 of AGPL version 3)
     + The usage terms of the voice model or voicebank that sang a vocal still apply to that output
 - Third-party notices
-    + The only outside material contained in the skill is two DAWproject schema files (Copyright (c) 2020 Bitwig, MIT)
+    + The outside material contained in the skill is two DAWproject schema files (Copyright (c) 2020 Bitwig, MIT) and the G2P tables ported from OpenUtau in `scripts/foundry/g2p.py` (Copyright (c) 2014 StAkira, MIT)
     + The packages and models used at run time are not contained in the skill and follow their own licences
     + Main items : NumPy and SciPy (BSD-3-Clause), pyworld, ONNX Runtime and faster-whisper (MIT), the Kokoro-82M model (Apache-2.0), piper-tts, phonemizer and cmudict (GPL-3.0-or-later)
     + The complete list and terms are in `THIRD-PARTY-NOTICES.md`

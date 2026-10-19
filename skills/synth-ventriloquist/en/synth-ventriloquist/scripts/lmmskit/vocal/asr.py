@@ -13,14 +13,15 @@ import unicodedata
 
 import numpy as np
 
-DEFAULT_MODEL = "base.en"                # larger models are slower and rarely change which lines get flagged
-MULTILINGUAL_MODEL = "base"
+from .. import settings
+
+DEFAULT_MODEL = "base.en"                # larger models are slower; set asr_model or pass --asr-model for another
 WEAK_LINE_SCORE = 0.85
 PADDINGS_S = (0.0, 0.25, 0.5)             # silence added around a line for the first recognition passes
 MORE_PADDINGS_S = tuple(i * 0.0625 for i in range(9) if i not in (0, 4, 8))   # the six extra passes when the first three disagree
 STEADY_SPREAD = 0.1                       # first passes within this of each other need no extra passes
 ASR_SAMPLE_RATE = 16000
-WHISPER_LANGUAGES = {"cmn": "zh"}        # espeak's language names -> the recogniser's, where the two differ
+WHISPER_LANGUAGES = {"cmn": "zh", "nb": "no"}   # espeak's language names -> the recogniser's, where the two differ
 _models: dict[str, object] = {}
 
 
@@ -54,9 +55,12 @@ def match(expected: str, heard: str) -> float:
     return max(0.0, 1.0 - edit_distance(expected, heard) / len(expected))
 
 
-def model_for(language: str | None) -> str:
-    """The small English-only model for English, the multilingual one of the same size otherwise."""
-    return DEFAULT_MODEL if (language or "en").lower().startswith("en") else MULTILINGUAL_MODEL
+def model_for(language: str | None, model: str | None = None) -> str:
+    """`model`, else the setting asr_model, else base.en. An English-only model (.en) hears other languages as
+    English, so lyrics in another language get its multilingual twin of the same size (base.en -> base)."""
+    chosen = model or settings.get("asr_model") or DEFAULT_MODEL
+    english = (language or "en").lower().startswith("en")
+    return chosen if english or not chosen.endswith(".en") else chosen.removesuffix(".en")
 
 
 def language_code(language: str | None) -> str | None:
@@ -74,7 +78,7 @@ def transcribe(audio: np.ndarray, sr: int, model: str | None = None, language: s
     if sr != ASR_SAMPLE_RATE:
         divisor = np.gcd(ASR_SAMPLE_RATE, sr)
         mono = signal.resample_poly(mono, ASR_SAMPLE_RATE // divisor, sr // divisor)
-    segments, _ = _model(model or model_for(language)).transcribe(mono.astype(np.float32), language=language_code(language), beam_size=5, temperature=0.0,
+    segments, _ = _model(model_for(language, model)).transcribe(mono.astype(np.float32), language=language_code(language), beam_size=5, temperature=0.0,
                                            condition_on_previous_text=False, initial_prompt=prompt, vad_filter=False)
     return " ".join(segment.text.strip() for segment in segments).strip()
 

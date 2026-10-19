@@ -89,7 +89,7 @@ def line_syllables(voice: str, text: str, wanted: int | None = None, lang: str =
     else:
         phonemes = tts.backend(voice, lang).phonemize(text)
         symbols = list(phonemes)
-        syllables = syllabify(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols)))
+        syllables = syllabify(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols)), lang)
     return fold_weak_syllables(syllables, wanted) if wanted is not None else syllables
 
 

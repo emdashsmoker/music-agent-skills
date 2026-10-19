@@ -23,8 +23,8 @@
     + Default male voice : `kokoro` / `am_michael`
     + Piper voices have different usage terms per dataset, so check the model card of a voice before choosing it and tell the user
 - For other languages, name a Kokoro or Piper voice of that language; it sings through the same conversion path
-    + When the track's `lang` is not English, `vocal-check` and `vocal-try` switch the English-only recognition model to the multilingual one of the same size (base.en becomes base). Pass `--asr-model small` for a larger one
-    + Set `lang` in the track's `vocal` settings to the lyrics' language code (ko, ja, zh, ru ...). The voice reads the text with that pronunciation, and `vocal-check` listens for that language
+    + When the track's `lang` is not English, `vocal-check` and `vocal-try` switch the English-only recognition model to the multilingual one of the same size (base.en becomes base). Pass `--asr-model small` for a larger one, or set `asr_model` so every check uses it. Measured on a 4-core CPU checking one 5-second line: base 402 MB of memory and 5.7 s, small 869 MB and 8.7 s, medium 2.1 GB and 23 s; the first use downloads 142 MB, 464 MB and 1.5 GB
+    + Set `lang` in the track's `vocal` settings to the lyrics' language code (ko, ja, zh, ru ...). The voice reads the text with that pronunciation, and `vocal-check` listens for that language. A Kokoro voice of that language keeps its own variant: `pt` with a Brazilian voice (pf_dora) reads Brazilian Portuguese
     + Kokoro reads Japanese through espeak, which reads kana but not kanji, so write Kokoro's Japanese lyrics in kana. A Piper Japanese voice reads kanji (it needs the `pyopenjtalk` package)
     + `lint` reports a line with words its language cannot read (kanji under `ja`, a `~` after a word) as `lyrics.unreadable`, with those words
 - Ask the user about engine and voice in the planning step
@@ -76,7 +76,7 @@ vox:
     + A speech voice reads to with a weak vowel, so it sinks on a beat or a long note (see 'Reduced vowels and weak function words' below)
 - Words a pronunciation dictionary is unlikely to hold (proper nouns, invented words, abbreviations, foreign words)
     + A speech voice guesses their pronunciation from the spelling, so it may read them differently than intended
-    + A singing voicebank sings an English word missing from its dictionary with a guessed pronunciation, and in other languages it stops at such a word
+    + A singing voicebank sings a word missing from its dictionary with a guessed pronunciation in English, German, French, Spanish, Italian, Portuguese and Russian, and stops at such a word in other languages
     + Write numbers and symbols out as the words to be sung
     + For a word the song needs, write the line containing it first and listen with `vocal-try`; if it is misread, give that line a `phonemes` entry
     + A `phonemes` entry is written in the symbols of the engine used at the time. After a change of engine, a voicebank ignores an entry that is not in its own symbols, leaves a note and sings the words, so listen again with the new engine and, if needed, write the entry in its symbols
@@ -197,6 +197,7 @@ vox:
     + `python scripts/studio.py vocal-check song.yaml`
     + Prints the recognised text, the match score and the pitch error (cents) for every line
     + Syllables whose vowel was sung as noise or is barely audible are printed with a `ROUGH` mark (speech voice engines)
+    + A line whose opening consonants would sound before the song starts loses them; `render` and `vocal-check` print a `CUT` note with the lost length. Start the line later or give the song a bar before it
     + For lines with a match below 0.85 or a `ROUGH` mark, a picture and a solo clip are saved in the `vocals/` folder
 - The match score and `ROUGH` catch different faults
     + Match score : lines whose words are heard differently
@@ -327,7 +328,7 @@ vocal:
     + When notes sound slightly off, lower `expr` from its default 1.0 (try 0.5)
     + Measured on two voicebanks over 27 lines of two songs: in the first 90 ms of a note the pitch sat a median 21 cents from the written note (105 cents at the 90th percentile) and 14 cents across the held part. With `expr: 0.5` the three figures were 4.2, 9.3 and 4.2 cents and the recognition match rose from 0.94 to 0.95. `pitch: curve` gave 13, 53 and 8.7 cents
 - Pronunciation
-    + Words missing from the voicebank's dictionary are filled in from a general pronouncing dictionary and a grapheme-to-phoneme converter
+    + Words missing from the voicebank's dictionary are filled in: English from a general pronouncing dictionary and a grapheme-to-phoneme converter, German, French, Spanish, Italian, Portuguese and Russian from OpenUtau's G2P (a pronouncing dictionary and a small model per language, downloaded once into `models_dir`, about 2 MB each)
     + A syllable group starts at its vowel, and the first consonant of the next syllable sits at the end of the previous note
 - Reproducibility
     + Every line starts from the same seed, so the same input gives the same sound
@@ -335,7 +336,8 @@ vocal:
 - Lyric spelling
     + The voicebank's dictionary decides the spelling of the lyrics. Japanese dictionaries usually hold kana and Chinese ones pinyin, so write the lyrics that way
     + A word the dictionary lacks stops the line (`lyrics.pronunciation`). Respell it or give the line a `phonemes` entry in the voicebank's own symbols
-    + A bank whose dictionary holds no words of a language (its OpenUtau phonemizer converts them in code) sings that language only through `phonemes`
+    + A bank whose dictionary holds no words of a language (its OpenUtau phonemizer converts them in code) sings German, French, Spanish, Italian, Portuguese and Russian through that G2P, and any other such language only through `phonemes`
+    + In those languages a word with a sound the bank lacks stops the line with an error naming the sound, and a bank that lists its languages refuses one it neither lists nor has a dictionary file for
 - Render time
     + About 10 seconds per line (on a 2-core CPU); results are cached and reused on re-render
 

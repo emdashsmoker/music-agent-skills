@@ -134,6 +134,7 @@ LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py k
 | `stem_workers` | `LMMSKIT_STEM_WORKERS` | 스템을 병렬로 렌더하는 LMMS 수. 0은 CPU 코어당 1개. 사용자가 작업 중인 컴퓨터에서는 낮춘다 |
 | `render_timeout_s` | `LMMSKIT_RENDER_TIMEOUT` | 렌더 한 번의 최대 허용 시간 |
 | `qt_platform` | `QT_QPA_PLATFORM` | 렌더용 Qt 플랫폼 플러그인. 기본값 `offscreen` |
+| `asr_model` | `LMMSKIT_ASR_MODEL` | 노래 점검용 faster-whisper 모델. 기본값 `base.en`. 영어 전용 모델(`.en`)은 다른 언어 가사에서 같은 크기의 다국어 모델로 바뀜(`base.en`은 `base`로). `sing`, `compare`, `check`, `produce`는 한 번만 바꾸는 `--asr-model`도 받음 |
 | `figure_fonts` | `LMMSKIT_FONTS` | 그림에 순서대로 시도할 글꼴 |
 
 - 컨테이너에서는 환경 변수를 쓴다. 파일을 쓸 필요가 없다.
@@ -160,7 +161,8 @@ TTS 모델과 인식 모델은 처음 쓸 때 `cache_dir`와 Hugging Face 캐시
 
 - 타이밍 출력이 있는 Kokoro TTS 모델(고정 리비전): 약 330 MB, 목소리마다 1 MB 미만 추가.
 - Piper 목소리: 각 60-115 MB.
-- 인식 모델(`base.en`, 다른 언어는 `base`): 약 140 MB.
+- 인식 모델(`base.en`, 다른 언어는 `base`): 약 140 MB. `asr_model`로 지정한 더 큰 모델(예: `small`, 약 460 MB)은 처음 쓸 때 내려받는다.
+- OpenUtau G2P 언어 팩(가수 보이스뱅크가 사전에 없는 독일어, 프랑스어, 스페인어, 이탈리아어, 포르투갈어, 러시아어 단어를 부를 때): 언어마다 1.7-2.6 MB, OpenUtau GitHub 저장소의 고정 커밋에서 받고 SHA-256으로 확인.
 
 첫 보컬 렌더 전에 이 다운로드가 있음을 사용자에게 알린다. 다운로드 호스트가 막혀 있으면 오류 메시지가 파일 이름과 직접 둘 위치를 알려 준다. 가수 보이스뱅크는 툴킷이 내려받지 않는다. 사용자가 제공한다(`vocals.md` 참조).
 

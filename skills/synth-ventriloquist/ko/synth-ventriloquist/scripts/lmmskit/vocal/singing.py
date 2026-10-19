@@ -133,12 +133,12 @@ def _duration(phones: list[Phone]) -> float:
     return sum(p.duration for p in phones)
 
 
-def assign(unit: Unit, groups: list[list[SungNote]]) -> list[Syllable]:
+def assign(unit: Unit, groups: list[list[SungNote]], lang: str | None = None) -> list[Syllable]:
     """Syllables of the spoken line, folded to one per note group. Raises with a per-word table if counts differ."""
-    syllables = fold_weak_syllables(syllabify(unit.phones), len(groups))
+    syllables = fold_weak_syllables(syllabify(unit.phones, lang), len(groups))
     if len(syllables) != len(groups):
-        spoken = " | ".join(s.text for s in syllabify(unit.phones))
-        raise ValueError(f"'{unit.text}' is spoken as {len(syllabify(unit.phones))} syllables ({spoken}) but the melody has "
+        spoken = " | ".join(s.text for s in syllabify(unit.phones, lang))
+        raise ValueError(f"'{unit.text}' is spoken as {len(syllabify(unit.phones, lang))} syllables ({spoken}) but the melody has "
                          f"{len(groups)} sung syllables. Add or remove notes, tie notes with '~', or reword the line.")
     return syllables
 
@@ -366,10 +366,10 @@ def _settle_nuclei(syllables: list[Syllable], voiced: np.ndarray) -> int:
     return moved
 
 
-def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, analysis=None) -> SungLine:
-    """Sing a spoken line. groups holds one list of notes per sung syllable (several notes = a slur)."""
+def sing(unit: Unit, groups: list[list[SungNote]], style: Style | None = None, analysis=None, lang: str | None = None) -> SungLine:
+    """Sing a spoken line in `lang`. groups holds one list of notes per sung syllable (several notes = a slur)."""
     style = style or Style()
-    syllables = assign(unit, groups)
+    syllables = assign(unit, groups, lang)
     f0, envelope, aperiodicity = analysis if analysis is not None else world.analyze(unit.audio, unit.sr)
     source_truly_voiced = world.truly_voiced(f0, envelope, aperiodicity, unit.sr)
     _settle_nuclei(syllables, source_truly_voiced)

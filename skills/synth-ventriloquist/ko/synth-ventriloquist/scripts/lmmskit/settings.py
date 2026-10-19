@@ -42,6 +42,8 @@ KEYS = {
     "stem_workers": ("LMMSKIT_STEM_WORKERS", 0, "parallel LMMS renders for stems (0 = one per CPU core)"),
     "render_timeout_s": ("LMMSKIT_RENDER_TIMEOUT", 3600, "longest a single LMMS render may take, in seconds"),
     "qt_platform": ("QT_QPA_PLATFORM", "offscreen", "Qt platform plugin LMMS starts with when rendering"),
+    "asr_model": ("LMMSKIT_ASR_MODEL", None, "faster-whisper model for the vocal checks (default base.en); an English-only "
+                                            "model (.en) switches to its multilingual twin for lyrics in other languages"),
     "figure_fonts": ("LMMSKIT_FONTS", ["NanumGothic", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", "DejaVu Sans"],
                      "font families tried in order for the review figures"),
 }

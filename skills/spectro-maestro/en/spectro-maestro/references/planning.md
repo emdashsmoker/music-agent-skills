@@ -24,6 +24,7 @@
     + Language
     + Lyrics : provided by the user, or written from a theme the user gives
     + Preference for gender and range
+    + Recognition model for the vocal check (default base) : offer small when the machine has room (4 or more CPU cores, 2 GB or more of free memory), above all for lyrics in another language, where base flags clearly sung lines more often. Medium or larger only when the user asks. Record the choice as the setting `asr_model`; the costs per model are in `vocals.md`
 - Ask everything in one batch
     + Offer a default with every item so the user only answers what should change
 - If the user leaves it to you, go ahead with the defaults
@@ -36,7 +37,7 @@ Title / genre / tempo / key / length
 Structure : intro 8 - verse 16 - chorus 16 - ... (N bars in total, M min S s)
 Chords : verse i VI III VII / chorus VI VII i i
 Core idea : (one or two lines on the hook, the timbre, the development)
-Vocals : engine, voice, range, lyric theme
+Vocals : engine, voice, range, lyric theme, recognition model
 Mix : style (balanced), adherence (flexible), loudness target
 Deliverables : ogg, mp3, MIDI, song file, project JSON, ...
 ```

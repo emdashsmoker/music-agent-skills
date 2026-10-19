@@ -119,28 +119,29 @@ def singer(voice: str, lang: str | None = None) -> NativeKokoro:
     return _singers[f"{name}|{language}"]
 
 
-def _token_syllables(symbols: list[str], frames: np.ndarray, wanted: int):
+def _token_syllables(symbols: list[str], frames: np.ndarray, wanted: int, lang: str | None = None):
     """Syllables whose phones remember which tokens they came from (start/end hold token indices)."""
     starts = [float(i) for i in range(len(symbols))]
     ends = [float(i + 1) for i in range(len(symbols))]
     phones = merge_tokens(symbols, starts, ends)
-    return fold_weak_syllables(syllabify(phones), wanted), phones
+    return fold_weak_syllables(syllabify(phones, lang), wanted), phones
 
 
 def _token_range(phones: list[Phone]) -> list[int]:
     return [index for phone in phones for index in range(int(phone.start), int(phone.end))]
 
 
-def plan_frames(symbols: list[str], natural: np.ndarray, groups: list[list[SungNote]]) -> tuple[np.ndarray, list[dict], float, list[Syllable]]:
+def plan_frames(symbols: list[str], natural: np.ndarray, groups: list[list[SungNote]],
+                lang: str | None = None) -> tuple[np.ndarray, list[dict], float, list[Syllable]]:
     """Length in frames for every token so each vowel starts on its note. natural includes the two marker tokens.
 
     Per syllable the tokens run: [spaces] [opening consonants] [vowel] [closing consonants]. Consonants keep their
     spoken length, the vowel takes what is left of the note, and a rest becomes extra frames on the space before
     the next word. Returns (frames, layout, seconds from audio start to the first note's beat, syllables).
     """
-    syllables, _ = _token_syllables(symbols, natural, len(groups))
+    syllables, _ = _token_syllables(symbols, natural, len(groups), lang)
     if len(syllables) != len(groups):
-        spoken = " | ".join(s.text for s in syllabify(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols))))
+        spoken = " | ".join(s.text for s in syllabify(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols)), lang))
         raise ValueError(f"the line is spoken as {len(spoken.split(' | '))} syllables ({spoken}) but the melody has {len(groups)} "
                          "sung syllables. Add or remove notes, tie notes with '~', or reword the line.")
     frames = np.ones(len(symbols))
@@ -286,7 +287,7 @@ def sing(voice: str, text: str, groups: list[list[SungNote]], style: Style | Non
     engine = singer(voice, lang)
     symbols, ids, voice_style = engine.tokens(text)
     natural = engine.natural_frames(ids, voice_style, speed)
-    frames, layout, lead_in, _ = plan_frames(symbols, natural, groups)
+    frames, layout, lead_in, _ = plan_frames(symbols, natural, groups, lang)
     # Energy: the model's prediction for stretched lengths sags and mutes the first sounds, so each token takes the
     # level it has in the spoken line; vowels are then lifted toward the line's strong vowels and held there.
     spoken_pitch, spoken_energy = engine.curves(ids, voice_style, natural)

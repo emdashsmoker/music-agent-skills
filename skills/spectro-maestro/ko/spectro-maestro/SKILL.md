@@ -16,7 +16,7 @@ description: 전자음악 중심의 완성곡을 코드로 작곡, 편곡, 합�
     + 장르 파일과 스타터 곡에서 산출물로 옮겨진 내용도 AGPL 조건 없이 사용 가능 (AGPL 버전 3의 7조에 따른 추가 허용)
     + 보컬에 쓴 목소리 모델이나 보이스뱅크의 이용 조건은 산출물에 그대로 적용됨
 - 서드 파티 고지
-    + 스킬에 포함된 외부 자료는 DAWproject 스키마 파일 2개뿐 (Copyright (c) 2020 Bitwig, MIT)
+    + 스킬에 포함된 외부 자료는 DAWproject 스키마 파일 2개(Copyright (c) 2020 Bitwig, MIT)와 OpenUtau에서 옮긴 G2P 표(`scripts/foundry/g2p.py`, Copyright (c) 2014 StAkira, MIT)
     + 실행할 때 쓰는 패키지와 모델은 스킬에 들어 있지 않으며 각자의 라이선스를 따름
     + 주요 항목 : NumPy와 SciPy(BSD-3-Clause), pyworld와 ONNX Runtime과 faster-whisper(MIT), Kokoro-82M 모델(Apache-2.0), piper-tts와 phonemizer와 cmudict(GPL-3.0-or-later)
     + 전체 목록과 조건은 `THIRD-PARTY-NOTICES.md`

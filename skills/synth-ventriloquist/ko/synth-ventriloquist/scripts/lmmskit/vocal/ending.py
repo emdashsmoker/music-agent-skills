@@ -32,9 +32,9 @@ def _level_db(unit: Unit, span: tuple[float, float]) -> float:
     return 10 * np.log10(float(np.mean(piece ** 2)) + 1e-14) if len(piece) else -140.0
 
 
-def ending_report(unit: Unit, f0: np.ndarray | None = None) -> dict:
+def ending_report(unit: Unit, f0: np.ndarray | None = None, lang: str | None = None) -> dict:
     """Voiced share and relative level of the last vowel, and whether it counts as dying."""
-    syllables = [s for s in syllabify(unit.phones) if s.nucleus]
+    syllables = [s for s in syllabify(unit.phones, lang) if s.nucleus]
     if not syllables:
         return {"dying": False, "voiced_share": 1.0, "level_vs_line_db": 0.0}
     f0 = world.quick_f0(unit.audio, unit.sr) if f0 is None else f0
@@ -47,7 +47,7 @@ def ending_report(unit: Unit, f0: np.ndarray | None = None) -> dict:
             "level_vs_line_db": round(float(relative), 1)}
 
 
-def repair(backend, unit: Unit, speed: float, seed: int) -> Unit | None:
+def repair(backend, unit: Unit, speed: float, seed: int, lang: str | None = None) -> Unit | None:
     """Unit with a fully voiced last syllable, or None when the repair does not apply or is not safe."""
     carrier = CARRIER_WORDS.get(str(getattr(backend, "lang", "") or "")[:2].lower())
     if not carrier:
@@ -57,8 +57,8 @@ def repair(backend, unit: Unit, speed: float, seed: int) -> Unit | None:
     if not (extended_text.startswith(plain_text) and len(extended_text) > len(plain_text)):
         return None                                   # the extra word changed how the line itself is pronounced
     donor = backend.synthesize(f"{unit.text} {carrier}", speed, seed)
-    plain_syllables = [s for s in syllabify(unit.phones) if s.nucleus]
-    donor_syllables = [s for s in syllabify(donor.phones) if s.nucleus]
+    plain_syllables = [s for s in syllabify(unit.phones, lang) if s.nucleus]
+    donor_syllables = [s for s in syllabify(donor.phones, lang) if s.nucleus]
     if len(donor_syllables) <= len(plain_syllables):
         return None
     last_plain, last_donor = plain_syllables[-1], donor_syllables[len(plain_syllables) - 1]

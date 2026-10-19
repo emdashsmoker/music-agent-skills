@@ -9,12 +9,47 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-VOWELS = set("aɑɐɒæeəɚɛɜɝiɪᵻoɔuʊʌøœyɯɨɤᵊAIOWY")
+VOWELS = set("aɑɐɒæeəɚɛɜɝiɪᵻoɔuʊʌøœyɯɨɤʏɵʉɘɞɶᵊAIOWY")
 # Vowel pairs sung as one syllable (first part held, second part a short glide at the end).
 DIPHTHONGS = {"aɪ", "aʊ", "eɪ", "oʊ", "ɔɪ", "əʊ", "eə", "ɪə", "ʊə", "ɛɪ", "ɑɪ", "ɔʊ"}
+# The pairs of languages whose espeak output has diphthongs English lacks (German neu, Dutch uit, Portuguese não).
+# Each set is that language's whole list, since a pair can be one syllable in one language and two in another.
+# Only the languages listed use these sets and the rules that go with them (_one_nucleus, _nuclei_flags); English
+# and every other language keep DIPHTHONGS and the rules they had. A length mark on the first vowel is part of the
+# pair (Norwegian jeg, while German gehen stays two). The same additions as Spectro Maestro's
+# phonetics.LANGUAGE_DIPHTHONGS (same author, AGPL-3.0-or-later), whose own base list already holds the plain pairs.
+_PLAIN = {"ai", "au", "ei", "oi", "ou"}           # espeak writes these without ɪ or ʊ in several languages
+_NORWEGIAN = DIPHTHONGS | {"øy", "ɛːɪ"}
+LANGUAGE_DIPHTHONGS = {
+    "de": DIPHTHONGS | {"ɔø"},
+    "da": DIPHTHONGS,                             # er, mor: the ɐ̯ is not a syllable
+    "pl": DIPHTHONGS,
+    "nl": DIPHTHONGS | {"ʌʊ", "œy", "ɛi", "eʊ"},
+    "fr": DIPHTHONGS | {"yi"},
+    "es": DIPHTHONGS | _PLAIN | {"oɪ", "eʊ"},
+    "it": DIPHTHONGS | _PLAIN | {"ɔi", "ɛi", "eʊ", "ʊɔ"},
+    "pt": DIPHTHONGS | _PLAIN | {"ɐʊ", "ɐy", "ɐɪ", "oɪ", "uɪ", "eʊ", "ɛʊ"},
+    "ro": DIPHTHONGS | _PLAIN | {"ea", "ɔa", "oa"},
+    "fi": DIPHTHONGS | _PLAIN | {"yø", "uo", "ie", "æi", "øi", "yi", "ui", "ey", "æy", "øy", "iu", "eu"},
+    "et": DIPHTHONGS | _PLAIN | {"aa", "ee", "ii", "oo", "uu", "ææ", "øø", "yy", "ɤɤ"},   # espeak doubles a long vowel: saab, keel
+    "lv": DIPHTHONGS | _PLAIN | {"ie", "ui", "uo"},
+    "lt": DIPHTHONGS | _PLAIN | {"ie", "ui", "uo", "ee"},                                  # espeak writes ė as ee
+    "sk": DIPHTHONGS | _PLAIN | {"uo", "ia", "ie", "iu"},
+    "cs": DIPHTHONGS | _PLAIN | {"eu"},
+    "is": DIPHTHONGS | {"øy"},
+    "no": _NORWEGIAN, "nb": _NORWEGIAN, "nn": _NORWEGIAN,
+}
+# In those languages a pair whose second vowel carries the stress is two syllables (Spanish país, Italian paura),
+# except these, where espeak writes a glide as a vowel before the stressed one (French nuit, Italian cuore, Slovak piatok).
+RISING_DIPHTHONGS = {"fr": {"yi"}, "it": {"ʊɔ"}, "sk": {"ia", "ie", "iu"}}
+VOCALISED_R, VOCALISED_R_LANGUAGES = "ɐ", {"de"}  # German durch, vier: the r after a vowel is a glide, not a syllable
+SYLLABIC_R = {"hr", "sr", "bs"}                   # espeak writes the r of srce and prst without a syllabic mark
 SINGLE_SYMBOL_DIPHTHONGS = set("AIOWY")           # misaki-style shorthands for eɪ aɪ oʊ aʊ ɔɪ
 WEAK_NUCLEI = set("əɚᵊᵻ")                          # can fold into the previous vowel (fire: aɪ+ɚ sung as one)
 STRESS_MARKS, LENGTH_MARK, NASAL_MARK = "ˈˌ", "ː", "̃"
+# espeak marks a consonant that is a syllable (Czech krk, Brno) and a vowel that is not (Danish er, mor). Only the
+# languages of LANGUAGE_DIPHTHONGS read them; English keeps the n̩ of button with the syllable before it, as before.
+SYLLABIC_MARK, NON_SYLLABIC_MARK = "̩", "̯"
 PLOSIVES = set("pbtdkɡgʔɾʈɖcɟq")
 AFFRICATES = set("ʧʤʦʣʨʥꭧ")
 FRICATIVES = set("fvθðszʃʒhxçɕʂʝɣχβɸʁ")
@@ -153,8 +188,41 @@ def merge_tokens(symbols: list[str], starts: list[float], ends: list[float]) -> 
     return phones
 
 
-def syllabify(phones: list[Phone]) -> list[Syllable]:
-    """Group sounds into syllables word by word: one vowel (or diphthong) each, consonants split around it."""
+def language_key(lang: str | None) -> str:
+    """The key of the per-language tables for a song or espeak language code: 'pt-br' and 'pt' -> 'pt'."""
+    return (lang or "").lower().replace("_", "-").split("-")[0]
+
+
+def _followed_by(sounds: list[Phone], index: int, mark: str) -> bool:
+    return index + 1 < len(sounds) and sounds[index + 1].symbol == mark
+
+
+def _nuclei_flags(sounds: list[Phone], key: str) -> list[bool]:
+    """Which sounds of a word can carry a syllable: vowels, a consonant espeak marks syllabic in the languages of
+    LANGUAGE_DIPHTHONGS (Czech krk) and, in Serbo-Croatian, an r with no vowel beside it (srce, prst)."""
+    marks = key in LANGUAGE_DIPHTHONGS
+    flags = [sound.vowel or (marks and _followed_by(sounds, i, SYLLABIC_MARK)) for i, sound in enumerate(sounds)]
+    if key in SYLLABIC_R:
+        flags = [flag or (sound.symbol[0] == "r" and not (i > 0 and flags[i - 1]) and not (i + 1 < len(flags) and flags[i + 1]))
+                 for i, (flag, sound) in enumerate(zip(flags, sounds))]
+    return flags
+
+
+def _one_nucleus(sounds: list[Phone], index: int, key: str) -> bool:
+    """Whether the vowels at index and index + 1 make one syllable in this language."""
+    first, second = sounds[index], sounds[index + 1]
+    if key not in LANGUAGE_DIPHTHONGS:               # English and the languages without a table keep the rule they had
+        return first.symbol.replace(LENGTH_MARK, "") + second.symbol.replace(LENGTH_MARK, "") in DIPHTHONGS
+    pair = first.symbol + second.symbol.replace(LENGTH_MARK, "")[:1]
+    return ((pair in LANGUAGE_DIPHTHONGS[key] and not second.stressed)
+            or pair in RISING_DIPHTHONGS.get(key, set()) or _followed_by(sounds, index + 1, NON_SYLLABIC_MARK)
+            or (key in VOCALISED_R_LANGUAGES and second.symbol == VOCALISED_R))
+
+
+def syllabify(phones: list[Phone], lang: str | None = None) -> list[Syllable]:
+    """Group sounds into syllables word by word: one vowel (or diphthong) each, consonants split around it.
+    `lang` (en, de, pt-br ...) picks the vowel pairs and syllabic consonants of that language."""
+    key = language_key(lang)
     syllables: list[Syllable] = []
     words: dict[int, list[Phone]] = {}
     for phone in phones:
@@ -162,12 +230,12 @@ def syllabify(phones: list[Phone]) -> list[Syllable]:
             words.setdefault(phone.word, []).append(phone)
     for word_index in sorted(words):
         sounds = words[word_index]
+        nucleus = _nuclei_flags(sounds, key)
         nuclei: list[list[int]] = []
         i = 0
         while i < len(sounds):
-            if sounds[i].vowel:
-                pair = sounds[i].symbol.replace(LENGTH_MARK, "") + (sounds[i + 1].symbol.replace(LENGTH_MARK, "") if i + 1 < len(sounds) else "")
-                if i + 1 < len(sounds) and sounds[i + 1].vowel and pair in DIPHTHONGS:
+            if nucleus[i]:
+                if i + 1 < len(sounds) and nucleus[i + 1] and _one_nucleus(sounds, i, key):
                     nuclei.append([i, i + 1])
                     i += 2
                     continue

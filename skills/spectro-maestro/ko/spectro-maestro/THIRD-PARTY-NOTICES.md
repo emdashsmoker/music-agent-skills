@@ -8,12 +8,13 @@ This file lists the third-party material this skill contains, the software and m
 
 ## 1. What the licence covers
 - Covered by AGPL-3.0-or-later: the scripts under `scripts/`, the documents (`SKILL.md`, `references/`), the genre files under `assets/genres/`, and the example songs under `examples/`
-- Not covered: the files listed in section 2, which keep their own licences
+- Not covered: the material listed in section 2, which keeps its own licence
 
 ## 2. Third-party material contained in this skill
 | Files | Origin | Licence |
 |---|---|---|
 | `assets/dawproject/Project.xsd`, `assets/dawproject/MetaData.xsd` | DAWproject exchange format, Copyright (c) 2020 Bitwig | MIT, text in `assets/dawproject/LICENSE.dawproject.txt` |
+| The letter and phoneme tables, phonemizer symbol lists and decoding steps of OpenUtau's G2P, ported to Python in `scripts/foundry/g2p.py` | OpenUtau, Copyright (c) 2014 StAkira, https://github.com/stakira/OpenUtau | MIT, text in `scripts/foundry/LICENSE.openutau.txt` |
 
 No other third-party source code, sample, model or voice data is contained in this skill.
 
@@ -44,6 +45,7 @@ These packages are installed separately by the user (`requirements.txt`, `requir
 | faster-whisper, CTranslate2 | speech recognition for vocal checks | MIT |
 | huggingface_hub, tokenizers | model download and decoding for recognition | Apache-2.0 |
 | cmudict | pronunciations for DiffSinger voicebanks | package GPL-3.0-or-later; dictionary data Copyright (C) 1993-2015 Carnegie Mellon University, BSD-style |
+| OpenUtau G2P language packs (`g2p-*.zip`, downloaded on first use) | German, French, Spanish, Italian, Portuguese and Russian words missing from a DiffSinger voicebank's dictionary | MIT (OpenUtau repository) |
 
 Optional outside programs, started only when present: a C compiler, FFmpeg (LGPL-2.1-or-later or GPL depending on the build), LMMS (GPL-2.0-or-later).
 

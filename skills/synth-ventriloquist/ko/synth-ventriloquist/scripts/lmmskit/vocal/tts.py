@@ -68,7 +68,11 @@ VOICES = {
     "piper:en_US-libritts_r-medium": {"engine": "piper", "gender": "mixed", "lang": "en-us", "note": "clear, lo-fi and peaky; suits lo-fi tracks; CC BY 4.0 dataset"},
 }
 DEFAULT_VOICE = {"female": "kokoro:af_heart", "male": "kokoro:am_michael"}
-ESPEAK_LANGUAGES = {"zh": "cmn"}       # a song's language code -> espeak's name for it, where the two differ
+ESPEAK_LANGUAGES = {"zh": "cmn", "fr": "fr-fr", "no": "nb", "nn": "nb"}   # a song's language code -> espeak's name for it, where the two differ
+# Kokoro's own espeak language for each voice-name prefix (af_heart: a, pf_dora: p), as in its own pipeline
+KOKORO_LANG = {"a": "en-us", "b": "en-gb", "e": "es", "f": "fr-fr", "h": "hi", "i": "it", "p": "pt-br", "j": "ja", "z": "cmn"}
+# Vowels Kokoro has no symbol for, and the nearest it has: dropped, they took their syllable with them (German Glück).
+KOKORO_FALLBACK_VOWELS = {"ʏ": "y", "ɵ": "ø", "ʉ": "u"}
 # espeak marks the words it reads with another language's rules, e.g. "(en)tʃˈaɪniːz(ja)lˈetə" for a kanji in Japanese.
 # Kokoro's tokenizer keeps those marks, and the voice sang them as letters: "(ko)" became an extra syllable "ko".
 LANGUAGE_SWITCH = re.compile(r"\([a-z]+\)")
@@ -91,10 +95,14 @@ class Unit:
 
 
 def speech_language(voice: str, lang: str | None) -> str:
-    """espeak language for a voice singing in `lang` (en, ko, ja, zh, ru ...): English keeps the voice's own accent."""
+    """espeak language for a voice singing in `lang` (en, ko, ja, zh, ru ...): English keeps the voice's own accent, and
+    a Kokoro voice keeps its own variant of its own language (pt with pf_dora reads Brazilian Portuguese)."""
     own = VOICES.get(voice, {}).get("lang", "en-us")
     if not lang or lang.lower() == "en":
         return own if own.startswith("en") else "en-us"
+    native = KOKORO_LANG.get(voice.split(":")[-1][:1]) if voice.startswith("kokoro:") else None
+    if native and lang.lower() == native.split("-")[0]:
+        return native
     return ESPEAK_LANGUAGES.get(lang.lower(), lang.lower())
 
 
@@ -105,10 +113,11 @@ def _identity(base: str, voice: str, lang: str) -> str:
 
 def _vocab_phonemes(tokenizer, text: str, lang: str) -> str:
     """What Kokoro's tokenizer.phonemize returns, except that a letter outside its vocabulary keeps its base letter.
-    espeak writes the Japanese a as the precomposed ä, which the tokenizer dropped: every a of a Japanese line went unsung."""
+    espeak writes the Japanese a as the precomposed ä, which the tokenizer dropped: every a of a Japanese line went unsung.
+    A vowel with no base letter in the vocabulary takes the nearest vowel (KOKORO_FALLBACK_VOWELS)."""
     import phonemizer
     raw = phonemizer.phonemize(text.strip(), lang, preserve_punctuation=True, with_stress=True)    # as the tokenizer runs it
-    kept = "".join(c if c in tokenizer.vocab else unicodedata.normalize("NFD", c) for c in raw)
+    kept = "".join(c if c in tokenizer.vocab else KOKORO_FALLBACK_VOWELS.get(c) or unicodedata.normalize("NFD", c) for c in raw)
     return "".join(c for c in kept if c in tokenizer.vocab).strip()
 
 
