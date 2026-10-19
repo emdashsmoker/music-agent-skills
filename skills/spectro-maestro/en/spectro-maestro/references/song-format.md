@@ -198,6 +198,7 @@ sections:
 ## Mix settings for the whole song
 ```yaml
 mix:
+  style: balanced             # the foreground placement chosen in the plan: forward, balanced (default), blended (Mix styles in mixing-qa.md)
   returns:
     reverb: {decay: 2.6, damp: 5000}
     delay: {time: 1/8d, feedback: 0.4}

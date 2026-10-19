@@ -9,8 +9,10 @@
 - Level is set as a target level per role
     + The mixer measures the actual loudness of each track and moves it to the target of its role
     + A patch that is loud or quiet by nature still lands in the same place
+- The place of the foreground is set by the mix style chosen in the plan
+    + The song file's `mix.style` lays offsets over the role defaults and the genre profile (Mix styles below)
 - Priority of the adjustment knobs
-    + First : the track's `mix.gain_db` (a few dB up or down from the role default)
+    + First : the track's `mix.gain_db` (a few dB up or down from the role default and the style offset)
     + Second : the section's `vel` (velocity in one section only)
     + Third : the track's `reverb`, `delay`, `duck`, `hpf`, `lpf`
     + Fourth : insert EQ
@@ -49,7 +51,7 @@
 | `glue` | true | Light compressor that binds the buses |
 | `clip` | true | Soft clip that shaves only the highest momentary peaks |
 | `eq` | none | Master EQ bands (same format as `eq` in `sound.md`) |
-| `vocal_carve` | -2.5 | How much of the music bus's 1.3-5 kHz is taken out while the vocal sounds (dB) |
+| `vocal_carve` | -2.5 | How much of the music bus's 1.3-5 kHz is taken out while the vocal sounds (dB). The mix style shifts it |
 | `mono_below` | 110 | Everything below this frequency is summed to mono |
 | `sidechain_release` | 0.5 | Sidechain recovery time (beats) |
 | `fade_out` | 0 | Fade at the end of the song (beats) |
@@ -59,6 +61,26 @@
     + Hard club genres (hardstyle, gabber, big room) : -8 to -7
 - The harder the limiter works, the more the kick is squashed and pumping appears
     + If `limiter_p95_db` exceeds 5, lower the target loudness or reduce the loudest bus
+
+## Mix styles
+- Where the foreground (the backbeat, the lead, the lead vocal) sits in the track is taste, so it is asked in the plan and recorded as `mix.style` in the song file
+    + An instrumental moves only the backbeat and the lead; a vocal song moves the vocal level, `vocal_carve` and the judging window with them
+    + Brightness, space and the other values of the genre profile stay as they are
+- The offsets of the three styles
+
+| Style | What it sounds like | Role `gain_db` offsets | `vocal_carve` shift | Vocal windows |
+|---|---|---|---|---|
+| `forward` | A pop or radio mix: the voice and the backbeat on top of the track | snare +1.5, lead +1, vocal +1.5 | -1.5 (-4 by default) | body 2 - 14, consonants 4 - 16 |
+| `balanced` (default) | The plain role defaults | none | 0 (-2.5 by default) | body 0 - 12, consonants 2 - 14 |
+| `blended` | A club mix: the voice and the lead inside the track | lead -1, vocal -1.5 | +1.5 (-1 by default) | body -2 - 10, consonants 0 - 12 |
+
+- Why the judging window moves with the style
+    + A balance the user chose would otherwise come back as a finding on every render and turn the review into noise
+    + In forward the vocal has to sit 2 dB or more above the body of the backing to count as "in front"; in blended 2 dB under is still the intended place
+- `studio render --mix-style <name>` overrides the song file's style for that run only
+    + Use it to render the same song in each style and compare
+- The values of the three styles were set by rendering test songs in each style
+    + The measurements are at the end of this page, under "Measurements behind the mix styles"
 
 ## Review procedure
 - When `render` finishes, check three things in turn
@@ -89,8 +111,8 @@
 | `mono_loss_db` | -3 or higher | Loss of level in mono playback |
 | `drums_vs_rest_db` | -5 - 7 | Low: the beat is buried. High: the beat swallows the mix |
 | `kick_vs_bass_db` | -3 or higher | The bass covers the kick where the kick hits |
-| `vocal_body_db` | 0 - 12 | Low: the vocal is buried. High: the vocal sits apart from the backing |
-| `vocal_consonant_db` | 2 - 14 | Low: the words are masked |
+| `vocal_body_db` | 0 - 12 (balanced; ±2 with the mix style) | Low: the vocal is buried. High: the vocal sits apart from the backing |
+| `vocal_consonant_db` | 2 - 14 (balanced; ±2 with the mix style) | Low: the words are masked |
 | `energy_rank_correlation` | 0.5 or higher | Section loudness does not follow the planned energy curve |
 | `ending_drop_db` | 18 or lower | The song stops dead with the last bar still full |
 | `silences_s` | empty list | Unexpected silence inside the song |
