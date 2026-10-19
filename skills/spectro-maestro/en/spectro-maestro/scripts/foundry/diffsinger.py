@@ -438,7 +438,8 @@ def sing_phrase(bank: Voicebank, groups: list, word_cut: list, notes: list, sett
              "word_div": word_div, "word_dur": word_dur}
     encoder_out, masks = dur_stage.run("linguistic", feeds)
     ph_midi = np.array([[int(round(item["midi"])) for item in plan for _ in item["symbols"]]], dtype=np.int64)
-    feeds = {"encoder_out": encoder_out, "x_masks": masks, "ph_midi": ph_midi}
+    # Newer exports feed the word layout to the duration model as well; run() passes only what the model declares.
+    feeds = {"encoder_out": encoder_out, "x_masks": masks, "ph_midi": ph_midi, "word_div": word_div, "word_dur": word_dur}
     embed = dur_stage.embed(mix)
     if embed is not None:
         feeds["spk_embed"] = np.tile(embed, (1, len(symbols), 1)).astype(np.float32)
