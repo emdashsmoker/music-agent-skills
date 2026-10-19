@@ -18,12 +18,16 @@ REFERENCE_LUFS = -20.0          # loud-part loudness given to a role with level 
 # in the mix changes with it.
 #   balanced  the default: the plain role levels and carve the toolkit was tuned with. All offsets are zero.
 #   forward   a pop or radio balance: the voice and the backbeat on top of the track, the lead a little louder.
+#   vocal     the voice and the lead of forward with the backbeat of balanced (the balance of the vocal demos).
+#   backbeat  the backbeat of forward with the voice and the lead of balanced.
 #   blended   a club balance: the voice and the lead inside the track.
 # The window shifts follow what the offsets did to the measured vocal margins in ten test renders (references/
 # mixing-qa.md): forward lifted the vocal about 1 dB over the backing, blended lowered it about 2 dB. A style is a
 # starting point: a track's own `gain_db` and the master's `vocal_carve` still move single parts and the carve.
 MIX_STYLES = {
     "forward": {"gain_db": {"snare": 1.5, "lead": 1.0, "vocal": 1.5}, "vocal_carve": -1.5, "vocal_window": 1.0},
+    "vocal": {"gain_db": {"lead": 1.0, "vocal": 1.5}, "vocal_carve": -1.5, "vocal_window": 1.0},
+    "backbeat": {"gain_db": {"snare": 1.5}, "vocal_carve": 0.0, "vocal_window": 0.0},
     "balanced": {"gain_db": {}, "vocal_carve": 0.0, "vocal_window": 0.0},
     "blended": {"gain_db": {"lead": -1.0, "vocal": -1.5}, "vocal_carve": 1.5, "vocal_window": -2.0},
 }

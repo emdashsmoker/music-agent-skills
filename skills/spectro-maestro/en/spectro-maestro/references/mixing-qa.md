@@ -66,11 +66,14 @@
 - Where the foreground (the backbeat, the lead, the lead vocal) sits in the track is taste, so it is asked in the plan and recorded as `mix.style` in the song file
     + An instrumental moves only the backbeat and the lead; a vocal song moves the vocal level, `vocal_carve` and the judging window with them
     + Brightness, space and the other values of the genre profile stay as they are
-- The offsets of the three styles
+    + Vocal and backbeat are the two halves of forward. Vocal is the closest to where the two vocal demos actually sit (vocal +2, carve -1), and in an instrumental it only lifts the lead by 1 dB, so it is not offered for instrumentals
+- The offsets of the styles
 
 | Style | What it sounds like | Role `gain_db` offsets | `vocal_carve` shift | Vocal windows |
 |---|---|---|---|---|
 | `forward` | A pop or radio mix: the voice and the backbeat on top of the track | snare +1.5, lead +1, vocal +1.5 | -1.5 (-4 by default) | body 1 - 13, consonants 3 - 15 |
+| `vocal` | Only the voice and the lead forward, the backbeat at balanced | lead +1, vocal +1.5 | -1.5 | as forward |
+| `backbeat` | Only the backbeat forward, the voice and the lead at balanced | snare +1.5 | 0 | as balanced |
 | `balanced` (default) | The plain role defaults | none | 0 (-2.5 by default) | body 0 - 12, consonants 2 - 14 |
 | `blended` | A club mix: the voice and the lead inside the track | lead -1, vocal -1.5 | +1.5 (-1 by default) | body -2 - 10, consonants 0 - 12 |
 
@@ -79,8 +82,12 @@
     + The shift follows what the offsets did to the measured vocal margins: about 1 dB up in forward, about 2 dB down in blended (measurements below)
 - `studio render --mix-style <name>` overrides the song file's style for that run only
     + Use it to render the same song in each style and compare
-- The values of the three styles were set by rendering test songs in each style
+- The values of the styles were set by rendering test songs in each style
     + The measurements are at the end of this page, under "Measurements behind the mix styles"
+- Adherence is asked in the plan next to the style, and the default is flexible
+    + (Flexible) The style is a starting point. To fix what the review finds, move the foreground parts' `gain_db` and `vocal_carve` in steps of 1 to 2 dB, keeping the style's windows. Record each moved part and the amount in the report; changing the style itself is the user's call
+    + (Fixed) The foreground parts (snare, lead, vocal) keep the style's `gain_db` and `vocal_carve`. Fix with the arrangement, the other parts, the sounds and EQ only; a finding that only a foreground move would clear is reported as it is
+    + A named style reads like a target and invites the mixer to stop adjusting, so flexible is the default: the way the mix is adjusted does not change, only the starting point is handed back to the user
 
 ## Review procedure
 - When `render` finishes, check three things in turn

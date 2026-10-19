@@ -351,7 +351,7 @@ def main() -> None:
         (("--bars",), {"default": None, "help": "first:count, e.g. 33:8 renders 8 bars from LMMS bar 33"}),
         (("--trim",), {"action": "store_true", "help": "lower to -1 dBTP if needed"}))
     tone = (("--no-tone-fit",), {"action": "store_true", "help": "keep the tone as mixed: no high shelf on a dull mix"})
-    style = (("--mix-style",), {"default": None, "choices": ("forward", "balanced", "blended"),
+    style = (("--mix-style",), {"default": None, "choices": ("forward", "vocal", "backbeat", "balanced", "blended"),
                                 "help": "where the foreground sits (default: the plan file's style, else balanced); the ducking under "
                                         "sung lines is written by the song script, so a vocal song sets Song.mix_style there"})
     add("balance", cmd_balance, project, genre, tone, style, (("--work",), {"required": True, "help": "work folder for stems"}))

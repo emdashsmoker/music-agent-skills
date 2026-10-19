@@ -50,12 +50,16 @@ PEAK_OF_ROLE = {"kick": 0.0, "snare": -1.0, "clap": -3.0, "hat": -7.0, "cymbal":
 #   balanced  the default: the backbeat and the lead vocal a little forward, more than a tucked-in modern mix, well
 #             short of an 80s-size snare. These are the plain numbers the toolkit was tuned with.
 #   forward   a pop or radio balance: the voice and the backbeat on top of the track, the lead a little louder.
+#   vocal     the voice and the lead of forward with the backbeat of balanced (the balance of the vocal demos).
+#   backbeat  the backbeat of forward with the voice and the lead of balanced.
 #   blended   a club balance: the voice and the lead inside the track, the backbeat at its plain role level.
 # The window shifts follow what the offsets did to the measured vocal margins in the test renders (references/
 # mixing.md): forward lifted the vocal 1.3 to 2.0 dB over the backing, blended lowered it 1.1 to 1.9 dB. A style
 # is a starting point: Part.level_db and Song.duck_for_vocals still move single parts and the ducking.
 MIX_STYLES = {
     "forward": {"levels": {"clap": 2.5, "snare": 2.0, "lead": 1.0, "vocal": 3.0}, "vocal_duck": (1.0, 1.0), "vocal_window": 1.5},
+    "vocal": {"levels": {"clap": 1.5, "snare": 1.0, "lead": 1.0, "vocal": 3.0}, "vocal_duck": (1.0, 1.0), "vocal_window": 1.5},
+    "backbeat": {"levels": {"clap": 2.5, "snare": 2.0, "vocal": 1.5}, "vocal_duck": (0.0, 0.0), "vocal_window": 0.0},
     "balanced": {"levels": {"clap": 1.5, "snare": 1.0, "vocal": 1.5}, "vocal_duck": (0.0, 0.0), "vocal_window": 0.0},
     "blended": {"levels": {"lead": -1.0}, "vocal_duck": (-1.0, -2.0), "vocal_window": -2.0},
 }
@@ -383,7 +387,7 @@ class Song:
             self.vocal_presence_octaves = abs(presence_octaves)
 
     def mix_style(self, name: str) -> None:
-        """Choose where the foreground sits, as agreed in the plan: a MIX_STYLES name (forward, balanced, blended).
+        """Choose where the foreground sits, as agreed in the plan: a MIX_STYLES name (forward, vocal, backbeat, balanced, blended).
 
         The style's level offsets apply when `produce` balances the parts, its ducking shift when the project is saved,
         and its window shift when the vocal margins are checked. Call it before save().

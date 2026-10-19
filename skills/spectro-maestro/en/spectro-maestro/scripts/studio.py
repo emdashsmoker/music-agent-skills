@@ -329,7 +329,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--only", help="render only these tracks")
     p.add_argument("--stems", action="store_true", help="also write one stem per track")
     p.add_argument("--no-qa", action="store_true")
-    p.add_argument("--mix-style", choices=("forward", "balanced", "blended"), default=None,
+    p.add_argument("--mix-style", choices=("forward", "vocal", "backbeat", "balanced", "blended"), default=None,
                    help="where the foreground sits, overriding the song's mix.style (default: balanced)")
     p.add_argument("--models", help="directory holding voice models")
     p.set_defaults(run=cmd_render)
