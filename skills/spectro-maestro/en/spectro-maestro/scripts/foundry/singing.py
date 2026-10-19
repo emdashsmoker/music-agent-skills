@@ -50,6 +50,8 @@ SPLICE_CONSONANTS = True
 FADE_LIMIT_DB = 6.0             # a vowel's tail counts as faded once it is this far below its held level
 MAX_EDGE_SHARE = 0.4            # a vowel's natural attack or release may take at most this share of its note
 SPLICE_FADE_S = 0.004
+AUDIBLE_CUT_S = 0.03            # a line losing more sound than this before the song start loses its opening consonants
+CUT_FLOOR_DB = -50.0            # quieter than this under the line's peak counts as silence when that loss is measured
 LEVEL_EDGE_S = 0.02             # syllable level is measured this far inside the note
 LEVEL_LIMIT_DB = 8.0
 SILENCE_FLOOR = 1e-12
@@ -94,6 +96,16 @@ VOWEL_FILL_LIMIT_DB = 10.0                # the deficit of a sung ee is about 10
 VOWEL_FILL_EDGE_S = 0.03                  # ramps at the vowel's ends so transitions keep their shape
 VOWEL_FILL_BREATH_HZ = 2000.0             # breath noise above this is thinned on filled frames
 VOWEL_FILL_BREATH_SHARE = 0.5             # share of that noise removed at strength 1
+
+
+def audible_cut(audio: np.ndarray, samples: int, sr: int) -> float:
+    """Seconds of sound in the first `samples` samples of a line: what is lost when they fall before the song start."""
+    level = np.abs(audio)
+    peak = float(level.max()) if len(level) else 0.0
+    if samples <= 0 or peak <= 0.0:
+        return 0.0
+    first = int(np.argmax(level > peak * 10.0 ** (CUT_FLOOR_DB / 20.0)))
+    return max(0, samples - first) / sr
 
 
 def analyse(audio: np.ndarray, sr: int, f0: np.ndarray | None = None) -> dict:

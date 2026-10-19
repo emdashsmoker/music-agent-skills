@@ -186,6 +186,7 @@ The same check measures two more things per line. They appear in the `vocal_scor
 
 - Pitch error (`pitch_error_cents`): the median distance in cents between the sung pitch and the written notes, measured in the vowels away from the note edges. 10 to 15 cents is normal. Above 25 the line is heard as out of tune. When at least two lines, and half or more of the different lines, are above 25 cents, `off_pitch_lines` appears. The melody then lies outside the range this voice holds cleanly: transpose the part toward its natural pitch or choose another voice.
 - Rough syllables (`rough_syllables`, `ROUGH` in the report): vowels that came out as noise (`noise`, periodicity under 0.6) or were swallowed (`quiet`, 8 dB under the line's typical vowel). The score finds lines whose words come out wrong. `ROUGH` finds syllables that grate even when the words are understood, so a line scoring 1.00 can still be rough. Check both. A syllable that is mostly consonant by design on a short note is not judged.
+- Cut opening (`cut_at_song_start`): a line whose opening consonants would sound before the song starts loses them, and the warning gives the lost length. Start the line later or give the song a bar before it.
 - Weak and `ROUGH` lines get a figure in `out/vocals/<part>_lineNN.png`. A smudge where the vowel should show stripes is a real fault: lengthen the note, choose a word with fewer consonants around the syllable, or try another voice and check again. `references/visual-qa.md` explains the figure.
 
 ## Line-ending repair

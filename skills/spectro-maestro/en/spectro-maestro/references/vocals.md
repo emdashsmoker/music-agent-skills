@@ -197,6 +197,7 @@ vox:
     + `python scripts/studio.py vocal-check song.yaml`
     + Prints the recognised text, the match score and the pitch error (cents) for every line
     + Syllables whose vowel was sung as noise or is barely audible are printed with a `ROUGH` mark (speech voice engines)
+    + A line whose opening consonants would sound before the song starts loses them; `render` and `vocal-check` print a `CUT` note with the lost length. Start the line later or give the song a bar before it
     + For lines with a match below 0.85 or a `ROUGH` mark, a picture and a solo clip are saved in the `vocals/` folder
 - The match score and `ROUGH` catch different faults
     + Match score : lines whose words are heard differently
