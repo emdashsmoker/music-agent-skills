@@ -688,6 +688,7 @@ def render_lines(project: dict, track: dict, lines: list, n: int, build_dir: str
             divisor = np.gcd(SR, rate)
             audio = signal.resample_poly(audio, SR // divisor, rate // divisor).astype(np.float32)
         at = int((line["start"] * spb - pre_roll + variant.get("delay_ms", 0.0) / 1000.0) * SR)
+        cut = singing.audible_cut(audio, -at, SR) if at < 0 else 0.0     # sound before the song start is cut
         if at < 0:
             audio, at = audio[-at:], 0
         stop = min(n, at + len(audio))
@@ -698,6 +699,8 @@ def render_lines(project: dict, track: dict, lines: list, n: int, build_dir: str
                        "syllables": [" ".join(x.split("/")[-1] for x in g) for g in groups[1:]], "start_s": round(line["start"] * spb, 3),
                        "pre_roll_s": round(lead + 0.02, 3), "lowest": theory.midi_to_name(min(pitches)),
                        "highest": theory.midi_to_name(max(pitches))})
+        if cut > singing.AUDIBLE_CUT_S:
+            report[-1]["cut_s"] = round(cut, 3)
     return out, report
 
 

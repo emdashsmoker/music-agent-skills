@@ -38,6 +38,8 @@ CARRIER_WORDS = {"en": "but", "de": "doch", "es": "pero", "fr": "puis", "it": "p
 ENDING_MIN_PERIODICITY = 0.5    # the last vowel has died when its best instant is less periodic than this
 ENDING_QUIET_DB = 9.0           # or when that instant is this far below the line's typical vowel
 SPLICE_FADE_S = 0.008
+CUT_ADVICE = ("its first {cut:g} s fall before the song starts and are cut (its opening consonants); start the line "
+              "later or give the song a bar before it")
 LINE_LEVEL_LIMIT_DB = 4.0
 MIN_BREATH_BEATS = 0.5          # lyric lint: less room than this between two lines leaves no breath
 FAST_SYLLABLE_S, FAST_SYLLABLE_COUNT = 0.2, 3    # lyric lint: this many notes this short make a line fast
@@ -296,11 +298,14 @@ def render_speech_lines(project: dict, track: dict, lines: list, n: int, build_d
     levels = [_voiced_rms_db(audio) for _line, audio, _ in takes]
     typical = float(np.median(levels)) if levels else 0.0
     delay = variant.get("delay_ms", 0.0) / 1000.0
-    for (line, audio, pre_roll), level in zip(takes, levels):
+    for (line, audio, pre_roll), level, info in zip(takes, levels, report):
         if config.get("level_lines", True):
             audio = audio * 10.0 ** (float(np.clip(typical - level, -LINE_LEVEL_LIMIT_DB, LINE_LEVEL_LIMIT_DB)) / 20.0)
         at = int((line["start"] * spb - pre_roll + delay) * SR)
-        if at < 0:
+        if at < 0:                                   # sound before the song start cannot be played: it is cut
+            cut = singing.audible_cut(audio, -at, SR)
+            if cut > singing.AUDIBLE_CUT_S:
+                info["cut_s"] = round(cut, 3)
             audio, at = audio[-at:], 0
         end = min(n, at + len(audio))
         if end > at:
@@ -364,6 +369,9 @@ def render_vocal_track(project: dict, track: dict, n: int, build_dir: str, profi
         with open(report_path, "w", encoding="utf-8") as handle:
             json.dump(report, handle, ensure_ascii=False, indent=1)
         print(f"[vocal] {name}: {len(chosen)} lines sung with {engine}:{config['voice']}", flush=True)
+        for index, info in enumerate(report):
+            if info.get("cut_s"):
+                print(f"[vocal] {name} line {index + 1} {info.get('text', '')!r}: {CUT_ADVICE.format(cut=info['cut_s'])}", flush=True)
         return audio
 
     lead_inserts = [] if (track.get("mix") or {}).get("dry") else copy.deepcopy(mixprofile.VOCAL_CHAIN)

@@ -30,6 +30,8 @@ MIN_JUDGED_VOWEL_S = 0.06                # shorter vowels cannot be judged
 CONSONANT_HEAVY_NOTE_S = 0.2             # on a note shorter than this, a vowel taking less than CONSONANT_HEAVY_VOWEL_SHARE of it
 CONSONANT_HEAVY_VOWEL_SHARE = 0.5        # is mostly consonant by design: left out of the ROUGH check
 VOWEL_EDGE_S = 0.01                      # trimmed from both ends of a vowel span before measuring it
+AUDIBLE_CUT_S = 0.03                     # a line losing more sound than this before the song start loses its opening consonants
+CUT_FLOOR_DB = -50.0                     # quieter than this under the line's peak counts as silence when that loss is measured
 
 
 @dataclass
@@ -67,6 +69,16 @@ def _rms_db(audio: np.ndarray) -> float:
     return 20 * np.log10(np.sqrt(np.mean(loud ** 2)) + 1e-12) if len(loud) else -120.0
 
 
+def _audible_cut(audio: np.ndarray, samples: int) -> float:
+    """Seconds of sound in the first `samples` samples of a line: what is lost when they fall before the song start."""
+    level = np.abs(audio)
+    peak = float(level.max()) if len(level) else 0.0
+    if samples <= 0 or peak <= 0.0:
+        return 0.0
+    first = int(np.argmax(level > peak * 10.0 ** (CUT_FLOOR_DB / 20.0)))
+    return max(0, samples - first) / OUTPUT_SR
+
+
 def render_part(part: VocalPart, bpm: float, key: str | None, total_beats: float, out_path: str, cache: str | None = None) -> dict:
     """Sing every line and write the part's stem (FLAC, mono). Returns per-line placement and engine reports."""
     seconds_per_beat = 60.0 / bpm
@@ -78,6 +90,7 @@ def render_part(part: VocalPart, bpm: float, key: str | None, total_beats: float
         audio = sung.audio * 10 ** ((LINE_LOUDNESS_DB - _rms_db(sung.audio)) / 20)
         first_note = (line.start_beat + report["lead_rest_beats"]) * seconds_per_beat
         start = int(round((first_note - sung.lead_in) * OUTPUT_SR))
+        cut = _audible_cut(audio, -start) if start < 0 else 0.0
         if start < 0:                                    # a pickup before bar 1: drop what would fall before the song
             audio, start = audio[-start:], 0
         end = min(len(stem), start + len(audio))
@@ -88,6 +101,8 @@ def render_part(part: VocalPart, bpm: float, key: str | None, total_beats: float
                      "report": report,
                      "syllables": [{"text": item["text"], "start_s": round(start / OUTPUT_SR + item["vowel_start"], 3),
                                     "end_s": round(start / OUTPUT_SR + item["vowel_end"], 3), "pitches": item["pitches"]} for item in sung.layout]})
+        if cut > AUDIBLE_CUT_S:
+            rows[-1]["cut_s"] = round(cut, 3)
     peak = np.max(np.abs(stem))
     if peak > 0.98:
         stem *= 0.98 / peak
@@ -172,6 +187,11 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
     speech_voice = engines.engine_of(voice) in TTS_ENGINES
     seen: dict[tuple[str, str], dict] = {}
     starts = sorted(row["audio_start_s"] for row in rendered["lines"])
+    for row in rendered["lines"]:
+        if row.get("cut_s"):
+            found.append(finding("warn", "cut_at_song_start", f"[{name}] line {row['index'] + 1} '{row['text']}': its first "
+                                 f"{row['cut_s']:g} s fall before the song starts and are cut (its opening consonants); start the "
+                                 "line later or give the song a bar before it", line=row["index"], cut_s=row["cut_s"]))
     for row in rendered["lines"]:
         key = (row["text"].lower(), row["melody"])
         if key in seen:                                   # a repeat carries the first take's measurements
