@@ -53,11 +53,13 @@ The step moves each part's mixer fader. To change the balance, change `level_db`
 
 ## Mix styles
 
-Where the foreground sits in the track is taste, so it is asked in the planning stage (`SKILL.md`, Stage 1). The answer is one of the names in `compose.MIX_STYLES`; the script records it with `song.mix_style("forward")` and it lands in the plan file. The foreground is the backbeat (snare, clap), the lead, and the lead vocal. In an instrumental only the first two move; in a vocal song the vocal level, the ducking and the judging window move with them. A style changes nothing beyond these three things: brightness, space and the genre levels stay as they are.
+Where the foreground sits in the track is taste, so it is asked in the planning stage (`SKILL.md`, Stage 1). The answer is one of the names in `compose.MIX_STYLES`; the script records it with `song.mix_style("forward")` and it lands in the plan file. The foreground is the backbeat (snare, clap), the lead, and the lead vocal. In an instrumental only the first two move; in a vocal song the vocal level, the ducking and the judging window move with them. A style changes nothing beyond these three things: brightness, space and the genre levels stay as they are. Vocal and backbeat are the two halves of forward. Vocal is the balance the vocal demos actually use, and in an instrumental it only lifts the lead by 1 dB, so it is not offered for instrumentals.
 
 | Style | What it sounds like | Level offsets (LU) | Ducking shift (depth, presence dB) | Vocal window (densest section) |
 |---|---|---|---|---|
 | `forward` | A pop or radio mix: the voice and the backbeat on top of the track | clap +2.5, snare +2, lead +1, vocal +3 | +1, +1 (3.5 and 7.0 by default) | body +1.5 to +10.5, consonants +3.5 or more |
+| `vocal` | Only the voice and the lead forward, the backbeat at balanced | clap +1.5, snare +1, lead +1, vocal +3 | +1, +1 | as forward |
+| `backbeat` | Only the backbeat forward, the voice and the lead at balanced | clap +2.5, snare +2, vocal +1.5 | 0, 0 | as balanced |
 | `balanced` (default) | The backbeat and the voice a little forward | clap +1.5, snare +1, vocal +1.5 | 0, 0 (2.5 and 6.0 by default) | body 0 to +9, consonants +2 or more |
 | `blended` | A club mix: the voice and the lead inside the track | lead -1, the rest at the plain role levels | -1, -2 (1.5 and 4.0 by default) | body -2 to +7, consonants 0 or more |
 
@@ -65,7 +67,16 @@ The judging window moves with the style because a balance the user chose would o
 
 `--mix-style` on `produce`, `check` and `balance` overrides the plan file's style for that run. The levels and the window change, but the ducking automation under sung lines is written when the script saves the project, so a vocal song changes style in the script and is saved again. For an existing project without a script, the option is the only way to set the style.
 
-The values of the three styles were set by rendering test songs in each style. The measurements are at the end of this page, under "Measurements behind the mix styles".
+The values of the styles were set by rendering test songs in each style. The measurements are at the end of this page, under "Measurements behind the mix styles".
+
+### Adherence to the style
+
+The plan asks for the adherence next to the style. The default is flexible.
+
+- Flexible: the style is a starting point. To fix what the report finds, move the foreground parts' `level_db` and the ducking in steps of 1 to 2 dB, keeping the style's judging window. Write each moved part and the amount in the delivery note. Changing the style itself is the user's call: ask.
+- Fixed: the foreground parts (snare, clap, lead, lead vocal) keep the style's levels and ducking. Fix findings with the arrangement, the other parts' levels, the sounds and EQ. A warning that only a foreground move would clear is reported as it is, not fixed.
+
+Adherence is asked because a named style reads like a target and invites the mixer to stop adjusting. With flexible as the default, a style changes nothing about how the mix is adjusted; it only hands the starting point back to the user.
 
 ## What the loudness step does
 
