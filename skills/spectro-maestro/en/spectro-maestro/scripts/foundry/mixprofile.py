@@ -18,7 +18,7 @@ REFERENCE_LUFS = -20.0          # loud-part loudness given to a role with level 
 # in the mix changes with it.
 #   balanced  the default: the plain role levels and carve the toolkit was tuned with. All offsets are zero.
 #   forward   a pop or radio balance: the voice and the backbeat on top of the track, the lead a little louder.
-#   vocal     the voice and the lead of forward with the backbeat of balanced (the balance of the vocal demos).
+#   vocal     the voice and the lead of forward with the backbeat of balanced.
 #   backbeat  the backbeat of forward with the voice and the lead of balanced.
 #   blended   a club balance: the voice and the lead inside the track.
 # The window shifts follow what the offsets did to the measured vocal margins in ten test renders (references/
