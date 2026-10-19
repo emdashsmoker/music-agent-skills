@@ -250,7 +250,7 @@ TTS 목소리는 문장의 마지막 단어를 사그라들게 한다. 더 작�
 
 - `lang`(en, ko, ja, zh, ru 등)은 모든 엔진에서 가사의 언어다. TTS 목소리는 그 언어의 발음으로 가사를 읽는다. 보이스뱅크는 그 언어의 사전에서 단어를 찾는다. 인식기는 그 언어로 듣는다. `song.vocal(..., lang=)`, `sing`, `compare`, `lyric-lint`에 같은 코드를 준다.
 - 가수 보이스뱅크는 자기가 나열한 언어로 노래한다.
-- Piper에는 여러 언어의 목소리가 있다. Piper 목소리 목록의 id로 `piper:<목소리 id>`를 쓰고(예: `piper:de_DE-thorsten-medium`, `piper:ko_KR-kss-medium`, `piper:ru_RU-irina-medium`) `lang="de"`를 더한다. 목소리는 처음 쓸 때 내려받는다. 인식은 자동으로 다국어 모델로 바뀐다. Piper 일본어 목소리는 `pyopenjtalk` 패키지가 필요하다.
+- Piper에는 여러 언어의 목소리가 있다. Piper 목소리 목록의 id로 `piper:<목소리 id>`를 쓰고(예: `piper:de_DE-thorsten-medium`, `piper:ko_KR-kss-medium`, `piper:ru_RU-irina-medium`) `lang="de"`를 더한다. 목소리는 처음 쓸 때 내려받는다. 인식은 자동으로 다국어 모델로 바뀐다. 이 모델은 작은 `base` 모델이라 다른 언어 가사에서는 또렷하게 부른 줄도 잘못 알아들을 수 있다. 더 큰 모델(`--asr-model small` 또는 설정 `asr_model`)을 쓰면 약한 줄 오판이 줄어든다. Piper 일본어 목소리는 `pyopenjtalk` 패키지가 필요하다.
 - 여기의 Kokoro 내장 목록은 영어 목소리를 담는다. Kokoro의 일본어 목소리(`kokoro:jf_alpha`)와 중국어 목소리(`kokoro:zf_xiaobei`)도 `lang="ja"`, `lang="zh"`로 노래한다. Kokoro는 일본어를 espeak로 읽는다. espeak는 가나를 읽지만 한자는 읽지 못하므로 Kokoro용 일본어 가사는 가나로 쓴다. Piper 일본어 목소리는 한자를 읽는다. 언어가 읽지 못하는 단어(`ja`의 한자, 단어 뒤의 `~`)가 든 줄은 그 단어를 밝힌 `unreadable_text` 오류를 받는다. 영어 Kokoro 목소리로 다른 언어를 읽으면 영어 억양이 강하게 남으므로 그 언어의 목소리를 고른다. 가사 언어의 Kokoro 목소리는 자신의 변이형을 유지한다. 브라질 목소리(`kokoro:pf_dora`)로 `lang="pt"`를 부르면 브라질 포르투갈어로 읽는다.
 - 영어 밖에서는 인식 점수가 낮고, 운반 단어를 등록하기 전에는 줄 끝 보정이 없고, 가사 요령의 힌트가 일부만 적용된다(약한 단어 목록이 영어다). `lyric-lint`로 음절 수를 확인하고 들어서 판단한다.
 - 인식기는 일본어와 중국어를 자기가 고른 문자로 적는다(가나 가사를 한자로, 가타카나로, 번체자로). 그래서 단어가 제대로 들려도 점수가 낮아진다. 점수 옆의 인식 결과를 함께 읽는다.

@@ -177,7 +177,8 @@ def cmd_master(args) -> None:
 def cmd_check(args) -> None:
     from lmmskit import pipeline
     from lmmskit.findings import format_findings
-    report = pipeline.check(args.project, args.out, args.genre, args.lufs, figures=not args.no_figures, mix_style=args.mix_style)
+    report = pipeline.check(args.project, args.out, args.genre, args.lufs, figures=not args.no_figures, mix_style=args.mix_style,
+                            asr_model=args.asr_model)
     print(format_findings(report["findings"]))
     print("figures:", report["figures"])
 
@@ -186,7 +187,7 @@ def cmd_produce(args) -> None:
     from lmmskit import pipeline
     from lmmskit.findings import format_findings
     report = pipeline.produce(args.project, args.out, args.genre, args.lufs, balance=not args.no_balance, repeat_check=not args.no_repeat_check,
-                              tone_fit=not args.no_tone_fit, mix_style=args.mix_style)
+                              tone_fit=not args.no_tone_fit, mix_style=args.mix_style, asr_model=args.asr_model)
     print(format_findings(report["findings"]))
     _print({"files": report["files"], "figures": report["figures"], "steps": report["steps"]})
 
@@ -238,14 +239,15 @@ def cmd_sing(args) -> None:
     options = {"fix_ending": False} if args.no_ending_fix else {}
     sung, report = engines.render_line(args.voice, lines.Line(args.text, args.melody), args.bpm, method=args.method, lang=args.lang, cache=args.cache, **options)
     lines.write_wav(args.out, sung.audio)
-    report["recognition"] = asr.score_line(sung.audio, 44100, args.text, language=args.lang) if not args.no_asr else None
+    report["recognition"] = asr.score_line(sung.audio, 44100, args.text, args.asr_model, language=args.lang) if not args.no_asr else None
     _print(report)
     print(args.out)
 
 
 def cmd_compare(args) -> None:
     from lmmskit.vocal import lyrics
-    _print(lyrics.compare(args.voice, args.melody, args.texts, args.bpm, cache=args.cache, out_dir=args.out, method=args.method, lang=args.lang))
+    _print(lyrics.compare(args.voice, args.melody, args.texts, args.bpm, cache=args.cache, out_dir=args.out, method=args.method, lang=args.lang,
+                          asr_model=args.asr_model))
 
 
 def cmd_lyric_lint(args) -> None:
@@ -335,6 +337,9 @@ def main() -> None:
     method = (("--method",), {"default": "auto", "choices": ["auto", "stretched", "held"]})
     lang = (("--lang",), {"default": "en"})
     cache = (("--cache",), {"default": None, "help": "folder for cached lines"})
+    asr_model = (("--asr-model",), {"default": None, "help": "faster-whisper model for the vocal check (setting asr_model, default "
+                                                            "base.en); an English-only model switches to its multilingual twin "
+                                                            "when the lyrics are in another language"})
     add("doctor", cmd_doctor)
     add("kit", cmd_kit, (("--build",), {"action": "store_true", "help": "make the kit now if it is not complete"}),
         (("--rebuild",), {"action": "store_true", "help": "make the whole kit again (records the drum-machine hits anew)"}))
@@ -357,10 +362,10 @@ def main() -> None:
     add("balance", cmd_balance, project, genre, tone, style, (("--work",), {"required": True, "help": "work folder for stems"}))
     add("master", cmd_master, project, (("--lufs",), {"type": float, "required": True}), (("--work",), {"required": True}))
     add("check", cmd_check, project, genre, style, (("-o", "--out"), {"required": True}), (("--lufs",), {"type": float, "default": None}),
-        (("--no-figures",), {"action": "store_true"}))
+        (("--no-figures",), {"action": "store_true"}), asr_model)
     add("produce", cmd_produce, project, genre, style, (("-o", "--out"), {"required": True}), (("--lufs",), {"type": float, "default": None}),
         (("--no-balance",), {"action": "store_true", "help": "keep the fader levels as they are"}), tone,
-        (("--no-repeat-check",), {"action": "store_true", "help": "skip the second render that proves the result is repeatable"}))
+        (("--no-repeat-check",), {"action": "store_true", "help": "skip the second render that proves the result is repeatable"}), asr_model)
     add("export", cmd_export, project, (("--midi",), {"default": None}), (("--json",), {"default": None}), (("--dawproject",), {"default": None}),
         (("--stems",), {"default": None, "help": "folder: render stems and include them in the .dawproject"}),
         (("--mmp",), {"default": None, "help": "save a copy as .mmp or .mmpz"}))
@@ -368,10 +373,10 @@ def main() -> None:
     add("pack", cmd_pack, project, (("-o", "--out"), {"required": True, "help": "zip to write"}))
     add("voices", cmd_voices, (("voice",), {"nargs": "?"}), (("--range",), {"action": "store_true", "help": "probe the Kokoro 'held' range"}))
     add("sing", cmd_sing, voice, melody, bpm, method, lang, cache, (("--text",), {"required": True}), (("-o", "--out"), {"required": True}),
-        (("--no-asr",), {"action": "store_true"}),
+        (("--no-asr",), {"action": "store_true"}), asr_model,
         (("--no-ending-fix",), {"action": "store_true", "help": "speech voices: leave the last syllable as spoken"}))
     add("compare", cmd_compare, voice, melody, bpm, method, lang, cache, (("texts",), {"nargs": "+", "help": "candidate wordings"}),
-        (("--out",), {"default": None, "help": "folder for the candidate WAVs"}))
+        (("--out",), {"default": None, "help": "folder for the candidate WAVs"}), asr_model)
     add("lyric-lint", cmd_lyric_lint, voice, melody, bpm, lang, (("--text",), {"required": True}), (("--kind",), {"default": "verse"}),
         (("--start-beat",), {"type": float, "default": 0.0, "help": "beat in the bar where the melody starts (0 = downbeat), for the stress check"}))
     args = parser.parse_args()
