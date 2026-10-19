@@ -66,7 +66,7 @@
 - Where the foreground (the backbeat, the lead, the lead vocal) sits in the track is taste, so it is asked in the plan and recorded as `mix.style` in the song file
     + An instrumental moves only the backbeat and the lead; a vocal song moves the vocal level, `vocal_carve` and the judging window with them
     + Brightness, space and the other values of the genre profile stay as they are
-    + Vocal and backbeat are the two halves of forward. Vocal is the closest to where the two vocal demos actually sit (vocal +2, carve -1), and in an instrumental it only lifts the lead by 1 dB, so it is not offered for instrumentals
+    + Vocal and backbeat are the two halves of forward. In an instrumental vocal only lifts the lead by 1 dB, so it is not offered for instrumentals
 - The offsets of the styles
 
 | Style | What it sounds like | Role `gain_db` offsets | `vocal_carve` shift | Vocal windows |
@@ -197,20 +197,20 @@
 - Intermediate results are cached in `build/` of the output folder, so only changed tracks are recomputed
 
 ## Measurements behind the mix styles
-- Four vocal songs (the futurepop and coldwave demos, and a futurepop song and a doomer song supplied for the test, all with Kokoro voices) and six instrumentals (the examples First Light and Silver Box, and the four vocal songs with their vocal tracks removed) were rendered in each style
+- Four vocal test songs (two futurepop, one coldwave, one doomer, all with Kokoro voices) and six instrumentals (the examples First Light and Silver Box, and the four vocal songs with their vocal tracks removed) were rendered in each style
     + Loudness, limiter work and crest factor agree within 0.1 LU across the three styles: a style moves only level targets and the carve, so the master does not change
     + In the instrumentals the snare and lead targets move by exactly the offsets (forward +1.5 and +1, blended lead -1), and `drums_vs_rest_db` agrees within 0.5 dB
 - `vocal_body_db` and `vocal_consonant_db` of the vocal songs (whole song; in brackets the section with the lowest consonant margin)
 
 | Song | Balanced body / consonants | Forward body / consonants | Vocal body / consonants | Blended body / consonants |
 |---|---|---|---|---|
-| Futurepop (demo) | 2.9 / 4.2 (3.2) | 4.1 / 5.1 (3.9) | 4.2 / 5.8 (4.7) | 1.5 / 2.7 (1.5) |
-| Coldwave (demo) | 3.9 / 3.9 (2.6) | 5.0 / 5.1 (4.0) | 5.3 / 5.4 (4.3) | 2.5 / 2.3 (0.9) |
-| Futurepop (test song) | 2.3 / 5.0 (3.9) | 3.5 / 5.7 (4.5) | 3.7 / 6.5 (5.4) | 1.0 / 3.4 (2.1) |
-| Doomer (test song) | 3.4 / 3.8 (2.5) | 4.3 / 4.7 (3.4) | 4.7 / 5.3 (4.0) | 2.0 / 2.3 (0.9) |
+| Futurepop A | 2.9 / 4.2 (3.2) | 4.1 / 5.1 (3.9) | 4.2 / 5.8 (4.7) | 1.5 / 2.7 (1.5) |
+| Coldwave | 3.9 / 3.9 (2.6) | 5.0 / 5.1 (4.0) | 5.3 / 5.4 (4.3) | 2.5 / 2.3 (0.9) |
+| Futurepop B | 2.3 / 5.0 (3.9) | 3.5 / 5.7 (4.5) | 3.7 / 6.5 (5.4) | 1.0 / 3.4 (2.1) |
+| Doomer | 3.4 / 3.8 (2.5) | 4.3 / 4.7 (3.4) | 4.7 / 5.3 (4.0) | 2.0 / 2.3 (0.9) |
 
 - Forward lifts the body by 1.0 to 1.2 dB and the consonants by 0.7 to 1.3 dB; blended lowers the body by 1.3 to 2.5 dB and the consonants by 1.5 to 2.2 dB
-- Vocal lifts the body by 1.3 to 1.4 dB and the consonants by 1.5 to 1.6 dB: with the snare in place it leaves 0.4 to 0.9 dB more consonant margin than forward. The coldwave demo, a mix whose drums already sit low, crosses -5 in `drums_vs_rest_db` in this style and reports a buried beat; under flexible adherence, lifting the drums 1 dB is the kind of move that answers it
+- Vocal lifts the body by 1.3 to 1.4 dB and the consonants by 1.5 to 1.6 dB: with the snare in place it leaves 0.4 to 0.9 dB more consonant margin than forward. The coldwave song, a mix whose drums already sit low, crosses -5 in `drums_vs_rest_db` in this style and reports a buried beat; under flexible adherence, lifting the drums 1 dB is the kind of move that answers it
 - Backbeat was not rendered on its own. Its effect on the vocal margins is the difference between forward and vocal (consonants -0.4 to -0.9 dB), and in an instrumental it moves by the snare offset alone
     + With the forward window moved up by 2 dB, the lowest section's consonants fell short in three of the four songs, so the window moves by 1 dB
     + With the blended window moved down by 2 dB, all four songs sit inside it without a finding
