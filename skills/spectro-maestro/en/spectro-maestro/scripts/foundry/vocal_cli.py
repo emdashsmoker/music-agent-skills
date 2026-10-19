@@ -7,6 +7,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import unicodedata
 
 WEAK_SCORE = 0.85
 LINE_TAIL_S = 0.35
@@ -201,7 +202,9 @@ def cmd_vocal_try(args) -> int:
     os.makedirs(os.path.join(out_dir, "vocals"), exist_ok=True)
     length = line["notes"][-1][0] + line["notes"][-1][1]
     print(f"line {args.line}: {line['text']!r} on {len(line['notes'])} notes")
-    for number, text in enumerate([line["text"]] + list(args.text or [])):
+    # Typed wordings arrive as the terminal sends them; a decomposed one (NFD) lost its accents (schön sung as schon).
+    wordings = [unicodedata.normalize("NFC", text) for text in args.text or []]
+    for number, text in enumerate([line["text"]] + wordings):
         trial = copy.deepcopy(project)
         trial["meta"]["beats"] = length + 8
         trial_track = copy.deepcopy(track)
