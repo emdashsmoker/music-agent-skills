@@ -24,12 +24,15 @@ PAUSE = set(" ,.;:!?—…\"()“”^$_-'")
 # Vowel pairs that form one nucleus. Any other vowel-vowel sequence is two syllables (hiatus).
 DIPHTHONGS = {"aɪ", "aʊ", "eɪ", "oʊ", "ɔɪ", "əʊ", "eə", "ɪə", "iə", "ʊə", "ɛə", "ai", "au", "ei", "ou", "oi", "aɔ"}
 # The pairs of languages whose espeak output has diphthongs English lacks (German neu, Dutch uit, Portuguese não).
-# Each set is that language's whole list, since a pair can be one syllable in one language and two in another;
-# languages not listed use DIPHTHONGS. A length mark on the first vowel is part of the pair (Norwegian jeg).
-# The same additions as synth-ventriloquist's phones.LANGUAGE_DIPHTHONGS.
+# Each set is that language's whole list, since a pair can be one syllable in one language and two in another.
+# Only the languages listed use these sets and the rules that go with them (_joins); English and every other
+# language keep DIPHTHONGS and the rules they had. A length mark on the first vowel is part of the pair
+# (Norwegian jeg). The same additions as synth-ventriloquist's phones.LANGUAGE_DIPHTHONGS.
 _NORWEGIAN = DIPHTHONGS | {"øy", "ɛːɪ"}
 LANGUAGE_DIPHTHONGS = {
     "de": DIPHTHONGS | {"ɔø"},
+    "da": DIPHTHONGS,                                                              # er, mor: the ɐ̯ is not a syllable
+    "pl": DIPHTHONGS,                                                              # nauka: a-u is two syllables
     "nl": (DIPHTHONGS - {"iə"}) | {"ʌʊ", "œy", "ɛi", "ɛɪ", "eʊ"},                  # België: i and ə are two syllables
     "fr": DIPHTHONGS | {"yi"},
     "es": DIPHTHONGS | {"oɪ", "eʊ"},
@@ -45,8 +48,8 @@ LANGUAGE_DIPHTHONGS = {
     "is": DIPHTHONGS | {"øy"},
     "no": _NORWEGIAN, "nb": _NORWEGIAN, "nn": _NORWEGIAN,
 }
-# A pair whose second vowel carries the stress is two syllables (Spanish país, Italian paura), except these, where
-# espeak writes a glide as a vowel before the stressed one (French nuit, Italian cuore, Slovak piatok).
+# In those languages a pair whose second vowel carries the stress is two syllables (Spanish país, Italian paura),
+# except these, where espeak writes a glide as a vowel before the stressed one (French nuit, Italian cuore, Slovak piatok).
 RISING_DIPHTHONGS = {"fr": {"yi"}, "it": {"ʊɔ"}, "sk": {"ia", "ie", "iu"}}
 FULL_VOWEL_A = {"pt"}                       # ɐ is a vowel of its own there (rua, lua), not a vocalised r
 SYLLABIC_R = {"hr", "sr", "bs"}            # espeak writes the r of srce and prst without a syllabic mark
@@ -106,7 +109,7 @@ def phones_from_tokens(symbols: list, durations: list) -> list:
             pending_time += dur
             pending_stress = STRESS_MARKS[symbol]
             continue
-        if symbol in (LENGTH_MARK, SYLLABIC_MARK, NASAL_MARK, NON_SYLLABIC_MARK) and phones and phones[-1].kind != "pause":
+        if symbol in (LENGTH_MARK, SYLLABIC_MARK, NASAL_MARK) and phones and phones[-1].kind != "pause":
             phones[-1].symbol += symbol
             phones[-1].end += dur
             if symbol == SYLLABIC_MARK:
@@ -137,11 +140,23 @@ def _syllabic_r(phones: list) -> set:
     return {i for i, phone in enumerate(phones) if phone.symbol[0] == "r" and not vowel_at(i - 1) and not vowel_at(i + 1)}
 
 
+def _joins(phones: list, first: int, second: int, key: str) -> bool:
+    """Whether the vowel at `second` belongs to the nucleus of the vowel just before it, at `first`."""
+    a, b = phones[first], phones[second]
+    if key not in LANGUAGE_DIPHTHONGS:
+        # English and the languages without a table of their own keep the rule they were tuned with, unchanged.
+        # German 'durch', 'vier': the r is a glide, not a syllable.
+        return ((a.symbol[-1] + b.symbol[0]) in DIPHTHONGS and LENGTH_MARK not in a.symbol) or b.symbol == VOCALISED_R
+    pair = a.symbol.replace(NASAL_MARK, "") + b.symbol[0]
+    return ((pair in LANGUAGE_DIPHTHONGS[key] and not b.stress) or pair in RISING_DIPHTHONGS.get(key, set())
+            or (second + 1 < len(phones) and phones[second + 1].symbol == NON_SYLLABIC_MARK)
+            or (b.symbol == VOCALISED_R and key not in FULL_VOWEL_A))
+
+
 def syllabify(phones: list, lang: str | None = None) -> list:
     """Group phones into syllables. Consonants between two vowels of one word open the next syllable;
     consonants before a pause close the syllable they follow. `lang` (en, de, pt-br ...) picks the vowel pairs."""
     key = language_key(lang)
-    pairs, rising = LANGUAGE_DIPHTHONGS.get(key, DIPHTHONGS), RISING_DIPHTHONGS.get(key, set())
     syllabic_r = _syllabic_r(phones) if key in SYLLABIC_R else set()
     syllables, current, pending = [], None, []
     previous_vowel = None
@@ -155,11 +170,7 @@ def syllabify(phones: list, lang: str | None = None) -> list:
             continue
         if phone.kind == "vowel" or index in syllabic_r:
             adjacent = previous_vowel is not None and previous_vowel == index - 1 and len(current.nucleus) == 1
-            pair = phones[previous_vowel].symbol.replace(NASAL_MARK, "") + phone.symbol[0] if adjacent else ""
-            joined = adjacent and ((pair in pairs and not phone.stress) or pair in rising
-                                   or NON_SYLLABIC_MARK in phone.symbol
-                                   # German 'durch', 'vier': the r is a glide, not a syllable
-                                   or (phone.symbol == VOCALISED_R and key not in FULL_VOWEL_A))
+            joined = adjacent and _joins(phones, previous_vowel, index, key)
             if joined:
                 current.nucleus.append(index)
                 current.stress = max(current.stress, phone.stress)

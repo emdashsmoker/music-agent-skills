@@ -13,14 +13,17 @@ VOWELS = set("aɑɐɒæeəɚɛɜɝiɪᵻoɔuʊʌøœyɯɨɤʏɵʉɘɞɶᵊAIOWY"
 # Vowel pairs sung as one syllable (first part held, second part a short glide at the end).
 DIPHTHONGS = {"aɪ", "aʊ", "eɪ", "oʊ", "ɔɪ", "əʊ", "eə", "ɪə", "ʊə", "ɛɪ", "ɑɪ", "ɔʊ"}
 # The pairs of languages whose espeak output has diphthongs English lacks (German neu, Dutch uit, Portuguese não).
-# Each set is that language's whole list, since a pair can be one syllable in one language and two in another;
-# languages not listed use DIPHTHONGS. A length mark on the first vowel is part of the pair (Norwegian jeg, while
-# German gehen stays two). The same additions as Spectro Maestro's phonetics.LANGUAGE_DIPHTHONGS (same author,
-# AGPL-3.0-or-later), whose own base list already holds the plain pairs.
+# Each set is that language's whole list, since a pair can be one syllable in one language and two in another.
+# Only the languages listed use these sets and the rules that go with them (_one_nucleus, _nuclei_flags); English
+# and every other language keep DIPHTHONGS and the rules they had. A length mark on the first vowel is part of the
+# pair (Norwegian jeg, while German gehen stays two). The same additions as Spectro Maestro's
+# phonetics.LANGUAGE_DIPHTHONGS (same author, AGPL-3.0-or-later), whose own base list already holds the plain pairs.
 _PLAIN = {"ai", "au", "ei", "oi", "ou"}           # espeak writes these without ɪ or ʊ in several languages
 _NORWEGIAN = DIPHTHONGS | {"øy", "ɛːɪ"}
 LANGUAGE_DIPHTHONGS = {
     "de": DIPHTHONGS | {"ɔø"},
+    "da": DIPHTHONGS,                             # er, mor: the ɐ̯ is not a syllable
+    "pl": DIPHTHONGS,
     "nl": DIPHTHONGS | {"ʌʊ", "œy", "ɛi", "eʊ"},
     "fr": DIPHTHONGS | {"yi"},
     "es": DIPHTHONGS | _PLAIN | {"oɪ", "eʊ"},
@@ -36,16 +39,16 @@ LANGUAGE_DIPHTHONGS = {
     "is": DIPHTHONGS | {"øy"},
     "no": _NORWEGIAN, "nb": _NORWEGIAN, "nn": _NORWEGIAN,
 }
-# A pair whose second vowel carries the stress is two syllables (Spanish país, Italian paura), except these, where
-# espeak writes a glide as a vowel before the stressed one (French nuit, Italian cuore, Slovak piatok).
+# In those languages a pair whose second vowel carries the stress is two syllables (Spanish país, Italian paura),
+# except these, where espeak writes a glide as a vowel before the stressed one (French nuit, Italian cuore, Slovak piatok).
 RISING_DIPHTHONGS = {"fr": {"yi"}, "it": {"ʊɔ"}, "sk": {"ia", "ie", "iu"}}
 VOCALISED_R, VOCALISED_R_LANGUAGES = "ɐ", {"de"}  # German durch, vier: the r after a vowel is a glide, not a syllable
 SYLLABIC_R = {"hr", "sr", "bs"}                   # espeak writes the r of srce and prst without a syllabic mark
 SINGLE_SYMBOL_DIPHTHONGS = set("AIOWY")           # misaki-style shorthands for eɪ aɪ oʊ aʊ ɔɪ
 WEAK_NUCLEI = set("əɚᵊᵻ")                          # can fold into the previous vowel (fire: aɪ+ɚ sung as one)
 STRESS_MARKS, LENGTH_MARK, NASAL_MARK = "ˈˌ", "ː", "̃"
-# espeak marks a consonant that is a syllable (Czech krk, Brno) and a vowel that is not (Danish er, mor). English
-# lines keep their counts as they were: the n̩ of button stays part of the syllable before it there.
+# espeak marks a consonant that is a syllable (Czech krk, Brno) and a vowel that is not (Danish er, mor). Only the
+# languages of LANGUAGE_DIPHTHONGS read them; English keeps the n̩ of button with the syllable before it, as before.
 SYLLABIC_MARK, NON_SYLLABIC_MARK = "̩", "̯"
 PLOSIVES = set("pbtdkɡgʔɾʈɖcɟq")
 AFFRICATES = set("ʧʤʦʣʨʥꭧ")
@@ -195,9 +198,10 @@ def _followed_by(sounds: list[Phone], index: int, mark: str) -> bool:
 
 
 def _nuclei_flags(sounds: list[Phone], key: str) -> list[bool]:
-    """Which sounds of a word can carry a syllable: vowels, and outside English a consonant espeak marks syllabic
-    (Czech krk) or, in Serbo-Croatian, an r with no vowel beside it (srce, prst)."""
-    flags = [sound.vowel or (key not in ("", "en") and _followed_by(sounds, i, SYLLABIC_MARK)) for i, sound in enumerate(sounds)]
+    """Which sounds of a word can carry a syllable: vowels, a consonant espeak marks syllabic in the languages of
+    LANGUAGE_DIPHTHONGS (Czech krk) and, in Serbo-Croatian, an r with no vowel beside it (srce, prst)."""
+    marks = key in LANGUAGE_DIPHTHONGS
+    flags = [sound.vowel or (marks and _followed_by(sounds, i, SYLLABIC_MARK)) for i, sound in enumerate(sounds)]
     if key in SYLLABIC_R:
         flags = [flag or (sound.symbol[0] == "r" and not (i > 0 and flags[i - 1]) and not (i + 1 < len(flags) and flags[i + 1]))
                  for i, (flag, sound) in enumerate(zip(flags, sounds))]
@@ -207,8 +211,10 @@ def _nuclei_flags(sounds: list[Phone], key: str) -> list[bool]:
 def _one_nucleus(sounds: list[Phone], index: int, key: str) -> bool:
     """Whether the vowels at index and index + 1 make one syllable in this language."""
     first, second = sounds[index], sounds[index + 1]
+    if key not in LANGUAGE_DIPHTHONGS:               # English and the languages without a table keep the rule they had
+        return first.symbol.replace(LENGTH_MARK, "") + second.symbol.replace(LENGTH_MARK, "") in DIPHTHONGS
     pair = first.symbol + second.symbol.replace(LENGTH_MARK, "")[:1]
-    return ((pair in LANGUAGE_DIPHTHONGS.get(key, DIPHTHONGS) and not second.stressed)
+    return ((pair in LANGUAGE_DIPHTHONGS[key] and not second.stressed)
             or pair in RISING_DIPHTHONGS.get(key, set()) or _followed_by(sounds, index + 1, NON_SYLLABIC_MARK)
             or (key in VOCALISED_R_LANGUAGES and second.symbol == VOCALISED_R))
 
