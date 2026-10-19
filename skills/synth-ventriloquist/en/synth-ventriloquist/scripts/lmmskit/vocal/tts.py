@@ -69,6 +69,8 @@ VOICES = {
 }
 DEFAULT_VOICE = {"female": "kokoro:af_heart", "male": "kokoro:am_michael"}
 ESPEAK_LANGUAGES = {"zh": "cmn", "fr": "fr-fr", "no": "nb", "nn": "nb"}   # a song's language code -> espeak's name for it, where the two differ
+# Kokoro's own espeak language for each voice-name prefix (af_heart: a, pf_dora: p), as in its own pipeline
+KOKORO_LANG = {"a": "en-us", "b": "en-gb", "e": "es", "f": "fr-fr", "h": "hi", "i": "it", "p": "pt-br", "j": "ja", "z": "cmn"}
 # Vowels Kokoro has no symbol for, and the nearest it has: dropped, they took their syllable with them (German Glück).
 KOKORO_FALLBACK_VOWELS = {"ʏ": "y", "ɵ": "ø", "ʉ": "u"}
 # espeak marks the words it reads with another language's rules, e.g. "(en)tʃˈaɪniːz(ja)lˈetə" for a kanji in Japanese.
@@ -93,10 +95,14 @@ class Unit:
 
 
 def speech_language(voice: str, lang: str | None) -> str:
-    """espeak language for a voice singing in `lang` (en, ko, ja, zh, ru ...): English keeps the voice's own accent."""
+    """espeak language for a voice singing in `lang` (en, ko, ja, zh, ru ...): English keeps the voice's own accent, and
+    a Kokoro voice keeps its own variant of its own language (pt with pf_dora reads Brazilian Portuguese)."""
     own = VOICES.get(voice, {}).get("lang", "en-us")
     if not lang or lang.lower() == "en":
         return own if own.startswith("en") else "en-us"
+    native = KOKORO_LANG.get(voice.split(":")[-1][:1]) if voice.startswith("kokoro:") else None
+    if native and lang.lower() == native.split("-")[0]:
+        return native
     return ESPEAK_LANGUAGES.get(lang.lower(), lang.lower())
 
 
