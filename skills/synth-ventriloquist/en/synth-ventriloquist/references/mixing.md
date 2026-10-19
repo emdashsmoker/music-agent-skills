@@ -53,7 +53,7 @@ The step moves each part's mixer fader. To change the balance, change `level_db`
 
 ## Mix styles
 
-Where the foreground sits in the track is taste, so it is asked in the planning stage (`SKILL.md`, Stage 1). The answer is one of the names in `compose.MIX_STYLES`; the script records it with `song.mix_style("forward")` and it lands in the plan file. The foreground is the backbeat (snare, clap), the lead, and the lead vocal. In an instrumental only the first two move; in a vocal song the vocal level, the ducking and the judging window move with them. A style changes nothing beyond these three things: brightness, space and the genre levels stay as they are. Vocal and backbeat are the two halves of forward. Vocal is the balance the vocal demos actually use, and in an instrumental it only lifts the lead by 1 dB, so it is not offered for instrumentals.
+Where the foreground sits in the track is taste, so it is asked in the planning stage (`SKILL.md`, Stage 1). The answer is one of the names in `compose.MIX_STYLES`; the script records it with `song.mix_style("forward")` and it lands in the plan file. The foreground is the backbeat (snare, clap), the lead, and the lead vocal. In an instrumental only the first two move; in a vocal song the vocal level, the ducking and the judging window move with them. A style changes nothing beyond these three things: brightness, space and the genre levels stay as they are. Vocal and backbeat are the two halves of forward. In an instrumental vocal only lifts the lead by 1 dB, so it is not offered for instrumentals.
 
 | Style | What it sounds like | Level offsets (LU) | Ducking shift (depth, presence dB) | Vocal window (densest section) |
 |---|---|---|---|---|
@@ -157,7 +157,7 @@ Render an excerpt while working on one section, and run the full `produce` when 
 
 ## Measurements behind the mix styles
 
-Four vocal songs (the futurepop and coldwave demos, and a futurepop song and a doomer song supplied for the test, all with Kokoro voices) and four instrumentals (the examples First Light and Rubber Line, and the two test songs with their vocal parts removed) were rendered with `produce` in each style, with every check except the recognition score.
+Four vocal test songs (two futurepop, one coldwave, one doomer, all with Kokoro voices) and four instrumentals (the examples First Light and Rubber Line, and the two test songs with their vocal parts removed) were rendered with `produce` in each style, with every check except the recognition score.
 
 - Loudness agrees within 0.3 LU across the three styles, and the limiter stops at its 3 dB cap in all eight songs. Forward gives up 0.1 to 0.3 LU to its bigger drum peaks, and one instrumental that already sat nearly 3 LU under its genre target in balanced crossed into the `limiter` warning in forward.
 - In the instrumentals the measured snare, clap and lead levels move by exactly the offsets (forward +1, +1, +1; blended -1, -1.5, -1), and `drums_vs_rest` agrees within 0.5 LU.
@@ -165,13 +165,13 @@ Four vocal songs (the futurepop and coldwave demos, and a futurepop song and a d
 
 | Song | Balanced | Forward | Vocal | Blended |
 |---|---|---|---|---|
-| Futurepop (demo) | +5.0 / +2.7 | +6.2 / +3.9 | +6.3 / +4.2 | +3.9 / +1.6 |
-| Coldwave (demo, whole song) | +3.3 / +2.7 | +4.8 / +4.2 | +4.8 / +4.2 | +1.7 / +0.8 |
-| Futurepop (test song) | +0.5 / +4.1 | +2.1 / +5.1 | +2.2 / +5.7 | -1.2 / +2.8 |
-| Doomer (test song) | +2.6 / +2.7 | +3.9 / +4.3 | +4.1 / +4.2 | +1.3 / +1.2 |
+| Futurepop A | +5.0 / +2.7 | +6.2 / +3.9 | +6.3 / +4.2 | +3.9 / +1.6 |
+| Coldwave (whole song) | +3.3 / +2.7 | +4.8 / +4.2 | +4.8 / +4.2 | +1.7 / +0.8 |
+| Futurepop B | +0.5 / +4.1 | +2.1 / +5.1 | +2.2 / +5.7 | -1.2 / +2.8 |
+| Doomer | +2.6 / +2.7 | +3.9 / +4.3 | +4.1 / +4.2 | +1.3 / +1.2 |
 
-- Forward lifts the body by 1.2 to 1.6 dB and the consonants by 1.0 to 1.6 dB; blended lowers the body by 1.1 to 1.7 dB and the consonants by 1.1 to 1.9 dB. The window therefore moves by +1.5 in forward and -2 in blended: a 2 dB forward shift would leave the futurepop test song's chorus on the floor.
+- Forward lifts the body by 1.2 to 1.6 dB and the consonants by 1.0 to 1.6 dB; blended lowers the body by 1.1 to 1.7 dB and the consonants by 1.1 to 1.9 dB. The window therefore moves by +1.5 in forward and -2 in blended: a 2 dB forward shift would leave the chorus of futurepop B on the floor.
 - Vocal lifts the body by 1.2 to 1.7 dB and the consonants by 1.3 to 1.6 dB and uses the forward window. Its drum peaks do not grow, so the master comes out 0.2 to 0.3 LU louder than forward. Backbeat was not rendered on its own: its effect on the vocal margins is the difference between forward and vocal (within 0.3 dB), and in an instrumental it moves by the snare and clap offsets alone.
-- The futurepop test song sits at +0.5 dB of body in its chorus in balanced, on the floor of the window: a voice covered by a dense chorus, which forward moves into the middle of the window.
-- A dark voice turned up lowers the brightness reading of the densest passage: the futurepop demo crossed into the `brightness` warning in forward (-7.7 dB against a floor of -7.5). The remedies are those of the brightness row in the findings table.
+- Futurepop B sits at +0.5 dB of body in its chorus in balanced, on the floor of the window: a voice covered by a dense chorus, which forward moves into the middle of the window.
+- A dark voice turned up lowers the brightness reading of the densest passage: futurepop A crossed into the `brightness` warning in forward (-7.7 dB against a floor of -7.5). The remedies are those of the brightness row in the findings table.
 - The same songs were also rendered with singer voicebanks. A standard colour moved by the same amounts as the Kokoro voices; one soft colour had negative consonant margins in all three styles, which the 6 dB presence lift could not close. That is the voice, not the style, and is handled per voice with EQ and level as `vocals.md` says.
