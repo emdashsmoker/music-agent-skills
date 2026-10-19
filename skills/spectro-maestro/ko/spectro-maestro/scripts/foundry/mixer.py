@@ -220,17 +220,19 @@ def _workspace(n: int, names: list, build_dir: str) -> dict:
 
 
 def render(project: dict, build_dir: str, profile: dict | None = None, only: list | None = None,
-           stem_dir: str | None = None) -> dict:
+           stem_dir: str | None = None, style: dict | None = None) -> dict:
     """Full render. Returns {'master', 'buses': {name: array}, 'report': {...}, 'stems': [paths]}.
     With `stem_dir` every track is written there as it is mixed (at its level in the mix, before mastering);
-    track audio is never kept in memory, so a fifteen-minute song fits in a few gigabytes."""
+    track audio is never kept in memory, so a fifteen-minute song fits in a few gigabytes.
+    style is the mix style (mixprofile.style_of) whose offsets apply to the role levels and the vocal carve."""
     profile = profile or {}
+    style = style or mixprofile.style_of(project)
     cache_dir = os.path.join(build_dir, "cache")
     os.makedirs(cache_dir, exist_ok=True)
     meta = project["meta"]
     ctx = fx.FxContext(meta["bpm"], meta["seed"])
     seconds_per_beat = 60.0 / meta["bpm"]
-    master = mixprofile.master_settings(project, profile)
+    master = mixprofile.master_settings(project, profile, style)
     # a musical fade-out leaves nothing to ring on, so the file ends shortly after the last bar
     n = total_samples(project, FADED_TAIL_S if float(master.get("fade_out") or 0.0) > 0 else float(master["tail"]))
     triggers = _sidechain_triggers(project, seconds_per_beat)
@@ -245,7 +247,7 @@ def render(project: dict, build_dir: str, profile: dict | None = None, only: lis
     for track in project["tracks"]:
         if only and track["name"] not in only:
             continue
-        settings = mixprofile.track_settings(track, profile)
+        settings = mixprofile.track_settings(track, profile, style)
         if settings.get("mute"):
             continue
         layers = [(track["name"], None, settings)]
@@ -353,5 +355,5 @@ def render(project: dict, build_dir: str, profile: dict | None = None, only: lis
     mastered, audible = mastered[:keep], {name: bus[:keep] for name, bus in audible.items()}     # no dead air after the tail
     return {"master": mastered, "buses": audible,
             "stems": stem_paths, "premaster_gain": gain,
-            "report": {"tracks": report_tracks, "buses_lufs": bus_report, "master": stats,
+            "report": {"mix_style": style["name"], "tracks": report_tracks, "buses_lufs": bus_report, "master": stats,
                        "settings": {"master": master, "returns": returns_cfg}}}

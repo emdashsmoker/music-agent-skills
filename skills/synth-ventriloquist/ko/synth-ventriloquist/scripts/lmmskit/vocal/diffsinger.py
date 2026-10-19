@@ -331,8 +331,9 @@ class Voicebank:
         ph_midi = np.array([[int(round(note_midi[phone_note[i]])) for i in range(len(phonemes))]], dtype=np.int64)
         linguistic = self._session(self.duration, "linguistic")
         encoder_out, x_masks = self._run(linguistic, {"tokens": tokens, "languages": languages, "word_div": word_div_array, "word_dur": word_dur_array})
+        # Newer exports feed the word layout to the duration model as well; _run drops the two for older ones.
         predicted = self._run(self._session(self.duration, "dur"), {
-            "encoder_out": encoder_out, "x_masks": x_masks, "ph_midi": ph_midi,
+            "encoder_out": encoder_out, "x_masks": x_masks, "ph_midi": ph_midi, "word_div": word_div_array, "word_dur": word_dur_array,
             "spk_embed": self._speaker(self.duration, voice, len(phonemes))})[0][0]
         ph_dur = self._fit_durations(np.maximum(predicted, MIN_PHONE_FRAMES), word_div, word_frames)
         ph_dur_array = ph_dur[None].astype(np.int64)
