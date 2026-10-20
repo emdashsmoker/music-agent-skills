@@ -84,10 +84,11 @@
     + Use it to render the same song in each style and compare
 - The values of the styles were set by rendering test songs in each style
     + The measurements are at the end of this page, under "Measurements behind the mix styles"
-- Adherence is asked in the plan next to the style, and the default is flexible
-    + (Flexible) The style is a starting point. To fix what the review finds, move the foreground parts' `gain_db` and `vocal_carve` in steps of 1 to 2 dB, keeping the style's windows. Record each moved part and the amount in the report; changing the style itself is the user's call
+- Adherence is flexible, flexible-HITL (Human in the Loop) or fixed. It is asked in the plan next to the style, and the default is flexible
+    + (Flexible) The style is a starting point. To fix what the review finds, move the foreground parts' `gain_db` and `vocal_carve` in steps of 1 to 2 dB, keeping the style's windows. When the findings or the character of the song suit another style better, change `mix.style` without asking; the windows then follow the new style. Record each moved part and the amount, and any change of style with its reason, in the report and in `notes`
+    + (Flexible-HITL) Adjust as in flexible, but ask the user before changing the style itself
     + (Fixed) The foreground parts (snare, lead, vocal) keep the style's `gain_db` and `vocal_carve`. Fix with the arrangement, the other parts, the sounds and EQ only; a finding that only a foreground move would clear is reported as it is
-    + A named style reads like a target and invites the mixer to stop adjusting, so flexible is the default: the way the mix is adjusted does not change, only the starting point is handed back to the user
+    + A named style reads like a target and invites the mixer to stop adjusting, so adherence is asked apart from the style. The default, flexible, leaves even a change of style to the agent so the work does not stop for a question, and what changed goes back to the user in the report
 
 ## Review procedure
 - When `render` finishes, check three things in turn
