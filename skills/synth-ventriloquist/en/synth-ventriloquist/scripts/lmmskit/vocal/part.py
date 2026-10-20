@@ -41,7 +41,7 @@ class VocalPart:
     role: str = "vocal"
     method: str = "auto"
     lang: str = "en"
-    speed: float = 1.0
+    speed: float | None = None                         # None: read at the melody's pace (lines.matched_speed)
     style: Style = field(default_factory=Style)
     options: dict = field(default_factory=dict)        # engine options (DiffSinger: steps, gender, tension ...)
     lines: list[line_tools.Line] = field(default_factory=list)
