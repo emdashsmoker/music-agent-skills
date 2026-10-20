@@ -21,38 +21,12 @@ SYLLABIC_MARK = "̩"
 NASAL_MARK = "̃"
 NON_SYLLABIC_MARK = "̯"
 PAUSE = set(" ,.;:!?—…\"()“”^$_-'")
-# Vowel pairs that form one nucleus. Any other vowel-vowel sequence is two syllables (hiatus).
+# Vowel pairs that form one nucleus in English. Any other English vowel-vowel sequence is two syllables (hiatus).
 DIPHTHONGS = {"aɪ", "aʊ", "eɪ", "oʊ", "ɔɪ", "əʊ", "eə", "ɪə", "iə", "ʊə", "ɛə", "ai", "au", "ei", "ou", "oi", "aɔ"}
-# The pairs of languages whose espeak output has diphthongs English lacks (German neu, Dutch uit, Portuguese não).
-# Each set is that language's whole list, since a pair can be one syllable in one language and two in another.
-# Only the languages listed use these sets and the rules that go with them (_joins); English and every other
-# language keep DIPHTHONGS and the rules they had. A length mark on the first vowel is part of the pair
-# (Norwegian jeg).
-_NORWEGIAN = DIPHTHONGS | {"øy", "ɛːɪ"}
-LANGUAGE_DIPHTHONGS = {
-    "de": DIPHTHONGS | {"ɔø"},
-    "da": DIPHTHONGS,                                                              # er, mor: the ɐ̯ is not a syllable
-    "pl": DIPHTHONGS,                                                              # nauka: a-u is two syllables
-    "nl": (DIPHTHONGS - {"iə"}) | {"ʌʊ", "œy", "ɛi", "ɛɪ", "eʊ"},                  # België: i and ə are two syllables
-    "fr": DIPHTHONGS | {"yi"},
-    "es": DIPHTHONGS | {"oɪ", "eʊ"},
-    "it": DIPHTHONGS | {"ɔi", "ɛi", "eʊ", "ʊɔ"},
-    "pt": DIPHTHONGS | {"ɐʊ", "ɐy", "ɐɪ", "oɪ", "uɪ", "eʊ", "ɛʊ"},
-    "ro": DIPHTHONGS | {"ea", "ɔa", "oa"},
-    "fi": DIPHTHONGS | {"yø", "uo", "ie", "æi", "øi", "yi", "ui", "ey", "æy", "øy", "iu", "eu"},
-    "et": DIPHTHONGS | {"aa", "ee", "ii", "oo", "uu", "ææ", "øø", "yy", "ɤɤ"},   # espeak doubles a long vowel: saab, keel
-    "lv": DIPHTHONGS | {"ie", "ui", "uo"},
-    "lt": DIPHTHONGS | {"ie", "ui", "uo", "ee"},                                  # espeak writes ė as ee
-    "sk": DIPHTHONGS | {"uo", "ia", "ie", "iu"},
-    "cs": DIPHTHONGS | {"eu"},
-    "is": DIPHTHONGS | {"øy"},
-    "no": _NORWEGIAN, "nb": _NORWEGIAN, "nn": _NORWEGIAN,
-}
-# In those languages a pair whose second vowel carries the stress is two syllables (Spanish país, Italian paura),
-# except these, where espeak writes a glide as a vowel before the stressed one (French nuit, Italian cuore, Slovak piatok).
-RISING_DIPHTHONGS = {"fr": {"yi"}, "it": {"ʊɔ"}, "sk": {"ia", "ie", "iu"}}
-FULL_VOWEL_A = {"pt"}                       # ɐ is a vowel of its own there (rua, lua), not a vocalised r
-SYLLABIC_R = {"hr", "sr", "bs"}            # espeak writes the r of srce and prst without a syllabic mark
+# Outside English the melody gives the syllable count (fit_syllables): the lyrics are written one note per syllable of
+# their language. A close vowel without stress after another vowel usually ends a diphthong (German Haus, Spanish hoy),
+# so such vowels are joined first.
+CLOSE_VOWELS = set("iyɨʉɯuɪʏʊ")
 # Closing glide of a diphthong: kept short when the vowel is held, as singers do.
 GLIDE_TARGETS = set("ɪʊiuəɐ")
 VOCALISED_R = "ɐ"
@@ -129,35 +103,30 @@ def phones_from_tokens(symbols: list, durations: list) -> list:
 
 
 def language_key(lang: str | None) -> str:
-    """The key of the per-language tables for a song or espeak language code: 'pt-br' and 'pt' -> 'pt'."""
+    """The language part of a song or espeak language code: 'pt-br' and 'pt' -> 'pt'."""
     return (lang or "").lower().replace("_", "-").split("-")[0]
 
 
-def _syllabic_r(phones: list) -> set:
-    """Indices of r sounds with no vowel on either side: the nucleus of srce, prst and Hrvatska."""
-    def vowel_at(i: int) -> bool:
-        return 0 <= i < len(phones) and phones[i].kind == "vowel"
-    return {i for i, phone in enumerate(phones) if phone.symbol[0] == "r" and not vowel_at(i - 1) and not vowel_at(i + 1)}
+def is_english(lang: str | None) -> bool:
+    """English, or no language given: the syllable rules the English songs were written for."""
+    return language_key(lang) in ("", "en")
 
 
-def _joins(phones: list, first: int, second: int, key: str) -> bool:
+def _joins(phones: list, first: int, second: int, english: bool) -> bool:
     """Whether the vowel at `second` belongs to the nucleus of the vowel just before it, at `first`."""
     a, b = phones[first], phones[second]
-    if key not in LANGUAGE_DIPHTHONGS:
-        # English and the languages without a table of their own keep the rule they were tuned with, unchanged.
-        # German 'durch', 'vier': the r is a glide, not a syllable.
+    if english:
+        # English keeps the rule it was tuned with, unchanged: these pairs, and ɐ after a vowel sung as its glide.
         return ((a.symbol[-1] + b.symbol[0]) in DIPHTHONGS and LENGTH_MARK not in a.symbol) or b.symbol == VOCALISED_R
-    pair = a.symbol.replace(NASAL_MARK, "") + b.symbol[0]
-    return ((pair in LANGUAGE_DIPHTHONGS[key] and not b.stress) or pair in RISING_DIPHTHONGS.get(key, set())
-            or (second + 1 < len(phones) and phones[second + 1].symbol == NON_SYLLABIC_MARK)
-            or (b.symbol == VOCALISED_R and key not in FULL_VOWEL_A))
+    # Other languages join only a vowel espeak marks non-syllabic and leave the rest to fit_syllables.
+    return second + 1 < len(phones) and phones[second + 1].symbol == NON_SYLLABIC_MARK
 
 
 def syllabify(phones: list, lang: str | None = None) -> list:
     """Group phones into syllables. Consonants between two vowels of one word open the next syllable;
-    consonants before a pause close the syllable they follow. `lang` (en, de, pt-br ...) picks the vowel pairs."""
-    key = language_key(lang)
-    syllabic_r = _syllabic_r(phones) if key in SYLLABIC_R else set()
+    consonants before a pause close the syllable they follow. `lang` (en, de, pt-br ...) decides between the English
+    rules and the ones every other language shares."""
+    english = is_english(lang)
     syllables, current, pending = [], None, []
     previous_vowel = None
     for index, phone in enumerate(phones):
@@ -168,9 +137,9 @@ def syllabify(phones: list, lang: str | None = None) -> list:
                 syllables[-1].coda += pending
             pending, current, previous_vowel = [], None, None
             continue
-        if phone.kind == "vowel" or index in syllabic_r:
+        if phone.kind == "vowel":
             adjacent = previous_vowel is not None and previous_vowel == index - 1 and len(current.nucleus) == 1
-            joined = adjacent and _joins(phones, previous_vowel, index, key)
+            joined = adjacent and _joins(phones, previous_vowel, index, english)
             if joined:
                 current.nucleus.append(index)
                 current.stress = max(current.stress, phone.stress)
@@ -184,6 +153,34 @@ def syllabify(phones: list, lang: str | None = None) -> list:
     if pending and syllables:
         syllables[-1].coda += pending
     return syllables
+
+
+def _join_rank(phones: list, syllable: Syllable) -> int:
+    """Which vowel contact fit_syllables joins first: a close vowel without stress, then any unstressed vowel, then the rest."""
+    vowel = phones[syllable.nucleus[0]]
+    if vowel.stress == STRESS_MARKS["ˈ"]:
+        return 2
+    return 0 if vowel.symbol[0] in CLOSE_VOWELS else 1
+
+
+def fit_syllables(phones: list, syllables: list, wanted: int | None, lang: str | None = None) -> list:
+    """Outside English, join vowels that meet inside a word until there are `wanted` syllables: the melody, written one
+    note per syllable of the lyrics' language, gives the count. English, and a list that cannot reach `wanted`, come
+    back unchanged."""
+    if wanted is None or is_english(lang):
+        return syllables
+    result = list(syllables)
+    while len(result) > wanted:
+        contacts = [i for i in range(1, len(result)) if result[i - 1].nucleus and result[i].nucleus and not result[i - 1].coda
+                    and not result[i].onset and result[i - 1].word == result[i].word]
+        if not contacts:
+            return syllables
+        index = min(contacts, key=lambda i: (_join_rank(phones, result[i]), i))
+        previous, current = result[index - 1], result[index]
+        result[index - 1] = Syllable(previous.onset, previous.nucleus + current.nucleus, current.coda,
+                                     max(previous.stress, current.stress), previous.word)
+        result.pop(index)
+    return result
 
 
 def ending_type(phones: list, syllable: Syllable) -> str:

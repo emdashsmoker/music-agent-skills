@@ -12,43 +12,16 @@ from dataclasses import dataclass, field
 VOWELS = set("aɑɐɒæeəɚɛɜɝiɪᵻoɔuʊʌøœyɯɨɤʏɵʉɘɞɶᵊAIOWY")
 # Vowel pairs sung as one syllable (first part held, second part a short glide at the end).
 DIPHTHONGS = {"aɪ", "aʊ", "eɪ", "oʊ", "ɔɪ", "əʊ", "eə", "ɪə", "ʊə", "ɛɪ", "ɑɪ", "ɔʊ"}
-# The pairs of languages whose espeak output has diphthongs English lacks (German neu, Dutch uit, Portuguese não).
-# Each set is that language's whole list, since a pair can be one syllable in one language and two in another.
-# Only the languages listed use these sets and the rules that go with them (_one_nucleus, _nuclei_flags); English
-# and every other language keep DIPHTHONGS and the rules they had. A length mark on the first vowel is part of the
-# pair (Norwegian jeg, while German gehen stays two).
-_PLAIN = {"ai", "au", "ei", "oi", "ou"}           # espeak writes these without ɪ or ʊ in several languages
-_NORWEGIAN = DIPHTHONGS | {"øy", "ɛːɪ"}
-LANGUAGE_DIPHTHONGS = {
-    "de": DIPHTHONGS | {"ɔø"},
-    "da": DIPHTHONGS,                             # er, mor: the ɐ̯ is not a syllable
-    "pl": DIPHTHONGS,
-    "nl": DIPHTHONGS | {"ʌʊ", "œy", "ɛi", "eʊ"},
-    "fr": DIPHTHONGS | {"yi"},
-    "es": DIPHTHONGS | _PLAIN | {"oɪ", "eʊ"},
-    "it": DIPHTHONGS | _PLAIN | {"ɔi", "ɛi", "eʊ", "ʊɔ"},
-    "pt": DIPHTHONGS | _PLAIN | {"ɐʊ", "ɐy", "ɐɪ", "oɪ", "uɪ", "eʊ", "ɛʊ"},
-    "ro": DIPHTHONGS | _PLAIN | {"ea", "ɔa", "oa"},
-    "fi": DIPHTHONGS | _PLAIN | {"yø", "uo", "ie", "æi", "øi", "yi", "ui", "ey", "æy", "øy", "iu", "eu"},
-    "et": DIPHTHONGS | _PLAIN | {"aa", "ee", "ii", "oo", "uu", "ææ", "øø", "yy", "ɤɤ"},   # espeak doubles a long vowel: saab, keel
-    "lv": DIPHTHONGS | _PLAIN | {"ie", "ui", "uo"},
-    "lt": DIPHTHONGS | _PLAIN | {"ie", "ui", "uo", "ee"},                                  # espeak writes ė as ee
-    "sk": DIPHTHONGS | _PLAIN | {"uo", "ia", "ie", "iu"},
-    "cs": DIPHTHONGS | _PLAIN | {"eu"},
-    "is": DIPHTHONGS | {"øy"},
-    "no": _NORWEGIAN, "nb": _NORWEGIAN, "nn": _NORWEGIAN,
-}
-# In those languages a pair whose second vowel carries the stress is two syllables (Spanish país, Italian paura),
-# except these, where espeak writes a glide as a vowel before the stressed one (French nuit, Italian cuore, Slovak piatok).
-RISING_DIPHTHONGS = {"fr": {"yi"}, "it": {"ʊɔ"}, "sk": {"ia", "ie", "iu"}}
-VOCALISED_R, VOCALISED_R_LANGUAGES = "ɐ", {"de"}  # German durch, vier: the r after a vowel is a glide, not a syllable
-SYLLABIC_R = {"hr", "sr", "bs"}                   # espeak writes the r of srce and prst without a syllabic mark
 SINGLE_SYMBOL_DIPHTHONGS = set("AIOWY")           # misaki-style shorthands for eɪ aɪ oʊ aʊ ɔɪ
 WEAK_NUCLEI = set("əɚᵊᵻ")                          # can fold into the previous vowel (fire: aɪ+ɚ sung as one)
 STRESS_MARKS, LENGTH_MARK, NASAL_MARK = "ˈˌ", "ː", "̃"
-# espeak marks a consonant that is a syllable (Czech krk, Brno) and a vowel that is not (Danish er, mor). Only the
-# languages of LANGUAGE_DIPHTHONGS read them; English keeps the n̩ of button with the syllable before it, as before.
+# espeak marks a consonant that is a syllable (Czech krk, Brno) and a vowel that is not (Danish er, mor). Only languages
+# other than English read them; English keeps the n̩ of button with the syllable before it, as its songs were written for.
 SYLLABIC_MARK, NON_SYLLABIC_MARK = "̩", "̯"
+# Outside English the melody gives the syllable count (fit_syllables): the lyrics are written one note per syllable of
+# their language. A close vowel without stress after another vowel usually ends a diphthong (German Haus, Spanish hoy),
+# so such vowels are joined first.
+CLOSE_VOWELS = set("iyɨʉɯuɪʏʊ")
 PLOSIVES = set("pbtdkɡgʔɾʈɖcɟq")
 AFFRICATES = set("ʧʤʦʣʨʥꭧ")
 FRICATIVES = set("fvθðszʃʒhxçɕʂʝɣχβɸʁ")
@@ -187,40 +160,37 @@ def merge_tokens(symbols: list[str], starts: list[float], ends: list[float]) -> 
 
 
 def language_key(lang: str | None) -> str:
-    """The key of the per-language tables for a song or espeak language code: 'pt-br' and 'pt' -> 'pt'."""
+    """The language part of a song or espeak language code: 'pt-br' and 'pt' -> 'pt'."""
     return (lang or "").lower().replace("_", "-").split("-")[0]
+
+
+def is_english(lang: str | None) -> bool:
+    """English, or no language given: the syllable rules the English songs were written for."""
+    return language_key(lang) in ("", "en")
 
 
 def _followed_by(sounds: list[Phone], index: int, mark: str) -> bool:
     return index + 1 < len(sounds) and sounds[index + 1].symbol == mark
 
 
-def _nuclei_flags(sounds: list[Phone], key: str) -> list[bool]:
-    """Which sounds of a word can carry a syllable: vowels, a consonant espeak marks syllabic in the languages of
-    LANGUAGE_DIPHTHONGS (Czech krk) and, in Serbo-Croatian, an r with no vowel beside it (srce, prst)."""
-    marks = key in LANGUAGE_DIPHTHONGS
-    flags = [sound.vowel or (marks and _followed_by(sounds, i, SYLLABIC_MARK)) for i, sound in enumerate(sounds)]
-    if key in SYLLABIC_R:
-        flags = [flag or (sound.symbol[0] == "r" and not (i > 0 and flags[i - 1]) and not (i + 1 < len(flags) and flags[i + 1]))
-                 for i, (flag, sound) in enumerate(zip(flags, sounds))]
-    return flags
+def _nuclei_flags(sounds: list[Phone], english: bool) -> list[bool]:
+    """Which sounds of a word can carry a syllable: vowels and, outside English, a consonant espeak marks syllabic."""
+    return [sound.vowel or (not english and _followed_by(sounds, i, SYLLABIC_MARK)) for i, sound in enumerate(sounds)]
 
 
-def _one_nucleus(sounds: list[Phone], index: int, key: str) -> bool:
-    """Whether the vowels at index and index + 1 make one syllable in this language."""
+def _one_nucleus(sounds: list[Phone], index: int, english: bool) -> bool:
+    """Whether the vowels at index and index + 1 make one syllable. English pairs them by DIPHTHONGS; other languages
+    join only a vowel espeak marks non-syllabic and leave the rest to fit_syllables."""
     first, second = sounds[index], sounds[index + 1]
-    if key not in LANGUAGE_DIPHTHONGS:               # English and the languages without a table keep the rule they had
+    if english:
         return first.symbol.replace(LENGTH_MARK, "") + second.symbol.replace(LENGTH_MARK, "") in DIPHTHONGS
-    pair = first.symbol + second.symbol.replace(LENGTH_MARK, "")[:1]
-    return ((pair in LANGUAGE_DIPHTHONGS[key] and not second.stressed)
-            or pair in RISING_DIPHTHONGS.get(key, set()) or _followed_by(sounds, index + 1, NON_SYLLABIC_MARK)
-            or (key in VOCALISED_R_LANGUAGES and second.symbol == VOCALISED_R))
+    return _followed_by(sounds, index + 1, NON_SYLLABIC_MARK)
 
 
 def syllabify(phones: list[Phone], lang: str | None = None) -> list[Syllable]:
     """Group sounds into syllables word by word: one vowel (or diphthong) each, consonants split around it.
-    `lang` (en, de, pt-br ...) picks the vowel pairs and syllabic consonants of that language."""
-    key = language_key(lang)
+    `lang` (en, de, pt-br ...) decides between the English rules and the ones every other language shares."""
+    english = is_english(lang)
     syllables: list[Syllable] = []
     words: dict[int, list[Phone]] = {}
     for phone in phones:
@@ -228,12 +198,12 @@ def syllabify(phones: list[Phone], lang: str | None = None) -> list[Syllable]:
             words.setdefault(phone.word, []).append(phone)
     for word_index in sorted(words):
         sounds = words[word_index]
-        nucleus = _nuclei_flags(sounds, key)
+        nucleus = _nuclei_flags(sounds, english)
         nuclei: list[list[int]] = []
         i = 0
         while i < len(sounds):
             if nucleus[i]:
-                if i + 1 < len(sounds) and nucleus[i + 1] and _one_nucleus(sounds, i, key):
+                if i + 1 < len(sounds) and nucleus[i + 1] and _one_nucleus(sounds, i, english):
                     nuclei.append([i, i + 1])
                     i += 2
                     continue
@@ -263,6 +233,33 @@ def syllabify(phones: list[Phone], lang: str | None = None) -> list[Syllable]:
         syllables[1].onset = syllables[0].onset + syllables[1].onset
         syllables.pop(0)
     return syllables
+
+
+def _join_rank(syllable: Syllable) -> int:
+    """Which vowel contact fit_syllables joins first: a close vowel without stress, then any unstressed vowel, then the rest."""
+    vowel = syllable.nucleus[0]
+    if vowel.stressed:
+        return 2
+    return 0 if vowel.symbol[0] in CLOSE_VOWELS else 1
+
+
+def fit_syllables(syllables: list[Syllable], wanted: int | None, lang: str | None = None) -> list[Syllable]:
+    """Outside English, join vowels that meet inside a word until there are `wanted` syllables: the melody, written one
+    note per syllable of the lyrics' language, gives the count. English, and a list that cannot reach `wanted`, come
+    back unchanged."""
+    if wanted is None or is_english(lang):
+        return syllables
+    result = list(syllables)
+    while len(result) > wanted:
+        contacts = [i for i in range(1, len(result)) if result[i - 1].nucleus and result[i].nucleus and not result[i - 1].coda
+                    and not result[i].onset and result[i - 1].word == result[i].word]
+        if not contacts:
+            return syllables
+        index = min(contacts, key=lambda i: (_join_rank(result[i]), i))
+        previous, current = result[index - 1], result[index]
+        result[index - 1] = Syllable(previous.onset, previous.nucleus + current.nucleus, current.coda, previous.word)
+        result.pop(index)
+    return result
 
 
 def fold_weak_syllables(syllables: list[Syllable], wanted: int) -> list[Syllable]:

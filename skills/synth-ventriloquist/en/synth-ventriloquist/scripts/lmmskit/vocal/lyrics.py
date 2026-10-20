@@ -15,7 +15,7 @@ import numpy as np
 from ..findings import finding
 from . import asr, lines, tts
 from .phones import (AFFRICATES, IPA_TO_ARPABET, LENGTH_MARK, NASALS, PLOSIVES, UNSTABLE_WORDS, VOWELS, WEAK_WORDS, Phone, Syllable,
-                     fold_weak_syllables, language_key, merge_tokens, syllabify)
+                     fit_syllables, fold_weak_syllables, is_english, language_key, merge_tokens, syllabify)
 from .singing import OUTPUT_SR, Style
 
 MIN_NOTE_S = 0.110                 # shorter notes smear consonants (a 16th at 140 bpm is 107 ms)
@@ -70,12 +70,12 @@ def _bank_symbol(symbol: str) -> str:
     return ARPABET_TO_IPA.get(bare, bare)
 
 
-def _voicebank_syllables(voice: str, text: str, lang: str) -> list[Syllable]:
+def _voicebank_syllables(voice: str, text: str, lang: str, phonemes: str | None = None) -> list[Syllable]:
     """Syllables of a line as a DiffSinger voicebank pronounces it, with IPA symbols so the same rules apply.
     Bank dictionaries carry no stress, so the stress rules stay quiet for these voices."""
     from . import diffsinger
     folder = voice.split(":", 1)[1].partition("#")[0]
-    rows = diffsinger.voicebank(folder).syllables(text, lang)
+    rows = diffsinger.voicebank(folder).syllables(text, lang, phonemes=phonemes)
     out = []
     for row in rows:
         make = lambda symbols: [Phone(_bank_symbol(s), 0.0, 0.0, row["word"], False) for s in symbols]
@@ -83,14 +83,15 @@ def _voicebank_syllables(voice: str, text: str, lang: str) -> list[Syllable]:
     return out
 
 
-def line_syllables(voice: str, text: str, wanted: int | None = None, lang: str = "en"):
-    """Syllables of a line in `lang` as the engine pronounces it (folded toward `wanted` if given), without synthesizing."""
+def line_syllables(voice: str, text: str, wanted: int | None = None, lang: str = "en", phonemes: str | None = None):
+    """Syllables of a line in `lang` as the engine pronounces it (folded toward `wanted` if given), without synthesizing.
+    Given `phonemes` are read instead of the text."""
     if voice.startswith("diffsinger:"):
-        syllables = _voicebank_syllables(voice, text, lang)
+        syllables = _voicebank_syllables(voice, text, lang, phonemes)    # a voicebank folds its own syllables (weak vowels only)
     else:
-        phonemes = tts.backend(voice, lang).phonemize(text)
+        phonemes = phonemes if phonemes is not None else tts.backend(voice, lang).phonemize(text)
         symbols = list(phonemes)
-        syllables = syllabify(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols)), lang)
+        syllables = fit_syllables(syllabify(merge_tokens(symbols, [0.0] * len(symbols), [0.0] * len(symbols)), lang), wanted, lang)
     return fold_weak_syllables(syllables, wanted) if wanted is not None else syllables
 
 
@@ -156,18 +157,23 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
     seconds_per_beat = 60.0 / bpm
     label = f"'{line.text}'"
     try:
-        spoken = line_syllables(voice, line.text, lang=lang)
+        spoken = line_syllables(voice, line.text, lang=lang, phonemes=line.phonemes)
     except ValueError as error:                        # characters the voice's language cannot read (tts.espeak_phonemes)
         return [finding("error", "unreadable_text", f"{label}: {error}")]
-    syllables = fold_weak_syllables(spoken, len(groups))
+    speech_voice = not voice.startswith("diffsinger:")       # a voicebank folds its own syllables (weak vowels only)
+    syllables = fold_weak_syllables(fit_syllables(spoken, len(groups), lang) if speech_voice else spoken, len(groups))
     if len(syllables) != len(groups):
         per_word = {}
         for syllable in spoken:
             per_word[syllable.word] = per_word.get(syllable.word, 0) + 1
         table = ", ".join(f"{words[i] if i < len(words) else '?'}={count}" for i, count in sorted(per_word.items()))
         return [finding("error", "syllable_count", f"{label}: {len(spoken)} spoken syllables but {len(groups)} melody tokens ({table})")]
-    if len(spoken) != len(syllables):
+    if len(spoken) != len(syllables) and (is_english(lang) or not speech_voice):
         found.append(finding("info", "folded_syllable", f"{label}: a weak second vowel is sung inside the note before it (fire, hour ...)"))
+    elif len(spoken) != len(syllables):
+        joined = ", ".join(f"/{s.text}/ ({'+'.join(p.symbol for p in s.nucleus)})" for s in syllables if not any(s is t for t in spoken))
+        found.append(finding("info", "folded_syllable", f"{label}: {joined}: vowels joined into one syllable to fit the notes; "
+                             "if the language sings them apart, give the line phonemes"))
     for word in set(words) & UNSTABLE_WORDS:
         index = words.index(word)
         beats = [sum(n.duration for n in groups[i]) / seconds_per_beat for i, s in enumerate(syllables) if s.word == index]
@@ -221,8 +227,7 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
         if beats[index] >= LONG_NOTE_BEATS and weak[index - 1] and weak[index - 2] and beats[index - 1] <= SHORT_NOTE_BEATS and beats[index - 2] <= SHORT_NOTE_BEATS:
             found.append(finding("warn", "weak_pickup", f"{label}: two short weak words lead into the long note on '{syllables[index].text}'"))
     found += _bright_findings(label, syllables)
-    speech_voice = not voice.startswith("diffsinger:")       # a voicebank shapes its vowels; the thin held ee is a speech-voice fault
-    for index, syllable in enumerate(syllables):
+    for index, syllable in enumerate(syllables):           # a voicebank shapes its vowels; the thin held ee is a speech-voice fault
         if speech_voice and beats[index] >= LONG_NOTE_BEATS and syllable.nucleus and not syllable.diphthong and syllable.nucleus[0].symbol.replace(LENGTH_MARK, "") in EE_SYMBOLS:
             found.append(finding("info", "held_ee", f"{label}: '{syllable.text}' holds {beats[index]:g} beats on an ee vowel, which the speech voices sing thin and sharp; a word with ah, oh, oo or ay holds fuller, or fill it with Style(vowel_body=1)"))
     final = syllables[-1]

@@ -12,7 +12,7 @@ from __future__ import annotations
 import numpy as np
 
 from . import world
-from .phones import Phone, syllabify
+from .phones import Phone, fit_syllables, syllabify
 from .tts import Unit
 
 VOICED_SHARE_MIN = 0.85          # the last vowel is "dying" when less than this share of it is voiced
@@ -32,9 +32,10 @@ def _level_db(unit: Unit, span: tuple[float, float]) -> float:
     return 10 * np.log10(float(np.mean(piece ** 2)) + 1e-14) if len(piece) else -140.0
 
 
-def ending_report(unit: Unit, f0: np.ndarray | None = None, lang: str | None = None) -> dict:
-    """Voiced share and relative level of the last vowel, and whether it counts as dying."""
-    syllables = [s for s in syllabify(unit.phones, lang) if s.nucleus]
+def ending_report(unit: Unit, f0: np.ndarray | None = None, lang: str | None = None, wanted: int | None = None) -> dict:
+    """Voiced share and relative level of the last vowel, and whether it counts as dying. With `wanted` (the line's sung
+    syllables), the syllables are first fitted to that count, so the last vowel is the one the last note holds."""
+    syllables = [s for s in fit_syllables(syllabify(unit.phones, lang), wanted, lang) if s.nucleus]
     if not syllables:
         return {"dying": False, "voiced_share": 1.0, "level_vs_line_db": 0.0}
     f0 = world.quick_f0(unit.audio, unit.sr) if f0 is None else f0
