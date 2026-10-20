@@ -23,7 +23,9 @@ from . import phonetics, settings
 from .phonetics import Phone
 
 ENGINE_SEED = 20240229          # fixed seed for every stochastic model op: same text, same audio
-KOKORO_REPO = "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX-timestamped/resolve/main"
+KOKORO_REPO = "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX-timestamped"
+KOKORO_REVISION = "dd4401a9add81ac692d20e240d22ec9dda82cc29"   # the tested files; the setting kokoro_revision picks others
+DOWNLOAD_TRIES = 3
 KOKORO_SR, KOKORO_FRAME = 24000, 600
 PIPER_REPO = "https://huggingface.co/rhasspy/piper-voices/resolve/main"
 ANALYSIS_FRAME_S = 0.005
@@ -87,8 +89,20 @@ def models_dir() -> str:
     return settings.models_dir()
 
 
+def kokoro_revision() -> str:
+    return settings.get("kokoro_revision") or KOKORO_REVISION
+
+
+def model_tag(engine: str) -> str:
+    """What a cache key adds for an engine's model: the Kokoro revision when it is not the tested one, so lines sung
+    by another model are not reused. Empty otherwise, which keeps the keys of existing caches."""
+    revision = kokoro_revision()
+    return revision if engine == "kokoro" and revision != KOKORO_REVISION else ""
+
+
 def fetch(url: str, path: str) -> str:
-    """Download once. Partial downloads never leave a file with the final name.
+    """Download once (three tries). Partial downloads never leave a file with the final name: a dropped connection
+    ends the stream early without an error, so the length is checked against the server's.
     Without network access the error names the file, so it can be put in place by hand."""
     from .singing import VocalError
     if os.path.exists(path) and os.path.getsize(path) > 0:
@@ -99,17 +113,25 @@ def fetch(url: str, path: str) -> str:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     print(f"[models] downloading {url} -> {path}", flush=True)
     request = urllib.request.Request(url, headers={"User-Agent": settings.APP})
-    try:
-        with urllib.request.urlopen(request, timeout=settings.get("download_timeout_s")) as response, open(path + ".part", "wb") as handle:
-            while True:
-                block = response.read(1 << 20)
-                if not block:
-                    break
-                handle.write(block)
-    except OSError as error:                             # no network, blocked host, proxy refusal, time-out
-        if os.path.exists(path + ".part"):
-            os.remove(path + ".part")
-        raise VocalError(f"download failed ({error}). {by_hand}") from error
+    for attempt in range(DOWNLOAD_TRIES):
+        try:
+            with urllib.request.urlopen(request, timeout=settings.get("download_timeout_s")) as response, open(path + ".part", "wb") as handle:
+                expected = int(response.headers.get("Content-Length") or 0)
+                written = 0
+                while True:
+                    block = response.read(1 << 20)
+                    if not block:
+                        break
+                    handle.write(block)
+                    written += len(block)
+            if expected and written != expected:
+                raise OSError(f"incomplete download: {written} of {expected} bytes")
+            break
+        except OSError as error:                         # no network, blocked host, proxy refusal, time-out, cut transfer
+            if os.path.exists(path + ".part"):
+                os.remove(path + ".part")
+            if attempt == DOWNLOAD_TRIES - 1:
+                raise VocalError(f"download failed ({error}). {by_hand}") from error
     os.replace(path + ".part", path)
     return path
 
@@ -162,12 +184,16 @@ class KokoroBackend:
     WORD_GAP_TO_PREVIOUS = 0.5      # measured on sibilant landmarks: both neighbours spread into the gap
 
     def __init__(self, voice: str = "af_heart", lang: str | None = None):
-        root = os.path.join(models_dir(), "kokoro")
+        revision = kokoro_revision()
+        root = os.path.join(models_dir(), "kokoro")              # the tested revision keeps the folder it always had
+        if revision != KOKORO_REVISION:
+            root = os.path.join(root, revision.replace("/", "_"))
+        base = f"{KOKORO_REPO}/resolve/{revision}"
         self.voice = voice
         self.lang = espeak_language(lang, voice)
         self.sr = KOKORO_SR
-        self.session = _session(fetch(f"{KOKORO_REPO}/onnx/model.onnx", os.path.join(root, "onnx", "model.onnx")))
-        style_path = fetch(f"{KOKORO_REPO}/voices/{voice}.bin", os.path.join(root, "voices", f"{voice}.bin"))
+        self.session = _session(fetch(f"{base}/onnx/model.onnx", os.path.join(root, "onnx", "model.onnx")))
+        style_path = fetch(f"{base}/voices/{voice}.bin", os.path.join(root, "voices", f"{voice}.bin"))
         self.styles = np.fromfile(style_path, dtype=np.float32).reshape(-1, 1, 256)
         from kokoro_onnx.tokenizer import Tokenizer
         self.tokenizer = Tokenizer()
@@ -442,7 +468,9 @@ class UnitCache:
 
     @staticmethod
     def key(backend, phones: str, speed: float, tag: str = "") -> str:
-        text = json.dumps([backend.engine, backend.voice, backend.lang, phones, round(speed, 3), tag])
+        parts = [backend.engine, backend.voice, backend.lang, phones, round(speed, 3), tag]
+        model = model_tag(backend.engine)
+        text = json.dumps(parts + [model] if model else parts)
         return hashlib.sha1(text.encode("utf-8")).hexdigest()[:20]
 
     def path(self, key: str, suffix: str) -> str:
