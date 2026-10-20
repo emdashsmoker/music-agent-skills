@@ -1,2 +1,2 @@
-bc288a561dd2e10867bca086d3b87a6606772cd085a7ebbd802da904e8585aba  spectro-maestro-ko.skill
-bb9c9b93de97bf0f7387291102463ebaab3a0f25d52f5cb927a6012a09456936  spectro-maestro-en.skill
+976cb4c82eb47eefecb2ecef63f981a89cf17740c55b3fac5af4e477ac9cb4f9  spectro-maestro-ko.skill
+fcc8c2213d15344ea882b794a2877793198e221c9212daedd4f76aad8e6bb4b4  spectro-maestro-en.skill
