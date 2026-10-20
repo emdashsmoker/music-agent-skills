@@ -25,7 +25,7 @@
     + Lyrics : provided by the user, or written from a theme the user gives
     + Preference for gender and range
     + Recognition model for the vocal check (default base) : offer small when the machine has room (4 or more CPU cores, 2 GB or more of free memory), above all for lyrics in another language, where base flags clearly sung lines more often. Medium or larger only when the user asks. Record the choice as the setting `asr_model`; the costs per model are in `vocals.md`
-    + Reading speed of a speech voice (default matched to the melody) : the voice reads slower under long notes and faster under short ones (0.7 to 1.15), so less has to be stretched and two nasals across words stay apart. A fixed speed reads every line at one pace, 1.0 being the voice's own. Record a fixed speed as `vocal: {speed: 1.0}` (Reading speed in `vocals.md`)
+    + Reading speed of a speech voice (default: the agent decides) : three choices. The agent decides: pick one of the other two for each vocal track and record which, and why, in `notes`. Matched to the melody: the voice reads slower under long notes and faster under short ones (0.7 to 1.15), so less has to be stretched and two nasals across words stay apart. Fixed: every line at one pace, 1.0 being the voice's own, recorded as `vocal: {speed: 1.0}`. Deciding, start from matched, which left fewer weak lines in measurements, and fix the speed for a track meant to sound spoken or a track whose lines the vocal check finds weaker matched than fixed (Reading speed in `vocals.md`)
 - Ask everything in one batch
     + Offer a default with every item so the user only answers what should change
 - If the user leaves it to you, go ahead with the defaults
