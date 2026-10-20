@@ -22,7 +22,7 @@ def _print(data) -> None:
 
 
 def _utf8_console() -> None:
-    """Lyrics and phoneme symbols must not crash a console that uses a legacy code page (Windows). Same as spectro-maestro."""
+    """Lyrics and phoneme symbols must not crash a console that uses a legacy code page (Windows)."""
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.reconfigure(encoding="utf-8", errors="replace")

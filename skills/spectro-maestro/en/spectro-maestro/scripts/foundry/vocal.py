@@ -432,7 +432,7 @@ SHORT_LAX_VOWELS = {"ɪ"}
 STRONG_BEAT_WEIGHT = 3             # downbeat or beat three (see _metric_weight)
 EXPOSED_NOTE_S = 0.5               # a reduced or tiny vowel held this long is heard dying; shorter notes pass as in speech
 WEAK_RUN = 3                       # weak function words in a row
-# Function words that speech swallows (ported from synth-ventriloquist's lyric lint, same author); the last row opens on a reduced syllable.
+# Function words that speech swallows; the last row opens on a reduced syllable.
 WEAK_WORDS = {"a", "an", "the", "of", "in", "to", "at", "on", "for", "and", "or", "but", "is", "it", "its", "as", "by",
               "be", "am", "are", "was", "were", "that", "this", "with", "from", "so", "if", "than", "then", "some",
               "someone", "what", "when", "where", "will", "would", "could", "should", "can", "do", "does", "has", "have",
