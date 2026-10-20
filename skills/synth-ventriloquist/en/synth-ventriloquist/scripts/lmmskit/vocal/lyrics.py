@@ -20,13 +20,12 @@ from .singing import OUTPUT_SR, Style
 
 MIN_NOTE_S = 0.110                 # shorter notes smear consonants (a 16th at 140 bpm is 107 ms)
 # Under about 200 ms a syllable starts to blur even on a singing voicebank (an eighth at 150 bpm is 200 ms), and a run of
-# them reads as a rushed line. Same rule as spectro-maestro's lyrics.fast_syllables, counted per sung syllable here so a
-# syllable bent over several short notes counts once.
+# them reads as a rushed line. Counted per sung syllable, so a syllable bent over several short notes counts once.
 FAST_SYLLABLE_S = 0.200
 FAST_SYLLABLE_COUNT = 3
 LONG_NOTE_BEATS = 2.0
 # A line that builds up on a held note and then ends on a last syllable this fraction of it or shorter: the last word,
-# usually the rhyme and the point of the line, is over before it is heard. Same rule as spectro-maestro's lyrics.clipped_line_end.
+# usually the rhyme and the point of the line, is over before it is heard.
 CLIP_RATIO = 0.25
 STRONG_NOTE_BEATS = 1.0
 SHORT_NOTE_BEATS = 0.5
@@ -105,8 +104,7 @@ def _metric_weight(beat_in_bar: float) -> int:
 
 def _stress_findings(label: str, words: list[str], syllables: list, weights: list[int], durations: list[float]) -> list[dict]:
     """A word whose stressed syllable sits on a weaker beat than one of its unstressed syllables (and on no longer note)
-    is heard mis-accented; the stress comes from the engine's own pronunciation dictionary.
-    Ported from Spectro Maestro's vocal.lint_lyrics stress rule (same author, AGPL-3.0-or-later)."""
+    is heard mis-accented; the stress comes from the engine's own pronunciation dictionary."""
     found = []
     by_word: dict[int, list[int]] = {}
     for index, syllable in enumerate(syllables):

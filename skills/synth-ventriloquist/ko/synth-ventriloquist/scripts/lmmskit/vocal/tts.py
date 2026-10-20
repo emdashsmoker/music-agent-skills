@@ -272,7 +272,7 @@ def share_word_gaps(symbols: list[str], starts: list[float], ends: list[float], 
     """The time an engine reports for the space between two words is not silence: the neighbouring sounds run
     through it. Hand `to_previous` of it to the sound before and the rest to the sound after, and keep a zero-length
     word break. Real pauses (punctuation, the line's ends) are left alone. Works on the engine's tokens, before
-    merge_tokens. Ported from Spectro Maestro's speech.share_word_gaps (same author, AGPL-3.0-or-later).
+    merge_tokens.
 
     Without it a timed gap gives two boundaries where the audio has one event, and snapping can hang the end of a
     word on the wrong one: "See the signal fires" was sung with the "the" taken from the end of "see"."""
@@ -285,8 +285,7 @@ def share_word_gaps(symbols: list[str], starts: list[float], ends: list[float], 
 
 
 def acoustic_frames(audio: np.ndarray, sr: int, analysis: tuple) -> dict:
-    """Frame-wise evidence on the 5 ms grid: truly voiced frames (world.truly_voiced) and hiss frames.
-    Ported from Spectro Maestro's speech.acoustic_frames (same author, AGPL-3.0-or-later)."""
+    """Frame-wise evidence on the 5 ms grid: truly voiced frames (world.truly_voiced) and hiss frames."""
     from scipy import signal
     f0, envelope, aperiodicity = analysis
     hop = int(sr * ANALYSIS_FRAME_S)
@@ -322,8 +321,7 @@ def _landmark(left: Phone, right: Phone, events: dict) -> np.ndarray | None:
 
 def snap_boundaries(phones: list[Phone], frames: dict) -> int:
     """Move each phone boundary with an audible landmark to that landmark (at most SNAP_WINDOW_S away), in place, and
-    move the boundaries between by interpolation. Returns how many were snapped.
-    Ported from Spectro Maestro's speech._snap (same author, AGPL-3.0-or-later)."""
+    move the boundaries between by interpolation. Returns how many were snapped."""
     events = dict(zip(("voiced_on", "voiced_off"), _transitions(frames["voiced"])))
     events.update(zip(("sibilant_on", "sibilant_off"), _transitions(frames["sibilant"])))
     anchors = [(0.0, 0.0)]
@@ -348,7 +346,7 @@ def snap_boundaries(phones: list[Phone], frames: dict) -> int:
 class KokoroBackend:
     """Kokoro-82M (ONNX, timestamped export): natural English speech with per-phoneme durations."""
     engine = "kokoro"
-    word_gap_to_previous = 0.5          # Spectro Maestro's measure on hiss landmarks: both neighbours spread into the gap
+    word_gap_to_previous = 0.5          # measured on hiss landmarks: both neighbours spread into the gap
 
     def __init__(self, voice: str, lang: str = "en-us"):
         import onnxruntime
@@ -389,7 +387,7 @@ class KokoroBackend:
 class PiperBackend:
     """Piper (VITS) voices. Durations come from the alignment output patched into the model at load time."""
     engine = "piper"
-    word_gap_to_previous = 0.0          # Spectro Maestro's measure on hiss landmarks: the gap belongs to the sound that follows
+    word_gap_to_previous = 0.0          # measured on hiss landmarks: the gap belongs to the sound that follows
 
     def __init__(self, voice: str, lang: str = "en-us"):
         from piper import PiperVoice

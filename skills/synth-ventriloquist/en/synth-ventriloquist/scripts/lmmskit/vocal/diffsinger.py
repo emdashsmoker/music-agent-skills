@@ -51,8 +51,7 @@ def _words_of(text: str) -> list[str]:
 
 def _longest_match(word: str, entries: dict) -> list[list[str]] | None:
     """A word without spaces as dictionary entries, longest first from the left: kana pairs such as きゃ are one entry,
-    not き plus ゃ. None when some part has no entry. Ported from Spectro Maestro's diffsinger.word_phonemes (same author,
-    AGPL-3.0-or-later)."""
+    not き plus ゃ. None when some part has no entry."""
     longest = max(map(len, entries), default=0)
     pieces, index = [], 0
     while index < len(word):
@@ -194,9 +193,8 @@ class Voicebank:
 
     def _g2p_dictionary(self, lang: str) -> tuple[dict, dict]:
         """The bank dictionary for a G2P language (g2p.choose), read as YAML 1.2, plus the route for words it lacks.
-        Ported from Spectro Maestro's Voicebank._g2p_dictionary (same author, AGPL-3.0-or-later). A language file
-        with no words still counts as the language's dictionary, and the generic dsdict.yaml lends its symbols, not
-        its words: in multilingual banks those are kana and pinyin, which sang French as Japanese."""
+        A language file with no words still counts as the language's dictionary, and the generic dsdict.yaml lends
+        its symbols, not its words: in multilingual banks those are kana and pinyin, which sang French as Japanese."""
         from . import tts
         files = {os.path.basename(p): p for p in glob.glob(os.path.join(glob.escape(self.duration.folder), "dsdict*.yaml"))}
         own_file = any(name == f"dsdict-{lang}.yaml" or name.startswith(f"dsdict-{lang}-") for name in files)

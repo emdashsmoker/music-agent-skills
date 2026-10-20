@@ -115,7 +115,6 @@ def render_part(part: VocalPart, bpm: float, key: str | None, total_beats: float
 
 def pitch_error_cents(piece: np.ndarray, rate: int, notes: list[tuple[float, float, int]], origin: float) -> float | None:
     """Median distance in cents between the sung pitch and the written notes, measured away from the note edges.
-    Ported from Spectro Maestro's vocal_cli._pitch_error_cents (same author, AGPL-3.0-or-later).
 
     `notes` are (start_s, duration_s, midi) on the clock where `origin` is the time of the first sample of `piece`.
     None when no voiced frame falls inside a note.
@@ -141,7 +140,6 @@ def _note_under(middle: float, notes: list[tuple[float, float, int]]) -> tuple[f
 
 def rough_syllables(stem: np.ndarray, rate: int, syllables: list[dict], notes: list[tuple[float, float, int]]) -> list[dict]:
     """Sung vowels that came out as noise or nearly silent: the faults a listener hears at once and a recogniser forgives.
-    Ported from Spectro Maestro's vocal_cli.rough_syllables (same author, AGPL-3.0-or-later).
 
     `syllables` are the rendered line's rows ({text, start_s, end_s} of the vowel on the stem's clock) and `notes`
     its melody on the same clock. A vowel that is too short to judge, or that is mostly consonant by design on a

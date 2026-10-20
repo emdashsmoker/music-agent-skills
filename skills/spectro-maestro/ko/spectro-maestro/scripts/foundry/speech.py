@@ -71,7 +71,7 @@ def espeak_phonemes(tokenizer, text: str, lang: str) -> str:
 
     A word the language cannot read itself is spelled out by espeak in another language ('Chinese letter' for a kanji
     under ja, 'tilde' for a ~). Such words raise VocalError. Words with Latin letters are left alone: espeak reads them
-    as English, as a singer would. Words are tested one at a time, since a mark such as ー reads only inside a word. Same rule as synth-ventriloquist's tts.espeak_phonemes.
+    as English, as a singer would. Words are tested one at a time, since a mark such as ー reads only inside a word.
     """
     phonemes = _vocab_phonemes(tokenizer, text, lang)
     if not LANGUAGE_SWITCH.search(phonemes):

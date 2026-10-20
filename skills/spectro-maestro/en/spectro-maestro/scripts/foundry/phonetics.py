@@ -27,7 +27,7 @@ DIPHTHONGS = {"aɪ", "aʊ", "eɪ", "oʊ", "ɔɪ", "əʊ", "eə", "ɪə", "iə", 
 # Each set is that language's whole list, since a pair can be one syllable in one language and two in another.
 # Only the languages listed use these sets and the rules that go with them (_joins); English and every other
 # language keep DIPHTHONGS and the rules they had. A length mark on the first vowel is part of the pair
-# (Norwegian jeg). The same additions as synth-ventriloquist's phones.LANGUAGE_DIPHTHONGS.
+# (Norwegian jeg).
 _NORWEGIAN = DIPHTHONGS | {"øy", "ɛːɪ"}
 LANGUAGE_DIPHTHONGS = {
     "de": DIPHTHONGS | {"ɔø"},
