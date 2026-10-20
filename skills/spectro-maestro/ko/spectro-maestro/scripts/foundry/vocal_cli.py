@@ -120,7 +120,7 @@ def check_track(project: dict, track: dict, build: str, out_dir: str, plots_for:
         piece = audio[a:b]
         heard = asr.transcribe(piece, SR, model, asr.language_code(language) if not model.endswith(".en") else None)
         row = {"line": index + 1, "section": line["section"], "text": line["text"], "heard": heard,
-               "score": asr.similarity(line["text"], heard, language),
+               "score": asr.similarity(line["text"], heard),
                "pitch_error_cents": _pitch_error_cents(piece, notes, a / SR - start),
                "lag_ms": info.get("lag_ms"), "ending": info.get("ending"), "speed": info.get("speed"),
                "forced_voiced_frames": info.get("forced_voiced_frames"),
@@ -221,7 +221,7 @@ def cmd_vocal_try(args) -> int:
         heard = asr.transcribe(audio, SR, model, asr.language_code(language) if not model.endswith(".en") else None)
         path = export.write_audio(os.path.join(out_dir, "vocals", f"try_line{args.line}_{number}.wav"), audio)
         label = "current" if number == 0 else f"option {number}"
-        print(f"  {label}: {asr.similarity(text, heard, language):.2f}  {text!r} -> {heard!r}  [{path}]")
+        print(f"  {label}: {asr.similarity(text, heard):.2f}  {text!r} -> {heard!r}  [{path}]")
     print("play the clips to the user before replacing a line they wrote or approved")
     return 0
 

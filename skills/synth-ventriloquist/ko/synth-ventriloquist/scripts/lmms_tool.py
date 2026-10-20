@@ -37,7 +37,6 @@ PACKAGES = {  # import name: (name to install, what is missing without it)
     "piper": ("piper-tts", "Piper voices"), "faster_whisper": ("faster-whisper", "recognition check of sung lines"),
     "yaml": ("pyyaml", "singer voicebanks"), "xmlschema": ("xmlschema", "DAWproject schema validation (optional)"),
     "imageio_ffmpeg": ("imageio-ffmpeg", "an ffmpeg binary without administrator rights (optional, only for mp3 when libsndfile is older than 1.1)"),
-    "pykakasi": ("pykakasi", "reading kanji in the recognition check of Japanese lyrics (optional)"),
 }
 
 
@@ -238,7 +237,7 @@ def cmd_voices(args) -> None:
 def cmd_sing(args) -> None:
     from lmmskit.vocal import asr, engines, lines
     options = {"fix_ending": False} if args.no_ending_fix else {}
-    sung, report = engines.render_line(args.voice, lines.Line(args.text, args.melody), args.bpm, method=args.method, lang=args.lang, cache=args.cache, **options)
+    sung, report = engines.render_line(args.voice, lines.Line(args.text, args.melody, phonemes=args.phonemes), args.bpm, method=args.method, lang=args.lang, cache=args.cache, **options)
     lines.write_wav(args.out, sung.audio)
     report["recognition"] = asr.score_line(sung.audio, 44100, args.text, args.asr_model, language=args.lang) if not args.no_asr else None
     _print(report)
@@ -254,7 +253,7 @@ def cmd_compare(args) -> None:
 def cmd_lyric_lint(args) -> None:
     from lmmskit.findings import format_findings
     from lmmskit.vocal import lines, lyrics
-    print(format_findings(lyrics.lint_line(args.voice, lines.Line(args.text, args.melody, args.start_beat), args.bpm, role=args.kind,
+    print(format_findings(lyrics.lint_line(args.voice, lines.Line(args.text, args.melody, args.start_beat, phonemes=args.phonemes), args.bpm, role=args.kind,
                                            lang=args.lang)) or "no findings")
 
 
@@ -338,6 +337,8 @@ def main() -> None:
     method = (("--method",), {"default": "auto", "choices": ["auto", "stretched", "held"]})
     lang = (("--lang",), {"default": "en"})
     cache = (("--cache",), {"default": None, "help": "folder for cached lines"})
+    phonemes = (("--phonemes",), {"default": None, "help": "the line in the voice's own symbols, sung instead of reading the text "
+                                                          "(voicebanks: words separated by |)"})
     asr_model = (("--asr-model",), {"default": None, "help": "faster-whisper model for the vocal check (setting asr_model, default "
                                                             "base.en); an English-only model switches to its multilingual twin "
                                                             "when the lyrics are in another language"})
@@ -373,12 +374,12 @@ def main() -> None:
     add("import-json", cmd_import_json, (("json",), {}), (("-o", "--out"), {"required": True}))
     add("pack", cmd_pack, project, (("-o", "--out"), {"required": True, "help": "zip to write"}))
     add("voices", cmd_voices, (("voice",), {"nargs": "?"}), (("--range",), {"action": "store_true", "help": "probe the Kokoro 'held' range"}))
-    add("sing", cmd_sing, voice, melody, bpm, method, lang, cache, (("--text",), {"required": True}), (("-o", "--out"), {"required": True}),
+    add("sing", cmd_sing, voice, melody, bpm, method, lang, cache, phonemes, (("--text",), {"required": True}), (("-o", "--out"), {"required": True}),
         (("--no-asr",), {"action": "store_true"}), asr_model,
         (("--no-ending-fix",), {"action": "store_true", "help": "speech voices: leave the last syllable as spoken"}))
     add("compare", cmd_compare, voice, melody, bpm, method, lang, cache, (("texts",), {"nargs": "+", "help": "candidate wordings"}),
         (("--out",), {"default": None, "help": "folder for the candidate WAVs"}), asr_model)
-    add("lyric-lint", cmd_lyric_lint, voice, melody, bpm, lang, (("--text",), {"required": True}), (("--kind",), {"default": "verse"}),
+    add("lyric-lint", cmd_lyric_lint, voice, melody, bpm, lang, phonemes, (("--text",), {"required": True}), (("--kind",), {"default": "verse"}),
         (("--start-beat",), {"type": float, "default": 0.0, "help": "beat in the bar where the melody starts (0 = downbeat), for the stress check"}))
     args = parser.parse_args()
     args.run(args)

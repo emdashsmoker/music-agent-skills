@@ -246,8 +246,19 @@ class Voicebank:
             result.append(match)
         return result or None
 
-    def phonemize(self, text: str, lang: str = "en") -> list[list[str]]:
-        """Phonemes per word. Languages written without spaces are looked up by the longest dictionary entries from the left."""
+    def phonemize(self, text: str, lang: str = "en", phonemes: str | None = None) -> list[list[str]]:
+        """Phonemes per word. Languages written without spaces are looked up by the longest dictionary entries from the left.
+
+        Given `phonemes` ('en/hh en/ah | en/l en/ow') are used when every symbol is one of this voicebank's. A song moved
+        from a speech voice keeps that engine's IPA there, so such an entry is ignored with a note and the words are read.
+        """
+        if phonemes:
+            given = [[self._known(s.split("/")[-1], lang) if "/" not in s else (s if s in self.acoustic.phonemes else None)
+                      for s in chunk.split()] for chunk in phonemes.split("|") if chunk.strip()]
+            if given and all(s is not None for word in given for s in word):
+                return given
+            print(f"[vocal] {text!r}: its phonemes are not written in this voicebank's symbols (another engine's?), "
+                  "so the line is sung from its words", flush=True)
         entries, _ = self._dictionary(lang)
         result = []
         for word in _words_of(text):
@@ -286,13 +297,13 @@ class Voicebank:
         _, kinds = self._dictionary(lang)
         return kinds.get(phoneme, kinds.get(phoneme.split("/")[-1], "")) == VOWEL_TYPE
 
-    def syllables(self, text: str, lang: str = "en", wanted: int | None = None) -> list[dict]:
+    def syllables(self, text: str, lang: str = "en", wanted: int | None = None, phonemes: str | None = None) -> list[dict]:
         """One entry per sung syllable: {'onset': [...], 'vowel': str, 'coda': [...], 'word': index}.
 
         With `wanted`, a weak vowel that directly follows another vowel in the same word (fire, hour, tower) is
         folded into the note before it until the count matches.
         """
-        result = self._split_syllables(text, lang)
+        result = self._split_syllables(text, lang, phonemes)
         while wanted is not None and len(result) > wanted:
             for index in range(1, len(result)):
                 previous, current = result[index - 1], result[index]
@@ -305,9 +316,9 @@ class Voicebank:
                 break
         return result
 
-    def _split_syllables(self, text: str, lang: str) -> list[dict]:
+    def _split_syllables(self, text: str, lang: str, given: str | None = None) -> list[dict]:
         result = []
-        for word_index, phonemes in enumerate(self.phonemize(text, lang)):
+        for word_index, phonemes in enumerate(self.phonemize(text, lang, given)):
             vowels = [i for i, p in enumerate(phonemes) if self.is_vowel(p, lang)]
             if not vowels:                               # vowel-less word: hang it on the neighbouring syllable
                 if result:
@@ -361,7 +372,7 @@ class Voicebank:
                 "speedup": np.array(speedup, dtype=np.int64)}
 
     def sing(self, text: str, groups: list[list[SungNote]], *, lang: str = "en", voice: str | None = None, style: Style | None = None,
-             steps: int = DEFAULT_STEPS, gender: float = 0.0, velocity: float = 1.0, tension: float = 0.0, breathiness: float = 0.0,
+             phonemes: str | None = None, steps: int = DEFAULT_STEPS, gender: float = 0.0, velocity: float = 1.0, tension: float = 0.0, breathiness: float = 0.0,
              expressiveness: float = 1.0, own_pitch: bool = True) -> tuple[SungLine, dict]:
         """Render one line. own_pitch=True uses the bank's pitch model; False draws the curve with singing.pitch_curve.
 
@@ -372,7 +383,7 @@ class Voicebank:
         colours = sorted(self.acoustic.speakers)
         if voice and voice not in colours:
             raise ValueError(f"this voicebank has no voice colour '{voice}'; it offers {colours or 'a single voice'}")
-        syllables = self.syllables(text, lang, len(groups))
+        syllables = self.syllables(text, lang, len(groups), phonemes)
         if len(syllables) != len(groups):
             spoken = " | ".join(" ".join(s["onset"] + [s["vowel"] or ""] + s["coda"]) for s in syllables)
             raise ValueError(f"'{text}' has {len(syllables)} sung syllables in this voicebank ({spoken}) but the melody has "

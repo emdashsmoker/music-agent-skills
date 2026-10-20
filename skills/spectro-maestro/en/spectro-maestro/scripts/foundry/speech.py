@@ -80,8 +80,8 @@ def espeak_phonemes(tokenizer, text: str, lang: str) -> str:
                and LANGUAGE_SWITCH.search(_vocab_phonemes(tokenizer, word, lang))]
     if foreign:
         from .singing import VocalError
-        raise VocalError(f"the speech voice reads {lang} and cannot read {' '.join(foreign)}; write them in a script {lang} reads "
-                         "(Japanese: kana), leave out symbols such as ~, set lang to the lyrics' language, or choose a voice that reads them")
+        raise VocalError(f"the speech voice reads {lang} and cannot read {' '.join(foreign)}; write them in a script the voice reads, "
+                         "leave out symbols such as ~, set lang to the lyrics' language, or choose a voice that reads them")
     return re.sub(" {2,}", " ", LANGUAGE_SWITCH.sub(" ", phonemes)).strip()     # a mark stands where the word's space was
 
 
