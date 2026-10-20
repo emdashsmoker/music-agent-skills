@@ -25,11 +25,15 @@
 - For other languages, name a Kokoro or Piper voice of that language; it sings through the same conversion path
     + When the track's `lang` is not English, `vocal-check` and `vocal-try` switch the English-only recognition model to the multilingual one of the same size (base.en becomes base). Pass `--asr-model small` for a larger one, or set `asr_model` so every check uses it. Measured on a 4-core CPU checking one 5-second line: base 402 MB of memory and 5.7 s, small 869 MB and 8.7 s, medium 2.1 GB and 23 s; the first use downloads 142 MB, 464 MB and 1.5 GB
     + Set `lang` in the track's `vocal` settings to the lyrics' language code (ko, ja, zh, ru ...). The voice reads the text with that pronunciation, and `vocal-check` listens for that language. A Kokoro voice of that language keeps its own variant: `pt` with a Brazilian voice (pf_dora) reads Brazilian Portuguese
-    + `lint` reports a line with characters the voice cannot read as `lyrics.unreadable`, with those words. Write them in a script the voice reads, or choose a voice that reads them. A Piper Japanese voice needs the `pyopenjtalk` package
-    + Outside English the melody's notes give the syllable count. When the pronunciation has more vowels than notes, vowels that meet inside a word are joined, and `lint` names the joins as `lyrics.folded_syllable`
-    + If a join is wrong, or syllables are missing (`lyrics.syllables`), give the line its `phonemes`. A syllable with no vowel (Serbo-Croatian srce) takes a short vowel (ə) before its consonant there
-    + The weak function-word rules of `lint` (`lyrics.weak_opening`, `lyrics.weak_words_in_a_row`, `lyrics.weak_word_on_long_note`) and `lyrics.unstable_word` judge by English word lists and English diphthongs. In another language, judge such a warning by the role the word has in that language
-    + The rules read from the sounds (short notes, clusters, reduced vowels, bright consonants and others) apply to every language; their numbers were measured on English voices
+    + `lint` reports a line with characters the voice cannot read as `lyrics.unreadable`, naming the words, so write them in a script the voice reads or choose another voice that reads them. A Piper Japanese voice needs the `pyopenjtalk` package
+- Outside English, syllables are counted by the melody's notes
+    + Give one note per syllable as the language counts them
+    + When the pronunciation has more vowels than notes, vowels that meet inside a word are joined into one syllable, and `lint` reports the join as `lyrics.folded_syllable`
+    + If a join is wrong, or `lyrics.syllables` reports missing syllables, give the line its `phonemes`
+    + In those `phonemes`, a syllable carried by a consonant with no vowel (Serbo-Croatian srce) takes a short vowel ə before that consonant
+- Some `lint` rules judge by English
+    + The weak function-word warnings (codes starting with `lyrics.weak_`) and `lyrics.unstable_word` use English word lists and English diphthongs, so in another language judge them by the role the flagged word has in that language
+    + The other rules read the pronunciation (short notes, clusters, reduced vowels, bright consonants and others) and apply to every language, though their numbers were measured on English voices
 - Ask the user about engine and voice in the planning step
     + If the user owns a singing voicebank, suggest `diffsinger` first
 
@@ -271,9 +275,10 @@ vox:
 - Safeguards
     + If appending the word changes the pronunciation of the original line, the repair is abandoned
     + The carrier word exists for English (but) only, so the repair does not trigger in other languages
-    + For lines in other languages, `ending dies` in the `vocal-check` output marks a faded ending; give the last note less length or change the voice and check again
     + The result is cached per line
 - The mark `ending resung` in the `vocal-check` output shows whether it triggered
+- For lines in other languages, where the repair does not trigger, the mark `ending dies` in the `vocal-check` output shows a faded ending
+    + Shorten the last note or change the voice, then check again
 - It can be switched off with `ending_fix: false`
 
 ## Connection to the mix
@@ -338,12 +343,12 @@ vocal:
     + Every line starts from the same seed, so the same input gives the same sound
     + A double is a separate take with a different seed and timbre
 - Lyric spelling
-    + The voicebank's dictionary decides the spelling of the lyrics. Open its dictionary file (`dsdict*.yaml`), check the `grapheme` entries and write the lyrics the same way
+    + The voicebank's dictionary decides the spelling of the lyrics, so open its dictionary file (`dsdict*.yaml`) and write the lyrics as its `grapheme` entries do
     + A word the dictionary lacks stops the line (`lyrics.pronunciation`). Respell it or give the line a `phonemes` entry in the voicebank's own symbols
     + A bank whose dictionary holds no words of a language (its OpenUtau phonemizer converts them in code) sings German, French, Spanish, Italian, Portuguese and Russian through that G2P, and any other such language only through `phonemes`
     + In those languages a word with a sound the bank lacks stops the line with an error naming the sound, and a bank that lists its languages refuses one it neither lists nor has a dictionary file for
-    + A voicebank's dictionary or a G2P pack can also write a word wrong. When a word sounds like another language or the recogniser hears another word, check the symbols in `phones` and `syllables` of the render report `build/vocal_<track>.json`
-    + If they differ from how the language says the word, give the line a `phonemes` entry in the voicebank's own symbols, modelled on related words
+    + A dictionary or a G2P can also write a word wrong. When a word sounds like another language, or the recogniser hears a different word, check the symbols actually sung in `phones` and `syllables` of the render report `build/vocal_<track>.json`
+    + Where symbols do not match how the language says the word, give the line a `phonemes` entry in the voicebank's own symbols, taking a similar word as the model
 - Render time
     + About 10 seconds per line (on a 2-core CPU); results are cached and reused on re-render
 
@@ -353,8 +358,8 @@ vocal:
     + More than an octave away from the speaking pitch the timbre turns thin or muddy
 - The recognition match is most trustworthy in English
     + For other languages trust it only as far as the multilingual recognition model is accurate
-    + Languages that write the same words in several scripts (Japanese kana and kanji, Chinese simplified and traditional characters) can come back from the recogniser in another script than the lyrics. The match compares characters, so a line sung right can still match low
-    + For a weak line in such a language, read the heard text next to the score in the `vocal-check` output. The same words in another script (ありがとう and アリガトウ, 谢谢你 and 謝謝你) mean the line came through. Other words, or a kanji heard with another reading (君 as きみ or くん), mean it was misheard
+    + In languages that write the same words in several scripts (Japanese kana and kanji, Chinese simplified and traditional characters), the recogniser may write a line in a different script from the lyrics, so a line sung right can still match low
+    + Judge such a line from the heard text next to the score in the `vocal-check` output. The same words in another script (ありがとう and アリガトウ, 谢谢你 and 謝謝你) mean the line came through. Other words, or a kanji heard with another reading (君 as くん instead of きみ), mean it was misheard
 - Fast rap and runs of sixteenth-note singing blur the syllables
 - The stress check runs only for speech voice engines
     + Voicebank dictionaries carry no stress marks, so DiffSinger tracks get the syllable count, pronunciation and the other checks of the singing craft and the model-voice habits
