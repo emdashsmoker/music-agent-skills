@@ -425,6 +425,8 @@ EE_SYMBOLS = {"i"}                 # the ee vowel: thin and sharp when held (the
 # Reduced vowels (the schwa of the, to, a, the first syllable of upon) and the tiny ɪ of it, its, sit: a spoken schwa lasts
 # a few tens of milliseconds, so a note has almost nothing to hold. In a probe line a schwa held for half a second came out
 # 18-22 dB under the line and 'the' sang as breath (periodicity 0.4); 'it' on a beat becomes the burst of its t.
+# A stressed one is a full vowel: the ɚ of adversity (121-148 ms against 44-73 ms for the line's other vowels) and a
+# stressed Romanian ă (96 ms against 92) were held as long as any vowel, while unstressed ones lasted 24-65 ms.
 REDUCED_VOWELS = set("əɐᵻɚ")
 SHORT_LAX_VOWELS = {"ɪ"}
 STRONG_BEAT_WEIGHT = 3             # downbeat or beat three (see _metric_weight)
@@ -603,10 +605,11 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                 exposed = lengths[index] >= EXPOSED_NOTE_S or (weights[index] >= STRONG_BEAT_WEIGHT and beats_held >= 0.5)
                 nucleus = plist[syllable.nucleus[0]].symbol.replace("ː", "") if len(syllable.nucleus) == 1 else ""
                 spot = "a strong beat" if weights[index] >= STRONG_BEAT_WEIGHT else f"{lengths[index]:.2f} s"
-                if exposed and nucleus in REDUCED_VOWELS and not (weak[index] and beats_held >= 2):
+                if exposed and nucleus in REDUCED_VOWELS and plist[syllable.nucleus[0]].stress != 2 and not (weak[index] and beats_held >= 2):
+                    strong_form = ", or spell the strong form for the voice (too, thee, ay)" if phonetics.language_key(language) in ("", "en") else ""   # English spellings
                     issue("warn", "lyrics.reduced_vowel_on_beat", where,
                           f"/{phonetics.syllable_text(plist, syllable)}/ puts a reduced vowel (the a of about, the e of the) on {spot}; the speech "
-                          f"voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat, or spell the strong form for the voice (too, thee, ay)")
+                          f"voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat{strong_form}")
                 if exposed and nucleus in SHORT_LAX_VOWELS and syllable.coda and plist[syllable.coda[-1]].symbol[0] in BRIGHT_CONSONANTS:
                     issue("warn", "lyrics.short_vowel_on_beat", where,
                           f"/{phonetics.syllable_text(plist, syllable)}/ (it, its, sit) sits on {spot}; its vowel lasts a few tens of milliseconds, so the "
