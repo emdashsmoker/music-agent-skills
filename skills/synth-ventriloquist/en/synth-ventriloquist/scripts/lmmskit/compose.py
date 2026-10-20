@@ -350,7 +350,7 @@ class Song:
         part.notes(at, [Note(0.0, beats, sounds.DRUM_PITCH)], name)
 
     # -- vocals -------------------------------------------------------------------------------------
-    def vocal(self, name: str, voice: str, *, role: str = "vocal", method: str = "auto", lang: str = "en", speed: float = 1.0,
+    def vocal(self, name: str, voice: str, *, role: str = "vocal", method: str = "auto", lang: str = "en", speed: float | None = None,
               style=None, level_db: float = 0.0, pan: float = 0.0, sends: dict[str, float] | None = None,
               effects: list[tuple[str, dict]] | None = None, deesser: dict | None = None, **options) -> "SongVocal":
         """Declare a sung part. voice is kokoro:<voice>, piper:<voice> or diffsinger:<folder>[#colour].

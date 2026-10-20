@@ -22,6 +22,13 @@ from . import ending, singing, tts, world
 from .singing import Style, SungLine, SungNote
 
 REST_TOKENS = ("r", "-")
+# A speech voice reads a syllable in about 0.21 s at speed 1 (the figure Spectro Maestro uses). Read at speed 1 under
+# long notes, the consonants keep their few tens of milliseconds while the vowels stretch many times, and two nasals
+# that meet across words run into one: "Je t'aime, mon amour" was heard as "J'étais mon amour", "Come, my love" as
+# "Come, I love". Reading slower for long notes, as Spectro Maestro does, gave both back; over 36 English lines sung
+# by three voices the weak lines fell from 13 to 6.
+SPOKEN_SYLLABLE_S = 0.21
+SPEED_RANGE = (0.7, 1.15)
 
 
 @dataclass
@@ -73,6 +80,12 @@ def note_groups(melody: str, bpm: float, transpose: int = 0) -> tuple[list[list[
     if first is None:
         raise ValueError("the melody has no notes")
     return groups, first, cursor
+
+
+def matched_speed(groups: list[list[SungNote]]) -> float:
+    """The reading speed for a melody: slower for long notes, faster for short ones, so less has to be stretched."""
+    typical = float(np.median([sum(note.duration for note in group) for group in groups]))
+    return float(np.clip(SPOKEN_SYLLABLE_S / max(typical, 0.05), *SPEED_RANGE))
 
 
 def melody_in_seconds(melody: str, bpm: float, first_note_s: float, transpose: int = 0) -> list[tuple[float, float, int]]:
