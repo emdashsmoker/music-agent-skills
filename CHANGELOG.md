@@ -20,6 +20,7 @@ Changelog rules
 - (Korean entries) Leave one blank line after the English entries and list the same changes in the same order with the "*" bullet so that they render as a separate list.
 - (English format) - Description that starts with the change type verb (#PR number)
 - (Korean format) * Korean noun-ending description that ends with the change type word (#PR number)
+- (Korean style) Write each Korean entry as one short formal sentence in note style with a noun ending. Avoid colloquial expressions.
 - (Change types) Added (추가), Changed (변경), Fixed (수정), Removed (삭제), Action needed (필요)
 - (Include) Changes to skill outputs, usage steps, or installation.
 - (Exclude) Typo and wording fixes, demo image replacements, README changes unrelated to installation, internal refactoring without behavior changes, and commits that only change CHANGELOG.md.
