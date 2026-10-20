@@ -194,6 +194,6 @@ Changelog rules
 ## 2026-10-13
 
 ### Common
-- Added the first public release with the Korean and English editions of every skill
+- Added the first public release with the Korean and English editions of the skills
 
-* 모든 스킬의 한국어판 및 영어판을 담은 최초 공개 버전 추가
+* 한국어판 및 영어판 스킬을 담은 최초 공개 버전 추가
