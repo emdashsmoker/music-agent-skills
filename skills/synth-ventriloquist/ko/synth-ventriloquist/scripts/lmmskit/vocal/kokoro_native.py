@@ -45,8 +45,8 @@ ENERGY_SMOOTH_STEPS = 3
 
 def _split_paths() -> tuple[str, str, str]:
     """Cut the timestamped Kokoro model into a prosody half and a decoder half (needs the `onnx` package once)."""
-    folder = tts.cache_dir("kokoro")
-    full = tts.fetch(f"{tts.KOKORO_BASE}/onnx/model.onnx", os.path.join(folder, "model.onnx"))
+    folder = tts.kokoro_dir()
+    full = tts.fetch(f"{tts.kokoro_base()}/onnx/model.onnx", os.path.join(folder, "model.onnx"))
     prosody, decoder = os.path.join(folder, "prosody.onnx"), os.path.join(folder, "decoder.onnx")
     if not (os.path.exists(prosody) and os.path.exists(decoder)):
         from onnx.utils import extract_model
@@ -67,7 +67,7 @@ class NativeKokoro:
         from kokoro_onnx.tokenizer import Tokenizer
         self.voice, self.lang, self.sr = voice, lang, tts.KOKORO_SAMPLE_RATE
         _, prosody, decoder = _split_paths()
-        style = tts.fetch(f"{tts.KOKORO_BASE}/voices/{voice}.bin", os.path.join(tts.cache_dir("kokoro"), f"{voice}.bin"))
+        style = tts.fetch(f"{tts.kokoro_base()}/voices/{voice}.bin", os.path.join(tts.kokoro_dir(), f"{voice}.bin"))
         self._styles = np.fromfile(style, dtype=np.float32).reshape(-1, 1, 256)
         self._tokenizer = Tokenizer()
         options = onnxruntime.SessionOptions()
@@ -77,7 +77,7 @@ class NativeKokoro:
 
     @property
     def identity(self) -> str:
-        return f"kokoro-native:{self.voice}:{tts.KOKORO_REVISION[:8]}"
+        return f"kokoro-native:{self.voice}:{tts.kokoro_revision()[:8]}"
 
     def phonemize(self, text: str) -> str:
         return tts.espeak_phonemes(self._tokenizer, text, self.lang)
@@ -353,7 +353,7 @@ def clean_range(voice: str, refresh: bool = False) -> dict:
     import json
     from .lyrics import periodicity
     name = voice.split(":", 1)[-1]
-    path = os.path.join(tts.cache_dir("kokoro"), f"range_{name}.json")
+    path = os.path.join(tts.kokoro_dir(), f"range_{name}.json")
     if os.path.exists(path) and not refresh:
         with open(path, encoding="utf-8") as handle:
             return json.load(handle)
