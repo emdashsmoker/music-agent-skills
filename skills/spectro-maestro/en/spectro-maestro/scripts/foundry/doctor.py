@@ -36,6 +36,7 @@ VOCAL = [
 ]
 OPTIONAL = [
     ("lxml", "lxml", "schema check of DAWproject exports (export still works)"),
+    ("pykakasi", "pykakasi", "reading kanji in the vocal check of Japanese lyrics (the check still works)"),
 ]
 CONTAINER_MARKERS = ("/.dockerenv", "/run/.containerenv")
 MIN_PYTHON = (3, 9)

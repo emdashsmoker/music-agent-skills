@@ -116,7 +116,7 @@ LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py k
 | 추가 목소리 | piper-tts | Piper 목소리 |
 | 가사 점검 | faster-whisper | 부른 가사 줄의 인식 점수 |
 | 보이스뱅크 | pyyaml | 사용자가 제공하는 가수 보이스뱅크 |
-| 선택 | xmlschema, imageio-ffmpeg | DAWproject 검증, 관리자 권한 없는 ffmpeg |
+| 선택 | xmlschema, imageio-ffmpeg, pykakasi | DAWproject 검증, 관리자 권한 없는 ffmpeg, 일본어 가사 인식 점검의 한자 읽기 |
 
 ## 설정
 

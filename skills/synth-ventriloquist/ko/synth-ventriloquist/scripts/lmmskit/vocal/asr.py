@@ -47,12 +47,49 @@ def edit_distance(a: str, b: str) -> int:
     return previous[-1]
 
 
-def match(expected: str, heard: str) -> float:
-    """1.0 = every character recovered; 0 = nothing (1 - character error rate, floored at 0)."""
-    expected, heard = normalize(expected), normalize(heard)
+def match(expected: str, heard: str, language: str | None = None) -> float:
+    """1.0 = every character recovered; 0 = nothing (1 - character error rate, floored at 0). Japanese and Chinese
+    lines are compared in the form comparable() gives them."""
+    expected, heard = normalize(comparable(expected, language)), normalize(comparable(heard, language))
     if not expected:
         return 1.0
     return max(0.0, 1.0 - edit_distance(expected, heard) / len(expected))
+
+
+# The recogniser writes Japanese and Chinese in a script of its own choosing: kanji or katakana for kana lyrics,
+# traditional characters for simplified ones. Counted letter by letter, a line that came through scored low ("谢谢你"
+# heard as "謝謝你" scored 0.33), so lines in these languages are compared by sound: Chinese as espeak reads it,
+# Japanese in hiragana, with kanji read by the pykakasi package when it is installed.
+KATAKANA_TO_HIRAGANA = {code: code - 0x60 for code in range(0x30A1, 0x30F7)}
+_readers: dict[str, object] = {}
+
+
+def _reader(name: str):
+    """A text reader loaded once: 'kakasi' (Japanese kanji to kana) or 'kokoro' (espeak through Kokoro's tokenizer);
+    None when its package is missing."""
+    if name not in _readers:
+        try:
+            if name == "kakasi":
+                import pykakasi
+                _readers[name] = pykakasi.kakasi()
+            else:
+                from kokoro_onnx.tokenizer import Tokenizer
+                _readers[name] = Tokenizer()
+        except ImportError:
+            _readers[name] = None
+    return _readers[name]
+
+
+def comparable(text: str, language: str | None) -> str:
+    """The form a line is scored in: Chinese as its sound, Japanese in hiragana, every other language as written."""
+    code = language_code(language)
+    if code == "zh" and _reader("kokoro") is not None:
+        return _reader("kokoro").phonemize(text, "cmn").replace(" ", "")
+    if code == "ja":
+        reader = _reader("kakasi")
+        text = "".join(item["hira"] for item in reader.convert(text)) if reader is not None else text
+        return text.translate(KATAKANA_TO_HIRAGANA)
+    return text
 
 
 def model_for(language: str | None, model: str | None = None) -> str:
@@ -99,7 +136,7 @@ def score_line(audio: np.ndarray, sr: int, expected: str, model: str | None = No
         for seconds in paddings:
             silence = np.zeros(int(seconds * sr))
             heard = transcribe(np.concatenate([silence, mono, silence]), sr, model, language)
-            out.append((match(expected, heard), heard))
+            out.append((match(expected, heard, language), heard))
         return out
     passes = run(PADDINGS_S)
     if max(score for score, _ in passes) - min(score for score, _ in passes) > STEADY_SPREAD:
