@@ -347,7 +347,8 @@ vocal:
     + More than an octave away from the speaking pitch the timbre turns thin or muddy
 - The recognition match is most trustworthy in English
     + For other languages trust it only as far as the multilingual recognition model is accurate
-    + The recogniser writes Japanese and Chinese in a script of its own choosing (kanji for kana lyrics, katakana, traditional characters). This lowers the match even when the words come through, so read the heard text next to the score
+    + The recogniser writes Japanese and Chinese in a script of its own choosing (kanji for kana lyrics, katakana, traditional characters), so lines in these languages are matched by sound: Chinese as espeak reads it, Japanese in hiragana
+    + Kanji in the heard text are read by the `pykakasi` package (GPL-3.0) when it is installed; install it into the skill's environment for Japanese lyrics. Without it a line heard in kanji still matches low, so read the heard text next to the score. A kanji read another way (君 as くん) still costs a little
 - Fast rap and runs of sixteenth-note singing blur the syllables
 - The stress check runs only for speech voice engines
     + Voicebank dictionaries carry no stress marks, so DiffSinger tracks get the syllable count, pronunciation and the other checks of the singing craft and the model-voice habits

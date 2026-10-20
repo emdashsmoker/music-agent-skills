@@ -37,6 +37,7 @@ PACKAGES = {  # import name: (name to install, what is missing without it)
     "piper": ("piper-tts", "Piper voices"), "faster_whisper": ("faster-whisper", "recognition check of sung lines"),
     "yaml": ("pyyaml", "singer voicebanks"), "xmlschema": ("xmlschema", "DAWproject schema validation (optional)"),
     "imageio_ffmpeg": ("imageio-ffmpeg", "an ffmpeg binary without administrator rights (optional, only for mp3 when libsndfile is older than 1.1)"),
+    "pykakasi": ("pykakasi", "reading kanji in the recognition check of Japanese lyrics (optional)"),
 }
 
 
