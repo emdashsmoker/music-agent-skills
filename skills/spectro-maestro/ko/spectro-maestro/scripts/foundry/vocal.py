@@ -575,15 +575,15 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
             short = [g for g in groups if g[1] - g[0] < 0.11]
             if short:
                 issue("warn", "lyrics.short_notes", where, f"{len(short)} notes shorter than 110 ms; syllables there will smear")
-            weights = [_bright_weight(plist, s) for s in syllables]
-            bright = [w > 0 for w in weights]
+            bright_weights = [_bright_weight(plist, s) for s in syllables]     # not weights: the beat rules below read the metric ones
+            bright = [w > 0 for w in bright_weights]
             longest, run = 0, 0
             for flag in bright:
                 run = run + 1 if flag else 0
                 longest = max(longest, run)
-            crowded = len(bright) >= BRIGHT_MIN_SYLLABLES and sum(weights) >= BRIGHT_SHARE * len(bright)
+            crowded = len(bright) >= BRIGHT_MIN_SYLLABLES and sum(bright_weights) >= BRIGHT_SHARE * len(bright)
             if crowded or longest >= BRIGHT_RUN:
-                count = f"{sum(weights)} bright sounds over {len(bright)} syllables (st, sk, ts clusters count twice)" if crowded else f"{longest} syllables in a row"
+                count = f"{sum(bright_weights)} bright sounds over {len(bright)} syllables (st, sk, ts clusters count twice)" if crowded else f"{longest} syllables in a row"
                 issue("warn", "lyrics.bright_consonants", where,
                       f"{count} on t, k, p, s, z or sh; the speech voices spit, hiss and peak there. Carry the line on "
                       f"voiced consonants (m, n, l, d, b, g, w, r) and keep those sounds to about one per word")
