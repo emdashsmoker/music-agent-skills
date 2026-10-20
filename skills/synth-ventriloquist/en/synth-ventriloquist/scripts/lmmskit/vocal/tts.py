@@ -48,8 +48,8 @@ WORD_GAP = " "                         # the engines' timed space between words 
 TIMING_VERSION = 6                  # part of the unit cache key: units saved with an older lag rule are re-spoken
 KOKORO_SAMPLE_RATE = 24000
 KOKORO_FRAME_SAMPLES = 600                      # one duration unit of the timestamped model
-KOKORO_REVISION = "dd4401a9add81ac692d20e240d22ec9dda82cc29"
-KOKORO_BASE = f"https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX-timestamped/resolve/{KOKORO_REVISION}"
+KOKORO_REPO = "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX-timestamped"
+KOKORO_REVISION = "dd4401a9add81ac692d20e240d22ec9dda82cc29"   # the tested files; the setting kokoro_revision picks others
 PIPER_BASE = "https://huggingface.co/rhasspy/piper-voices/resolve/main"
 # Voices offered at planning time. licence notes are reminders; the model card of each voice is authoritative.
 VOICES = {
@@ -140,6 +140,20 @@ def espeak_phonemes(tokenizer, text: str, lang: str) -> str:
 
 
 # -- model files ----------------------------------------------------------------------------------------
+def kokoro_revision() -> str:
+    return settings.get("kokoro_revision") or KOKORO_REVISION
+
+
+def kokoro_base() -> str:
+    return f"{KOKORO_REPO}/resolve/{kokoro_revision()}"
+
+
+def kokoro_dir() -> str:
+    """Where the Kokoro files are kept: the tested revision keeps the folder it always had, another one gets its own."""
+    revision = kokoro_revision()
+    return cache_dir("kokoro") if revision == KOKORO_REVISION else cache_dir("kokoro", revision.replace("/", "_"))
+
+
 def cache_dir(*parts: str) -> str:
     base = settings.cache_dir()
     path = os.path.join(base, *parts)
@@ -340,9 +354,9 @@ class KokoroBackend:
         import onnxruntime
         from kokoro_onnx.tokenizer import Tokenizer
         self.voice, self.lang, self.sr = voice, lang, KOKORO_SAMPLE_RATE
-        folder = cache_dir("kokoro")
-        model = fetch(f"{KOKORO_BASE}/onnx/model.onnx", os.path.join(folder, "model.onnx"))
-        style = fetch(f"{KOKORO_BASE}/voices/{voice}.bin", os.path.join(folder, f"{voice}.bin"))
+        folder = kokoro_dir()
+        model = fetch(f"{kokoro_base()}/onnx/model.onnx", os.path.join(folder, "model.onnx"))
+        style = fetch(f"{kokoro_base()}/voices/{voice}.bin", os.path.join(folder, f"{voice}.bin"))
         self._tokenizer = Tokenizer()
         self._styles = np.fromfile(style, dtype=np.float32).reshape(-1, 1, 256)
         options = onnxruntime.SessionOptions()
@@ -351,7 +365,7 @@ class KokoroBackend:
 
     @property
     def identity(self) -> str:
-        return _identity(f"kokoro:{self.voice}:{KOKORO_REVISION[:8]}", f"kokoro:{self.voice}", self.lang)
+        return _identity(f"kokoro:{self.voice}:{kokoro_revision()[:8]}", f"kokoro:{self.voice}", self.lang)
 
     def phonemize(self, text: str) -> str:
         return espeak_phonemes(self._tokenizer, text, self.lang)

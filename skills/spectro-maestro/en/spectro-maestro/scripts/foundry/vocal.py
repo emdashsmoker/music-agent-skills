@@ -351,10 +351,11 @@ def render_vocal_track(project: dict, track: dict, n: int, build_dir: str, profi
     os.makedirs(cache_dir, exist_ok=True)
 
     def render(name: str, chosen: list, variant: dict) -> np.ndarray:
-        key = hashlib.sha1(json.dumps([VOCAL_VERSION, config, chosen, variant.get("style"), variant.get("seed"),
-                                       sorted((str(k), v) for k, v in variant.get("transpose", {}).items()),
-                                       variant.get("delay_ms"), variant.get("detune_semitones"), project["meta"]["bpm"], project["meta"]["seed"]],
-                                      sort_keys=True, default=str).encode()).hexdigest()[:20]
+        parts = [VOCAL_VERSION, config, chosen, variant.get("style"), variant.get("seed"),
+                 sorted((str(k), v) for k, v in variant.get("transpose", {}).items()),
+                 variant.get("delay_ms"), variant.get("detune_semitones"), project["meta"]["bpm"], project["meta"]["seed"]]
+        model = speech.model_tag(engine)                 # another Kokoro revision sings another stem
+        key = hashlib.sha1(json.dumps(parts + [model] if model else parts, sort_keys=True, default=str).encode()).hexdigest()[:20]
         path = os.path.join(cache_dir, f"stem_{key}.npy")
         report_path = os.path.join(build_dir, f"vocal_{name}.json")
         if os.path.exists(path) and os.path.exists(report_path):

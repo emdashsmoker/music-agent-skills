@@ -75,13 +75,15 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 - Settings are given from outside, without editing the scripts
     + Priority : command option, environment variable `SPECTRO_MAESTRO_<NAME>`, JSON config file, default for the operating system
     + Config file : searched as `--config <file>` (placed before the command name), then `spectro-maestro.json` in the working folder, then `spectro-maestro/config.json` in the user's config folder
-    + Names : `cache_dir`, `models_dir`, `offline`, `download_timeout_s`, `native`, `compiler`, `ffmpeg`, `lmms`, `asr_model`
+    + Names : `cache_dir`, `models_dir`, `offline`, `download_timeout_s`, `native`, `compiler`, `ffmpeg`, `lmms`, `asr_model`, `kokoro_revision`
     + `doctor` shows the current values, where each came from, and the config paths it looked at
     + Example : `{"models_dir": "D:/music-models", "offline": true}`
 - Voice models are downloaded into `models_dir` on first use (about 1 GB for a voice plus the recognition model)
     + The default location is under the operating system's per-user cache folder; change it with `--models` or a setting
     + When a download fails, the error message gives the file's address and the path to put it at, so the user can place it by hand
     + With `offline` switched on no download is attempted
+    + Kokoro is fetched at the revision the skill was tested with. `kokoro_revision` picks another: a commit id for renders that repeat, or `main` for the newest. Another revision is kept in its own folder and sings its own cache; `main` is fetched once, so delete `kokoro/main` under `models_dir` to fetch a newer one
+    + LMMS (an optional tool here) is whatever the `lmms` setting names, so a newer version can be used
     + If the models cannot be obtained, tell the user and either continue with an instrumental or ask for the model files
 - Outside tools are all optional
     + C compiler : when present, a fast filter kernel is built once into `cache_dir`; without one a slower path gives identical results (`native: off` disables it)

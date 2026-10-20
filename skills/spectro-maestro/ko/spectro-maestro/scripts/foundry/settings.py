@@ -35,6 +35,7 @@ SETTINGS = {
     "ffmpeg": (None, "ffmpeg command, used for mp3 only when the audio library cannot write mp3 itself"),
     "lmms": (None, "command that starts LMMS, e.g. a path to an AppImage or 'flatpak run io.lmms.LMMS' (optional tool)"),
     "asr_model": ("base.en", "faster-whisper model for vocal checks; an English-only model (.en) switches to its multilingual twin for tracks in other languages"),
+    "kokoro_revision": (None, "Hugging Face revision of the Kokoro model and voices: a commit id, or main for the newest (default: the tested commit)"),
 }
 TRUE_WORDS = ("1", "true", "yes", "on")
 FALSE_WORDS = ("0", "false", "no", "off", "")
