@@ -14,8 +14,8 @@ Changelog rules
 - (Entry unit) Write one entry for each change that users can notice.
 - (Grouping) Combine same-day pull requests on the same topic into one entry and list every pull request number.
 - (Splitting) Split a pull request that contains unrelated changes into separate entries.
-- (Skill header) Group the entries of each date under ### headers named after the folders under skills/. Use ### Common (공통) for repository-wide changes and changes that apply to every skill. Repeat a change that applies to several skills under each of their headers.
-- (Entry order) Put the Common (공통) header first and sort the other headers by skill folder name. List the entries under each header in pull request order.
+- (Skill header) Group the entries of each date under ### headers named after the folders under skills/. Use ### Common for repository-wide changes and changes that apply to every skill. Repeat a change that applies to several skills under each of their headers.
+- (Entry order) Put the Common header first and sort the other headers by skill folder name. List the entries under each header in pull request order.
 - (English entries) List the English entries first under each header with the "-" bullet.
 - (Korean entries) Leave one blank line after the English entries and list the same changes in the same order with the "*" bullet so that they render as a separate list.
 - (English format) - Description that starts with the change type verb (#PR number)
@@ -28,7 +28,7 @@ Changelog rules
 
 ## 2026-10-20
 
-### Common (공통)
+### Common
 - Changed Kokoro downloads to a pinned commit that the kokoro_revision setting can replace (#68)
 - Added a planning question that sets the reading speed of speech voices to agent-decided, melody-matched or fixed (#69)
 - Fixed the lyric lint warning on stressed reduced vowels (#69)
@@ -59,7 +59,7 @@ Changelog rules
 
 ## 2026-10-19
 
-### Common (공통)
+### Common
 - Added a mix style question to the plan with the forward, balanced, blended, vocal and backbeat presets and an adherence setting (#63)
 - Fixed newer DiffSinger exports that stopped at the first line with a missing duration model input (#63)
 - Added singing of German, French, Spanish, Italian, Portuguese and Russian words on DiffSinger voicebanks (#67)
@@ -85,7 +85,7 @@ Changelog rules
 
 ## 2026-10-18
 
-### Common (공통)
+### Common
 - Fixed API names, defaults and figures in the skill documents that did not match the toolkit code (#41, #42)
 - Added a lyric step that plans new lyrics and reviews user-written lyrics against what the chosen voice sings well (#45, #47)
 - Added a lyric tip on short function words that blur on off-beat notes while the match score passes them (#52)
@@ -136,7 +136,7 @@ Changelog rules
 
 ## 2026-10-17
 
-### Common (공통)
+### Common
 - Added lyric writing guidance for bright consonants, held ee vowels and weak words on exposed notes (#22, #23, #27, #33, #38)
 - Added an opt-in body fill for held ee vowels (Style vowel_body) (#24)
 - Added a lyric lint for bright consonants, held ee vowels and reduced vowels on exposed notes that runs on every lead line while drafting (#25, #26, #27, #28, #30)
@@ -177,7 +177,7 @@ Changelog rules
 
 ## 2026-10-14
 
-### Common (공통)
+### Common
 - Changed the English edition skill names to the Korean edition names (#9)
 
 * 영어판 스킬 이름을 한국어판 스킬 이름과 같게 변경 (#9)
@@ -193,7 +193,7 @@ Changelog rules
 
 ## 2026-10-13
 
-### Common (공통)
-- Added the first public release with the Korean and English editions of spectro-maestro and synth-ventriloquist
+### Common
+- Added the first public release with the Korean and English editions of every skill
 
-* spectro-maestro 및 synth-ventriloquist 스킬의 한국어판 및 영어판을 담은 최초 공개 버전 추가
+* 모든 스킬의 한국어판 및 영어판을 담은 최초 공개 버전 추가
