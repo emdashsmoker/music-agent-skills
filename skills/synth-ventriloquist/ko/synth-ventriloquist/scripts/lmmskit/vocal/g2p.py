@@ -66,6 +66,7 @@ class Scheme:
     vocalised_r: frozenset = frozenset()    # vowel symbols that can be an r closing the vowel before it (German)
     diphthongs: frozenset = frozenset()     # vowel symbols after which such an r stays a syllable of its own
     written_vowels: str = ""                # regular expression for one written vowel group of the language
+    dictionary_fixes: tuple = ()            # (word, phonemes) replacing a wrong entry of the pack's dict.txt
 
 
 def _scheme(lang, pack, sha256, dictionary, letters, symbols, vowels, consonants, **options) -> Scheme:
@@ -74,6 +75,10 @@ def _scheme(lang, pack, sha256, dictionary, letters, symbols, vowels, consonants
 
 
 GERMAN_WRITTEN_VOWELS = r"aa|ee|oo|ie|ei|ai|au|eu|äu|ey|ay|[aeiouäöüy]"
+# German words that the pinned classic pack writes with English sounds or cuts short, corrected as their kin are
+# written: 'wir' as w er sang the English "were" (mir m iy ex, ihr q iy ex), 'wich' as w ih ch the English "witch"
+# (wichtig v ih cc t ih cc), and 'verbums' had lost its ending (verben v eh ex b ax n).
+GERMAN_FIXES = (("wir", "v iy ex"), ("wich", "v ih cc"), ("verbums", "v eh ex b uh m s"))
 
 # Tables from OpenUtau.Core/G2p/<Language>G2p.cs and DiffSinger/Phonemizers/DiffSinger<Language>Phonemizer.cs.
 SCHEMES = {
@@ -84,7 +89,8 @@ SCHEMES = {
                 "t th ts ue uh uw v w x y yy z zh",
                 "aa ae ah ao aw ax ay ee eh er ex ih iy oe ohh ooh oy ue uh uw yy",
                 "b cc ch d dh f g hh jh k l m n ng p pf q r rr s sh t th ts v w x y z zh",
-                vocalised_r=frozenset({"ex"}), diphthongs=frozenset({"ay", "aw", "oy"}), written_vowels=GERMAN_WRITTEN_VOWELS),
+                vocalised_r=frozenset({"ex"}), diphthongs=frozenset({"ay", "aw", "oy"}), written_vowels=GERMAN_WRITTEN_VOWELS,
+                dictionary_fixes=GERMAN_FIXES),
         _scheme("de", "g2p-de-marzipan.zip", "a991a6aefb2de24e326d186c4dfae4bb7b8c871ae58d29fc379133acc642595c",
                 "dsdict-de-marzipan.yaml", "abcdefghijklmnopqrstuvwxyzäöüß",
                 "a er eh e ih i uh u oh o ueh ue oeh oe ex ei au eu w j p t k f s sh ch xh h pf ts tsh th m n ng b d g v "
@@ -170,6 +176,8 @@ class Pack:
                 continue
             word = parts[0].lower() if scheme.lower_dictionary else parts[0]
             self.words[word] = [prep(s) for s in parts[1].split() if prep(s) in self.vowel]
+        for word, phonemes in scheme.dictionary_fixes:
+            self.words[word] = [prep(s) for s in phonemes.split() if prep(s) in self.vowel]
         options = ort.SessionOptions()
         options.intra_op_num_threads = 1
         self.session = ort.InferenceSession(model, options, providers=["CPUExecutionProvider"])
