@@ -44,6 +44,8 @@ KEYS = {
     "qt_platform": ("QT_QPA_PLATFORM", "offscreen", "Qt platform plugin LMMS starts with when rendering"),
     "asr_model": ("LMMSKIT_ASR_MODEL", None, "faster-whisper model for the vocal checks (default base.en); an English-only "
                                             "model (.en) switches to its multilingual twin for lyrics in other languages"),
+    "kokoro_revision": ("LMMSKIT_KOKORO_REVISION", None, "Hugging Face revision of the Kokoro model and voices: a commit id, or "
+                                                        "main for the newest (default: the tested commit)"),
     "figure_fonts": ("LMMSKIT_FONTS", ["NanumGothic", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", "DejaVu Sans"],
                      "font families tried in order for the review figures"),
 }

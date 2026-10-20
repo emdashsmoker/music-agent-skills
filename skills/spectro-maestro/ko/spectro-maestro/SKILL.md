@@ -67,13 +67,15 @@ description: 전자음악 중심의 완성곡을 코드로 작곡, 편곡, 합�
 - 설정은 스크립트를 고치지 않고 바깥에서 지정
     + 우선순위 : 명령 옵션, 환경 변수 `SPECTRO_MAESTRO_<이름>`, JSON 설정 파일, 운영체제별 기본값
     + 설정 파일 : `--config <파일>`(명령 이름 앞에 둠), 작업 폴더의 `spectro-maestro.json`, 사용자 설정 폴더의 `spectro-maestro/config.json` 순으로 탐색
-    + 항목 : `cache_dir`, `models_dir`, `offline`, `download_timeout_s`, `native`, `compiler`, `ffmpeg`, `lmms`, `asr_model`
+    + 항목 : `cache_dir`, `models_dir`, `offline`, `download_timeout_s`, `native`, `compiler`, `ffmpeg`, `lmms`, `asr_model`, `kokoro_revision`
     + 현재 값, 출처, 탐색한 설정 파일 경로는 `doctor`가 표시
     + 예시 : `{"models_dir": "D:/music-models", "offline": true}`
 - 보컬 모델은 첫 사용 시 `models_dir`에 내려받음 (목소리와 음성 인식 모델을 합쳐 약 1 GB)
     + 기본 위치는 운영체제의 사용자 캐시 폴더 아래이며 `--models` 또는 설정으로 변경
     + 내려받기에 실패하면 오류 메시지가 파일 주소와 놓을 경로를 알려주므로 사용자가 직접 넣을 수 있음
     + `offline`을 켜면 내려받기를 시도하지 않음
+    + Kokoro는 스킬을 검증한 리비전으로 내려받음. `kokoro_revision`으로 다른 리비전을 지정: 렌더를 그대로 되풀이하려면 커밋 id, 최신본은 `main`. 다른 리비전은 별도 폴더에 두고 노래 캐시도 따로 씀. `main`은 한 번만 내려받으므로 더 새것을 받으려면 `models_dir` 아래 `kokoro/main`을 지움
+    + LMMS(이 스킬에서는 선택 도구)는 `lmms` 설정이 가리키는 것을 쓰므로 더 새 버전도 지정 가능
     + 모델을 구할 수 없으면 사용자에게 알리고 기악곡으로 진행하거나 모델 파일 제공을 요청
 - 외부 도구는 모두 선택 사항
     + C 컴파일러 : 있으면 필터 가속 코드를 `cache_dir`에 한 번 빌드, 없으면 같은 결과를 내는 느린 경로로 동작 (`native: off`로 끌 수 있음)
