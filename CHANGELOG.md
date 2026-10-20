@@ -36,26 +36,26 @@ Changelog rules
 - Removed the built-in per-language pronunciation tables and non-English carrier words so that the agent supplies the language knowledge (#71)
 - Changed the flexible mix style adherence to switch styles without asking, with the ask-first behavior moved to a new flexible-HITL option (#73)
 
-* Kokoro 다운로드를 kokoro_revision 설정으로 바꿀 수 있는 고정 커밋 기준으로 변경 (#68)
-* TTS 목소리의 읽기 속도를 에이전트 판단, 멜로디 맞춤, 고정 속도 중에서 고르는 기획 질문 추가 (#69)
+* Kokoro 다운로드를 kokoro_revision 설정으로 변경할 수 있는 고정 커밋 기준으로 변경 (#68)
+* TTS 목소리의 읽기 속도를 에이전트 판단, 멜로디 맞춤, 고정 속도 중에서 선택하는 기획 질문 추가 (#69)
 * 강세가 있는 약화 모음에도 가사 린트 경고가 표시되는 오류 수정 (#69)
-* 영어 외 언어의 음절을 라인의 음표 수에 맞을 때까지 모음을 합쳐 세도록 변경 (#71)
+* 영어 외 언어에서 라인의 음표 수에 맞을 때까지 인접 모음을 병합하여 음절 수를 산정하도록 변경 (#71)
 * 언어 지식을 에이전트가 제공하도록 내장 언어별 발음 표 및 영어 외 캐리어 단어 삭제 (#71)
-* 먼저 묻는 동작을 유연-HITL 옵션으로 분리하여 유연 준수가 묻지 않고 믹스 스타일을 바꾸도록 변경 (#73)
+* 사전 확인 동작을 유연-HITL 옵션으로 분리하여 유연 준수에서는 사용자 확인 없이 믹스 스타일을 전환하도록 변경 (#73)
 
 ### spectro-maestro
 - Fixed cut model downloads that were kept and reused as broken files (#68)
 - Fixed the exposed-note lyric rules that read bright consonant counts as beat weights (#69)
 
-* 끊긴 모델 다운로드 파일을 보관하여 손상된 파일을 계속 사용하는 오류 수정 (#68)
-* 노출 음표 가사 규칙이 강한 자음 개수를 박 강세로 읽는 오류 수정 (#69)
+* 중단된 모델 다운로드 파일을 보존하여 손상된 파일을 반복 사용하는 오류 수정 (#68)
+* 노출 음표 가사 규칙이 강한 자음 개수를 박 강세로 해석하는 오류 수정 (#69)
 
 ### synth-ventriloquist
 - Changed speech-voice lines to read at the pace of their melody (#69)
 - Added a phonemes option that sings a line from given IPA or voicebank symbols (#71)
 
-* TTS 목소리 라인을 멜로디 속도에 맞춰 읽도록 변경 (#69)
-* 지정한 IPA 또는 보이스뱅크 기호로 라인을 부르는 phonemes 옵션 추가 (#71)
+* TTS 목소리 라인의 읽기 속도를 멜로디 속도에 맞추도록 변경 (#69)
+* 지정한 IPA 또는 보이스뱅크 기호로 라인을 가창하는 phonemes 옵션 추가 (#71)
 
 ## 2026-10-19
 
@@ -80,8 +80,8 @@ Changelog rules
 - Fixed vocal-try wordings typed in decomposed form that lost their accents (#67)
 
 * 피치 또는 분산 모델의 화자 수가 음향 모델보다 적은 보이스뱅크를 사용할 수 없는 오류 수정 (#63)
-* 다른 엔진 기호로 작성된 phonemes 항목 때문에 라인이 한 음절로 합쳐져 렌더링이 중단되는 오류 수정 (#66)
-* 분해형으로 입력한 vocal-try 문구의 악센트가 사라지는 오류 수정 (#67)
+* 다른 엔진 기호로 작성된 phonemes 항목 때문에 라인이 단일 음절로 처리되어 렌더링이 중단되는 오류 수정 (#66)
+* 분해형으로 입력한 vocal-try 문구의 악센트가 누락되는 오류 수정 (#67)
 
 ## 2026-10-18
 
@@ -98,13 +98,13 @@ Changelog rules
 - Fixed doctor stopping before its report on machines without the core packages (#60)
 
 * 툴킷 코드와 맞지 않던 스킬 문서의 API 이름, 기본값, 수치 수정 (#41, #42)
-* 선택한 목소리가 잘 부르는 표현을 기준으로 새 가사를 기획하거나 사용자 가사를 검토하는 단계 추가 (#45, #47)
-* 약박 음표의 짧은 기능어가 뭉개져도 일치 점수를 통과하는 사례를 다룬 가사 작성 팁 추가 (#52)
-* 규칙이 다루지 않는 부분을 여러 관점에서 살피는 가사 검토 단계 추가 (#53)
+* 선택한 목소리의 가창 적합성을 기준으로 새 가사를 기획하거나 사용자 가사를 검토하는 단계 추가 (#45, #47)
+* 약박 음표의 짧은 기능어가 불명확하게 발음되어도 일치 점수를 통과하는 사례를 다룬 가사 작성 지침 추가 (#52)
+* 규칙이 다루지 않는 부분을 여러 관점에서 점검하는 가사 검토 단계 추가 (#53)
 * 보이스뱅크 저장소 사용 또는 LMMS AppImage 다운로드 전 GitHub 저장소 연결 단계 추가 (#54)
 * 파일 이름과 무관하게 이용 약관 문서를 찾도록 보이스뱅크 다운로드, 압축 해제, 약관 확인을 에이전트 단계로 변경 (#54)
 * 보이스뱅크 피치 모델의 expressiveness 기본값 및 값을 낮출 시점 안내 추가 (#56)
-* 말의 리듬을 따르는 보컬 리듬 지침과 함께 끝 단어가 잘리는 라인 및 서두르는 라인의 린트 경고 추가 (#57)
+* 말의 강세 기준 보컬 리듬 지침 및 끝 단어가 지나치게 짧은 라인과 짧은 음절이 연속되는 라인의 린트 경고 추가 (#57)
 * 한국어, 일본어, 중국어, 러시아어 가사의 텍스트 처리 오류 및 영어 외 라인의 보컬 검사 오판정 수정 (#58, #59)
 * 핵심 패키지가 없는 컴퓨터에서 doctor가 보고 전에 중단되는 오류 수정 (#60)
 
@@ -113,7 +113,7 @@ Changelog rules
 - Changed the planning defaults to list the song file and project JSON as deliverables (#52)
 - Changed the default render formats to include ogg (#55)
 
-* 라인을 부르기 전 전체 가사를 확인받는 단계 추가 (#50)
+* 가창 렌더링 전 전체 가사의 사용자 승인 단계 추가 (#50)
 * 기획 단계 기본 산출물에 곡 파일 및 프로젝트 JSON을 포함하도록 변경 (#52)
 * 기본 렌더링 형식에 ogg를 포함하도록 변경 (#55)
 
@@ -127,10 +127,10 @@ Changelog rules
 - Fixed voicebank renders of the same line that differed within one run (#58)
 
 * 사용자가 기존 기획을 유지하면 예상 품질 저하를 한 번 고지한 뒤 기획대로 진행하도록 변경 (#48)
-* 다른 상황에서 쓰지 않을 가사를 거절하는 기획 단계 규칙 삭제 (#48)
+* 다른 상황에서 작성하지 않을 가사를 거절하는 기획 단계 규칙 삭제 (#48)
 * 기획 단계에서 소개하는 목소리를 Kokoro 기본 목소리 af_heart 및 am_michael로 변경 (#51)
 * ogg, mp3, flac 인코딩 도구를 ffmpeg에서 soundfile로 변경 (#55)
-* 가창 음절이 박자에서 어긋나는 오류 수정 (#56)
+* 가창 음절이 박자 위치에서 벗어나는 오류 수정 (#56)
 * 마찰음이 음정 있는 잡음으로 재합성되는 오류 수정 (#56)
 * 같은 실행 안에서 같은 라인의 보이스뱅크 렌더링 결과가 달라지는 오류 수정 (#58)
 
@@ -144,11 +144,11 @@ Changelog rules
 - Added a README note on building a dependency skill with offline-deps-builder where network access is blocked (#34, #35)
 - Fixed DiffSinger voicebanks whose acoustic export takes an integer shallow-diffusion depth (#36, #37)
 
-* 노출된 음표 위의 강한 자음, 길게 끄는 ee 모음, 약한 단어를 다루는 가사 작성 지침 추가 (#22, #23, #27, #33, #38)
-* 길게 끄는 ee 모음의 몸통 대역을 보강하는 선택형 설정(Style vowel_body) 추가 (#24)
-* 강한 자음, 길게 끄는 ee 모음, 노출된 음표 위의 약화 모음을 가사 초안 단계에서 모든 리드 라인에 대해 검사하는 가사 린트 추가 (#25, #26, #27, #28, #30)
+* 노출된 음표 위의 강한 자음, 장음 ee 모음, 약한 단어를 다루는 가사 작성 지침 추가 (#22, #23, #27, #33, #38)
+* 장음 ee 모음의 중역대를 보강하는 선택형 설정(Style vowel_body) 추가 (#24)
+* 강한 자음, 장음 ee 모음, 노출된 음표 위의 약화 모음을 가사 초안 단계에서 모든 리드 라인에 대해 검사하는 가사 린트 추가 (#25, #26, #27, #28, #30)
 * 스킬 폴더별 설치용 패키지의 체크섬을 담은 SHA256SUMS.txt 파일 추가 (#29, #30, #31)
-* 네트워크 접근이 차단된 환경에서 offline-deps-builder로 의존성 스킬을 만드는 README 안내 추가 (#34, #35)
+* 네트워크 접근이 차단된 환경에서 offline-deps-builder로 의존성 스킬을 생성하는 README 안내 추가 (#34, #35)
 * 음향 모델이 정수형 얕은 확산 깊이를 받는 DiffSinger 보이스뱅크의 렌더링 실패 수정 (#36, #37)
 
 ### synth-ventriloquist
@@ -159,12 +159,12 @@ Changelog rules
 - Fixed doubled vocal takes leveled as a second lead when mix roles are guessed from track names (#20)
 - Changed vocal timing to follow vowel periodicity so that held words no longer start as a long hiss (#28, #37)
 
-* 음정 이탈, 거칠거나 묻힌 모음, 약박에 놓인 강세, 보정 후에도 사라지는 라인 끝을 백킹 보컬까지 확인하는 보컬 검사 추가 (#15, #16, #18, #21)
-* TTS 목소리 리드가 밝게 들리도록 디에서를 뺀 보컬 체인 및 좁힌 더킹 대역으로 변경 (#18)
+* 음정 이탈, 잡음화되거나 묻힌 모음, 약박 강세, 보정 후에도 소실되는 라인 끝을 백킹 보컬까지 확인하는 보컬 검사 추가 (#15, #16, #18, #21)
+* TTS 목소리 리드의 고음역 유지를 위해 기본 보컬 처리에서 디에서 제외 및 더킹 대역 축소로 변경 (#18)
 * 디에서, 강한 자음 억제, 더킹 대역 폭을 선택할 수 있는 설정 추가 (#19, #20)
 * 보컬 여유 검사의 믹스 판독 오류 및 거의 같은 렌더링에서 달라지는 인식 점수 수정 (#19)
-* 트랙 이름으로 믹스 역할을 추정할 때 더블 보컬 테이크를 두 번째 리드로 맞추는 오류 수정 (#20)
-* 길게 끄는 단어가 긴 마찰음으로 시작하지 않도록 모음 주기성 기준으로 라인 타이밍을 맞추도록 변경 (#28, #37)
+* 트랙 이름으로 믹스 역할을 추정할 때 더블 보컬 테이크를 두 번째 리드 레벨로 조정하는 오류 수정 (#20)
+* 장음 단어의 긴 마찰음 시작을 방지하도록 모음 주기성 기준의 라인 타이밍 정렬로 변경 (#28, #37)
 
 ## 2026-10-16
 
@@ -172,7 +172,7 @@ Changelog rules
 - Changed songs with vocals to duck the music under sung lead lines by default (#13)
 - Changed the vocal ceiling check to judge each section (#13)
 
-* 보컬이 있는 곡에서 리드 보컬 구간의 음악 레벨을 기본으로 낮추도록 변경 (#13)
+* 보컬 포함 곡에서 리드 보컬 구간의 음악 레벨 감쇠를 기본 적용하도록 변경 (#13)
 * 보컬 상한 검사를 섹션별로 판정하도록 변경 (#13)
 
 ## 2026-10-14
@@ -180,7 +180,7 @@ Changelog rules
 ### Common
 - Changed the English edition skill names to the Korean edition names (#9)
 
-* 영어판 스킬 이름을 한국어판 스킬 이름과 같게 변경 (#9)
+* 영어판 스킬 이름을 한국어판 스킬 이름과 동일하게 변경 (#9)
 
 ### synth-ventriloquist
 - Added the GPL license text and DrumSynth preset sources to kit folders, project folders and packs that carry recorded drum hits (#7)
@@ -189,7 +189,7 @@ Changelog rules
 
 * 녹음한 드럼 타격을 담은 킷 폴더, 프로젝트 폴더, 팩에 GPL 라이선스 전문 및 DrumSynth 프리셋 원본 추가 (#7)
 * 설치된 LMMS로 드럼 킷을 녹음할 수 없을 때의 대체 절차 추가 (#8)
-* 공식 AppImage에서 LMMS 버전을 잘못 읽는 오류 수정 (#8)
+* 공식 AppImage에서 LMMS 버전을 잘못 인식하는 오류 수정 (#8)
 
 ## 2026-10-13
 
