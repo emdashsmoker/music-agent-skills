@@ -46,9 +46,11 @@ class VocalPart:
     options: dict = field(default_factory=dict)        # engine options (DiffSinger: steps, gender, tension ...)
     lines: list[line_tools.Line] = field(default_factory=list)
 
-    def line(self, start_beat: float, text: str, melody: str, harmony: int = 0, section: str = "", kind: str = "verse") -> "VocalPart":
-        """Add a line. start_beat is the song position of the melody's first token; kind 'chorus' adds chorus lint."""
-        self.lines.append(line_tools.Line(text, melody, start_beat, harmony, {"section": section, "kind": kind}))
+    def line(self, start_beat: float, text: str, melody: str, harmony: int = 0, section: str = "", kind: str = "verse",
+             phonemes: str | None = None) -> "VocalPart":
+        """Add a line. start_beat is the song position of the melody's first token; kind 'chorus' adds chorus lint.
+        phonemes, in the voice's own symbols, are sung instead of reading the text (see references/vocals.md)."""
+        self.lines.append(line_tools.Line(text, melody, start_beat, harmony, {"section": section, "kind": kind}, phonemes))
         return self
 
     def derive(self, name: str, *, harmony: int = 0, seed: int | None = None, only_kind: str | None = None, role: str = "vocal_bg",
@@ -59,7 +61,7 @@ class VocalPart:
         """
         style = Style(**{**vars(self.style), "seed": self.style.seed + 1 if seed is None else seed})
         part = VocalPart(name, voice or self.voice, role, self.method, self.lang, self.speed, style, dict(self.options))
-        part.lines = [line_tools.Line(l.text, l.melody, l.start_beat, harmony, dict(l.meta)) for l in self.lines
+        part.lines = [line_tools.Line(l.text, l.melody, l.start_beat, harmony, dict(l.meta), l.phonemes) for l in self.lines
                       if only_kind is None or l.meta.get("kind") == only_kind]
         return part
 
@@ -98,7 +100,7 @@ def render_part(part: VocalPart, bpm: float, key: str | None, total_beats: float
         rows.append({"index": index, "text": line.text, "melody": line.melody, "harmony": line.harmony, "start_beat": line.start_beat,
                      "first_note_s": round(first_note, 3), "audio_start_s": round(start / OUTPUT_SR, 3),
                      "audio_end_s": round(end / OUTPUT_SR, 3), "section": line.meta.get("section", ""), "kind": line.meta.get("kind", "verse"),
-                     "report": report,
+                     **({"phonemes": line.phonemes} if line.phonemes is not None else {}), "report": report,
                      "syllables": [{"text": item["text"], "start_s": round(start / OUTPUT_SR + item["vowel_start"], 3),
                                     "end_s": round(start / OUTPUT_SR + item["vowel_end"], 3), "pitches": item["pitches"]} for item in sung.layout]})
         if cut > AUDIBLE_CUT_S:
@@ -234,7 +236,7 @@ def check_part(rendered: dict, bpm: float, asr_model: str | None = None, figure_
             natural = theory.note(report["natural_pitch"]) if speech_voice and report.get("natural_pitch") else None
             try:
                 hints = [f["message"].split(": ", 1)[-1] for f in
-                         lyrics.lint_line(voice, line_tools.Line(row["text"], row["melody"], row["start_beat"]), bpm, natural_pitch=natural,
+                         lyrics.lint_line(voice, line_tools.Line(row["text"], row["melody"], row["start_beat"], phonemes=row.get("phonemes")), bpm, natural_pitch=natural,
                                           role=row["kind"], beats_per_bar=beats_per_bar, lang=lang)]
             except Exception:                                   # a bank the lint cannot read: the score still stands
                 hints = []

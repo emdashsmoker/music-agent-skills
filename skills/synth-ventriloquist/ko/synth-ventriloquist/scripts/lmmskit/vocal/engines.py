@@ -32,6 +32,8 @@ def engine_of(voice: str) -> str:
 def _cache_key(voice: str, line: line_tools.Line, bpm: float, key: str | None, style: Style, speed: float, options: dict) -> str:
     payload = [voice, line.text, line.melody, line.harmony, round(bpm, 4), key, vars(style), round(speed, 4), sorted(options.items()),
                tts.TIMING_VERSION]           # a new timing rule re-sings every cached line
+    if line.phonemes is not None:            # lines read from their text keep the keys they always had
+        payload.append(line.phonemes)
     return hashlib.sha1(json.dumps(payload, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:20]
 
 
@@ -75,12 +77,13 @@ def render_line(voice: str, line: line_tools.Line, bpm: float, *, key: str | Non
     if engine == "diffsinger":
         from . import diffsinger
         folder, _, colour = voice.split(":", 1)[1].partition("#")
-        sung, report = diffsinger.voicebank(folder).sing(line.text, groups, lang=lang, voice=colour or None, style=style, **options)
+        sung, report = diffsinger.voicebank(folder).sing(line.text, groups, lang=lang, voice=colour or None, style=style,
+                                                         phonemes=line.phonemes, **options)
     elif engine == "kokoro" and method == "held":
         from . import kokoro_native
-        sung, report = kokoro_native.sing_in_range(voice, line.text, groups, style, speed, lang)
+        sung, report = kokoro_native.sing_in_range(voice, line.text, groups, style, speed, lang, line.phonemes)
     elif engine in ("kokoro", "piper"):
-        sung, report = line_tools.sing_line(voice, line_tools.Line(line.text, melody), bpm, speed=speed, style=style, cache=cache,
+        sung, report = line_tools.sing_line(voice, line_tools.Line(line.text, melody, phonemes=line.phonemes), bpm, speed=speed, style=style, cache=cache,
                                             fix_ending=bool(options.get("fix_ending", True)), lang=lang)
         report["engine"] = f"{engine}-stretched"
     else:

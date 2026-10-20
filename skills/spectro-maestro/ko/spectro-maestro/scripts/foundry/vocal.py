@@ -34,7 +34,7 @@ SPEED_RANGE = (0.7, 1.15)
 MIN_LAG_LANDMARKS = 6           # fewer boundary observations than this do not pin the engine's lag down
 # A word spoken after the line so that the line's last word is no longer sentence-final.
 # It must start with a stop: the cut then falls in the stop's silence. Languages not listed are skipped.
-CARRIER_WORDS = {"en": "but", "de": "doch", "es": "pero", "fr": "puis", "it": "poi", "pt": "pois", "nl": "dan"}
+CARRIER_WORDS = {"en": "but"}
 ENDING_MIN_PERIODICITY = 0.5    # the last vowel has died when its best instant is less periodic than this
 ENDING_QUIET_DB = 9.0           # or when that instant is this far below the line's typical vowel
 SPLICE_FADE_S = 0.008
@@ -84,9 +84,10 @@ def _speed_for(notes: list, config: dict) -> float:
 class LineSource:
     """Everything known about one spoken line: unit (aligned), WORLD analysis, syllables."""
 
-    def __init__(self, unit, analysis: dict, frames: dict, key: str, lang: str | None = None):
+    def __init__(self, unit, analysis: dict, frames: dict, key: str, lang: str | None = None, wanted: int | None = None):
         self.unit, self.analysis, self.frames, self.key = unit, analysis, frames, key
-        self.syllables = phonetics.syllabify(unit.phones, lang)
+        # `wanted`: the line's sung syllables, which the spoken ones are fitted to outside English (phonetics.fit_syllables)
+        self.syllables = phonetics.fit_syllables(unit.phones, phonetics.syllabify(unit.phones, lang), wanted, lang)
 
 
 def _raw_unit(backend, cache: speech.UnitCache, phones: str, speed: float) -> tuple:
@@ -113,10 +114,10 @@ def _raw_unit(backend, cache: speech.UnitCache, phones: str, speed: float) -> tu
     return unit, frames, analysis, key
 
 
-def _aligned(backend, cache, phones: str, speed: float, fallback_lag: float | None) -> LineSource:
+def _aligned(backend, cache, phones: str, speed: float, fallback_lag: float | None, wanted: int | None = None) -> LineSource:
     unit, frames, analysis, key = _raw_unit(backend, cache, phones, speed)
     speech.align_unit(unit, frames, None if fallback_lag is None else fallback_lag / speed)
-    source = LineSource(unit, analysis, frames, key, backend.lang)
+    source = LineSource(unit, analysis, frames, key, backend.lang, wanted)
     unit.info["vowel_edges_moved"] = singing.settle_vowels(unit.phones, source.syllables, analysis)
     return source
 
@@ -218,10 +219,11 @@ def with_sung_ending(backend, cache, source: LineSource, text: str, speed: float
 
 # ---------------------------------------------------------------- one line, one take
 
-def line_source(backend, cache, line: dict, config: dict, speed: float, fallback_lag) -> tuple:
-    """Spoken source of a lyric line, with its ending repaired when needed. Returns (source, diagnostics)."""
+def line_source(backend, cache, line: dict, config: dict, speed: float, fallback_lag, wanted: int | None = None) -> tuple:
+    """Spoken source of a lyric line, with its ending repaired when needed. Returns (source, diagnostics).
+    `wanted` is the number of sung syllables (the line's note groups)."""
     phones = line.get("phonemes") or backend.phonemize(line["text"])
-    source = _aligned(backend, cache, phones, speed, fallback_lag)
+    source = _aligned(backend, cache, phones, speed, fallback_lag, wanted)
     state = ending_state(source)
     info = {"text": line["text"], "phones": phones, "speed": round(speed, 3), **source.unit.info,
             "ending": {**state, "fixed": False}}
@@ -279,7 +281,7 @@ def render_speech_lines(project: dict, track: dict, lines: list, n: int, build_d
     out = np.zeros(n, dtype=np.float32)
     takes, report = [], []
     for index, (line, (phones, speed, notes)) in enumerate(zip(lines, jobs)):
-        source, info = line_source(backend, cache, line, config, speed, fallback)
+        source, info = line_source(backend, cache, line, config, speed, fallback, len(singing.note_groups(notes)))
         seed = int(hashlib.sha1(f"{project['meta']['seed']}|{track['name']}|{index}|{variant.get('seed', 0)}".encode()).hexdigest()[:8], 16)
         shifted = [(s, d, m + variant.get("transpose", {}).get((index, k), 0) + variant.get("detune_semitones", 0.0), t)
                    for k, (s, d, m, t) in enumerate(notes)]
@@ -518,8 +520,10 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                     continue
             symbols = ["^"] + list(phones) + ["$"]
             plist = phonetics.phones_from_tokens(symbols, [0.05] * len(symbols))
-            syllables = phonetics.syllabify(plist, language)
+            spoken = phonetics.syllabify(plist, language)
             groups = singing.note_groups(_line_seconds(line, spb))
+            # The speech path sings the spoken syllables fitted to the notes; a voicebank groups its own phonemes.
+            syllables = phonetics.fit_syllables(plist, spoken, len(groups), language) if backend is not None else spoken
             if len(syllables) != len(groups):
                 if backend is None:                     # the bank's own lint has reported it with the bank's spelling
                     continue
@@ -532,6 +536,11 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                       f"spoken in {len(syllables)} syllables but {len(groups)} notes. Per word: {' '.join(words)}. "
                       f"Syllables: {' | '.join(phonetics.syllable_text(plist, s) for s in syllables)}")
                 continue
+            if len(syllables) != len(spoken):
+                joined = ", ".join(f"/{phonetics.syllable_text(plist, s)}/ ({'+'.join(plist[i].symbol for i in s.nucleus)})"
+                                   for s in syllables if not any(s is t for t in spoken))
+                issue("info", "lyrics.folded_syllable", where, f"{joined}: vowels joined into one syllable to fit the notes; "
+                      "if the language sings them apart, give the line phonemes")
             for word in phones.split():
                 if phonetics.unstable_count(word):
                     issue("info", "lyrics.unstable_word", where,

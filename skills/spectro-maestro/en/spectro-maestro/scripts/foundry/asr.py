@@ -30,42 +30,6 @@ def language_code(language: str | None) -> str | None:
     return WHISPER_LANGUAGES.get(base, base)
 
 
-# The recogniser writes Japanese and Chinese in a script of its own choosing: kanji or katakana for kana lyrics,
-# traditional characters for simplified ones. Counted letter by letter, a line that came through scored low ("谢谢你"
-# heard as "謝謝你" scored 0.33), so lines in these languages are compared by sound: Chinese as espeak reads it,
-# Japanese in hiragana, with kanji read by the pykakasi package when it is installed.
-KATAKANA_TO_HIRAGANA = {code: code - 0x60 for code in range(0x30A1, 0x30F7)}
-_readers: dict[str, object] = {}
-
-
-def _reader(name: str):
-    """A text reader loaded once: 'kakasi' (Japanese kanji to kana) or 'kokoro' (espeak through Kokoro's tokenizer);
-    None when its package is missing."""
-    if name not in _readers:
-        try:
-            if name == "kakasi":
-                import pykakasi
-                _readers[name] = pykakasi.kakasi()
-            else:
-                from kokoro_onnx.tokenizer import Tokenizer
-                _readers[name] = Tokenizer()
-        except ImportError:
-            _readers[name] = None
-    return _readers[name]
-
-
-def comparable(text: str, language: str | None) -> str:
-    """The form a line is scored in: Chinese as its sound, Japanese in hiragana, every other language as written."""
-    code = language_code(language)
-    if code == "zh" and _reader("kokoro") is not None:
-        return _reader("kokoro").phonemize(text, "cmn").replace(" ", "")
-    if code == "ja":
-        reader = _reader("kakasi")
-        text = "".join(item["hira"] for item in reader.convert(text)) if reader is not None else text
-        return text.translate(KATAKANA_TO_HIRAGANA)
-    return text
-
-
 def model_for(model: str, language: str | None) -> str:
     """An English-only model (base.en) hears other languages as English: for them, its multilingual twin of the same size."""
     code = language_code(language)
@@ -110,10 +74,9 @@ def normalise(text: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[^\w\s']", " ", text, flags=re.UNICODE)).strip()
 
 
-def similarity(reference: str, heard: str, language: str | None = None) -> float:
-    """Character-level match between the lyric and what was recognised, 0..1. Japanese and Chinese lines are
-    compared in the form comparable() gives them."""
-    a, b = normalise(comparable(reference, language)), normalise(comparable(heard, language))
+def similarity(reference: str, heard: str) -> float:
+    """Character-level match between the lyric and what was recognised, 0..1."""
+    a, b = normalise(reference), normalise(heard)
     if not a.isascii():                 # outside Latin script, word spacing is a spelling convention the ear cannot hear
         a, b = a.replace(" ", ""), b.replace(" ", "")
     if not a:

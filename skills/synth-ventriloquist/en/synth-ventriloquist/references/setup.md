@@ -116,7 +116,7 @@ LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py k
 | More voices | piper-tts | Piper voices |
 | Lyric check | faster-whisper | Recognition scores for sung lines |
 | Voicebanks | pyyaml | Singer voicebanks the user supplies |
-| Optional | xmlschema, imageio-ffmpeg, pykakasi | DAWproject validation, ffmpeg without admin rights, kanji in the recognition check of Japanese lyrics |
+| Optional | xmlschema, imageio-ffmpeg | DAWproject validation, ffmpeg without admin rights |
 
 ## Settings
 

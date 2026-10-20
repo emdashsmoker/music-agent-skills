@@ -16,7 +16,7 @@ import os
 import numpy as np
 
 from . import tts, world
-from .phones import LENGTH_MARK, STRESS_MARKS, VOWELS, Phone, Syllable, fold_weak_syllables, merge_tokens, syllabify
+from .phones import LENGTH_MARK, STRESS_MARKS, VOWELS, Phone, Syllable, fit_syllables, fold_weak_syllables, merge_tokens, syllabify
 from .singing import (FRAME_S, LEGATO_GAP_S, OUTPUT_SR, Style, SungLine, SungNote, _finish, _shape_phrases, _warp_envelope,
                       pitch_curve)
 
@@ -82,8 +82,9 @@ class NativeKokoro:
     def phonemize(self, text: str) -> str:
         return tts.espeak_phonemes(self._tokenizer, text, self.lang)
 
-    def tokens(self, text: str) -> tuple[list[str], np.ndarray, np.ndarray]:
-        phonemes = self.phonemize(text)
+    def tokens(self, text: str, phonemes: str | None = None) -> tuple[list[str], np.ndarray, np.ndarray]:
+        if phonemes is None:
+            phonemes = self.phonemize(text)
         symbols = [s for s in phonemes if s in self._tokenizer.vocab]
         ids = self._tokenizer.tokenize("".join(symbols))
         return symbols, np.array([[0] + ids + [0]], dtype=np.int64), self._styles[len(ids)]
@@ -124,7 +125,7 @@ def _token_syllables(symbols: list[str], frames: np.ndarray, wanted: int, lang: 
     starts = [float(i) for i in range(len(symbols))]
     ends = [float(i + 1) for i in range(len(symbols))]
     phones = merge_tokens(symbols, starts, ends)
-    return fold_weak_syllables(syllabify(phones, lang), wanted), phones
+    return fold_weak_syllables(fit_syllables(syllabify(phones, lang), wanted, lang), wanted), phones
 
 
 def _token_range(phones: list[Phone]) -> list[int]:
@@ -253,7 +254,7 @@ def level_vowels(audio: np.ndarray, sr: int, layout: list[dict], evenness: float
 
 
 def sing_in_range(voice: str, text: str, groups: list[list[SungNote]], style: Style | None = None, speed: float = 1.0,
-                  lang: str | None = None) -> tuple[SungLine, dict]:
+                  lang: str | None = None, phonemes: str | None = None) -> tuple[SungLine, dict]:
     """Sing a line with Kokoro's decoder, lowering it first when the melody goes above the voice's clean range.
 
     A lowered line is sung cleanly in range and then raised to the written key with a formant-preserving
@@ -263,11 +264,11 @@ def sing_in_range(voice: str, text: str, groups: list[list[SungNote]], style: St
     top = max(n.pitch for g in groups for n in g)
     lowered = int(max(0, np.ceil(top - limits["high"])))
     if lowered == 0:
-        line, report = sing(voice, text, groups, style, speed, lang)
+        line, report = sing(voice, text, groups, style, speed, lang, phonemes)
         report["raised_semitones"] = 0
         return line, report
     shifted = [[SungNote(n.start, n.duration, n.pitch - lowered) for n in g] for g in groups]
-    line, report = sing(voice, text, shifted, style, speed, lang)
+    line, report = sing(voice, text, shifted, style, speed, lang, phonemes)
     f0, envelope, aperiodicity = world.analyze(line.audio, OUTPUT_SR)
     ratio = 2.0 ** (lowered / 12.0)
     raised = world.synthesize(f0 * ratio, _warp_envelope(envelope, ratio ** RAISE_FORMANT_SHARE), aperiodicity, OUTPUT_SR)[:len(line.audio)]
@@ -281,11 +282,12 @@ def sing_in_range(voice: str, text: str, groups: list[list[SungNote]], style: St
 
 
 def sing(voice: str, text: str, groups: list[list[SungNote]], style: Style | None = None, speed: float = 1.0,
-         lang: str | None = None) -> tuple[SungLine, dict]:
-    """Sing a line with Kokoro's decoder at the written pitch. Returns the line and a report (decoder lag, natural pitch)."""
+         lang: str | None = None, phonemes: str | None = None) -> tuple[SungLine, dict]:
+    """Sing a line with Kokoro's decoder at the written pitch. Returns the line and a report (decoder lag, natural pitch).
+    Given `phonemes` are read instead of the text."""
     style = style or Style()
     engine = singer(voice, lang)
-    symbols, ids, voice_style = engine.tokens(text)
+    symbols, ids, voice_style = engine.tokens(text, phonemes)
     natural = engine.natural_frames(ids, voice_style, speed)
     frames, layout, lead_in, _ = plan_frames(symbols, natural, groups, lang)
     # Energy: the model's prediction for stretched lengths sags and mutes the first sounds, so each token takes the
@@ -339,7 +341,8 @@ def sing(voice: str, text: str, groups: list[list[SungNote]], style: Style | Non
     audio = _shape_phrases(audio, engine.sr, layout)
     line = SungLine(_finish(audio, engine.sr), max(0.0, lead_in - lag), layout, None, [n for g in groups for n in g])
     spoken = predicted_pitch[predicted_pitch > 60]
-    report = {"text": text, "lag_ms": round(lag * 1000), "engine": "kokoro-native",
+    report = {"text": text, "phonemes": phonemes if phonemes is not None else engine.phonemize(text), "lag_ms": round(lag * 1000),
+              "engine": "kokoro-native",
               "natural_pitch_hz": round(float(np.median(spoken)), 1) if len(spoken) else None}
     return line, report
 
