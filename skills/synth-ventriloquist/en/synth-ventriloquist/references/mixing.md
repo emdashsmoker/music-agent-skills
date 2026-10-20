@@ -73,10 +73,11 @@ The values of the styles were set by rendering test songs in each style. The mea
 
 The plan asks for the adherence next to the style. The default is flexible.
 
-- Flexible: the style is a starting point. To fix what the report finds, move the foreground parts' `level_db` and the ducking in steps of 1 to 2 dB, keeping the style's judging window. Write each moved part and the amount in the delivery note. Changing the style itself is the user's call: ask.
+- Flexible: the style is a starting point. To fix what the report finds, move the foreground parts' `level_db` and the ducking in steps of 1 to 2 dB, keeping the style's judging window. When the findings or the character of the song suit another style better, change the style without asking (how, in the `--mix-style` paragraph above); the judging window then follows the new style. Write each moved part and the amount, and any change of style with its reason, in the delivery note.
+- Flexible-HITL: adjust as in flexible, but ask the user before changing the style itself.
 - Fixed: the foreground parts (snare, clap, lead, lead vocal) keep the style's levels and ducking. Fix findings with the arrangement, the other parts' levels, the sounds and EQ. A warning that only a foreground move would clear is reported as it is, not fixed.
 
-Adherence is asked because a named style reads like a target and invites the mixer to stop adjusting. With flexible as the default, a style changes nothing about how the mix is adjusted; it only hands the starting point back to the user.
+Adherence is asked because a named style reads like a target and invites the mixer to stop adjusting. The default, flexible, leaves even a change of style to the agent so the work does not stop for a question, and what changed goes back to the user in the delivery note.
 
 ## What the loudness step does
 
