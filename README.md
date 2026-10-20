@@ -53,6 +53,10 @@ skills/synth-ventriloquist/
 - The Korean and English editions of a skill share one skill name. Install one of the two.
 - On claude.ai with access to outside addresses such as GitHub and Hugging Face blocked, or on a closed network, the skills cannot install their dependencies at run time. In that case, use [`offline-deps-builder`](https://github.com/emdashsmoker/biz-agent-skills/tree/main/skills/offline-deps-builder) in an environment with network access to build a dependency skill that holds the required files. Then load the dependency skill together with the original skill. Large dependencies such as LMMS and the vocal models exceed the skill upload limit and are hard to fit in a dependency skill.
 
+## Updates
+
+Changes are recorded in [CHANGELOG.md](CHANGELOG.md).
+
 ## Limitations
 
 - Testing used Claude Opus 5.5 and Claude Fable 5.1. Results may differ with other models and environments.
@@ -123,6 +127,10 @@ skills/synth-ventriloquist/
 - 소스로 설치할 때는 스킬 이름과 같은 폴더(예를 들어 `ko/synth-ventriloquist/`)를 에이전트의 스킬 폴더에 복사합니다.
 - 한국어판과 영어판은 같은 스킬 이름을 사용합니다. 둘 중 하나만 설치합니다.
 - claude.ai처럼 GitHub, Hugging Face 등 외부 주소의 접근이 차단된 환경이나 폐쇄망에서는 스킬이 실행 중에 의존성을 설치할 수 없습니다. 이 경우 네트워크를 사용할 수 있는 환경에서 [`offline-deps-builder`](https://github.com/emdashsmoker/biz-agent-skills/tree/main/skills/offline-deps-builder)로 필요한 파일을 포함한 의존성 스킬을 사전에 생성합니다. 생성한 의존성 스킬은 원래 스킬과 함께 로드합니다. 다만 LMMS, 보컬 모델처럼 용량이 큰 의존성은 스킬 업로드 한도를 넘어서 의존성 스킬에 포함하기 어렵습니다.
+
+## 업데이트
+
+변경 내역은 [CHANGELOG.md](CHANGELOG.md)에 기록합니다.
 
 ## 한계
 
