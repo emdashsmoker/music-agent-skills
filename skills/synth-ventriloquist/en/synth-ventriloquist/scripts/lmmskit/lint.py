@@ -304,8 +304,8 @@ def check_repeatability(project: Project) -> list[dict]:
 def check_lyrics(vocals: list[dict], bpm: float, beats_per_bar: float = 4.0) -> list[dict]:
     """The lyric craft findings for every lead line of the vocals file, the same checks `lyric-lint` runs on one line.
 
-    spectro-maestro's `lint` reads the lyrics from its song file; here they only exist once the song script has run and
-    written `<name>.vocals.json`, so the project lint reads that file. Backing parts repeat the lead's words and are
+    The lyrics only exist once the song script has run and written `<name>.vocals.json`, so the project lint reads
+    that file. Backing parts repeat the lead's words and are
     skipped; a voice the lint cannot pronounce (a bank without the dictionary) is reported once, not per line.
     """
     from .vocal import lines as line_tools, lyrics

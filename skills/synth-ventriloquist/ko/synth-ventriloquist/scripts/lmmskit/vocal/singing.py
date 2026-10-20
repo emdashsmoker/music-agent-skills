@@ -148,8 +148,8 @@ def _plan(syllables: list[Syllable], groups: list[list[SungNote]], voiced: np.nd
 
     The beat falls where each vowel's voice really starts: an unvoiced start of the vowel (aspiration after p, t, k
     or h, a breathy or glottal opening) is sung before the beat together with the consonants.
-    The lead segment is ported from Spectro Maestro's singing.layout (same author, AGPL-3.0-or-later); here it keeps
-    the speech's own voicing instead of being sung voiced, so the voice does not start ahead of the beat.
+    The lead segment keeps the speech's own voicing instead of being sung voiced, so the voice does not start ahead
+    of the beat.
     """
     voiced_from = [_voicing_onset(s, voiced) for s in syllables]
     leads = [start - s.nucleus[0].start if s.nucleus else 0.0 for s, start in zip(syllables, voiced_from)]
@@ -205,8 +205,7 @@ def _plan(syllables: list[Syllable], groups: list[list[SungNote]], voiced: np.nd
 
 def _voicing_onset(syllable: Syllable, voiced: np.ndarray) -> float:
     """When the voice really starts inside the syllable's vowel, searched over the first half of its first sound.
-    Breath, aspiration or a glottal gap before it belongs ahead of the beat, with the consonants.
-    Ported from Spectro Maestro's singing.voicing_onset (same author, AGPL-3.0-or-later)."""
+    Breath, aspiration or a glottal gap before it belongs ahead of the beat, with the consonants."""
     if not syllable.nucleus:
         return 0.0
     first = syllable.nucleus[0]
@@ -435,8 +434,7 @@ def _voicing(sound: np.ndarray, source_voiced: np.ndarray, sung_aperiodicity: np
     the speech was really voiced there; voiceless sounds never. A pitch put under a hiss the tracker happened to
     voice is heard as a pitched noise, so the source's voicing is the truly voiced one (world.truly_voiced).
     A vowel or sonorant sung over a devoiced stretch of the speech borrows, in place, the periodicity of the line's
-    voiced ones: its own aperiodicity is pure noise.
-    Ported from Spectro Maestro's singing.sing voicing rule (same author, AGPL-3.0-or-later)."""
+    voiced ones: its own aperiodicity is pure noise."""
     must_voice = np.isin(sound, ("vowel", "sonorant"))
     voiced = must_voice | ((sound == "voiced") & source_voiced)
     forced = must_voice & ~source_voiced
