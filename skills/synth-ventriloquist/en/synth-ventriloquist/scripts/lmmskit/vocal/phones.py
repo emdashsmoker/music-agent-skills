@@ -16,8 +16,7 @@ DIPHTHONGS = {"aɪ", "aʊ", "eɪ", "oʊ", "ɔɪ", "əʊ", "eə", "ɪə", "ʊə",
 # Each set is that language's whole list, since a pair can be one syllable in one language and two in another.
 # Only the languages listed use these sets and the rules that go with them (_one_nucleus, _nuclei_flags); English
 # and every other language keep DIPHTHONGS and the rules they had. A length mark on the first vowel is part of the
-# pair (Norwegian jeg, while German gehen stays two). The same additions as Spectro Maestro's
-# phonetics.LANGUAGE_DIPHTHONGS (same author, AGPL-3.0-or-later), whose own base list already holds the plain pairs.
+# pair (Norwegian jeg, while German gehen stays two).
 _PLAIN = {"ai", "au", "ei", "oi", "ou"}           # espeak writes these without ɪ or ʊ in several languages
 _NORWEGIAN = DIPHTHONGS | {"øy", "ɛːɪ"}
 LANGUAGE_DIPHTHONGS = {
@@ -102,8 +101,7 @@ def kind(symbol: str) -> str:
 
 
 def voicing(symbol: str) -> str:
-    """vowel, sonorant, voiced (obstruent), unvoiced or pause, judged by the first character.
-    Ported from Spectro Maestro's phonetics.kind_of (same author, AGPL-3.0-or-later)."""
+    """vowel, sonorant, voiced (obstruent), unvoiced or pause, judged by the first character."""
     head = symbol[0] if symbol else " "
     if head in PAUSES:
         return "pause"

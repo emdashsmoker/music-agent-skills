@@ -425,12 +425,14 @@ EE_SYMBOLS = {"i"}                 # the ee vowel: thin and sharp when held (the
 # Reduced vowels (the schwa of the, to, a, the first syllable of upon) and the tiny ɪ of it, its, sit: a spoken schwa lasts
 # a few tens of milliseconds, so a note has almost nothing to hold. In a probe line a schwa held for half a second came out
 # 18-22 dB under the line and 'the' sang as breath (periodicity 0.4); 'it' on a beat becomes the burst of its t.
+# A stressed one is a full vowel: the ɚ of adversity (121-148 ms against 44-73 ms for the line's other vowels) and a
+# stressed Romanian ă (96 ms against 92) were held as long as any vowel, while unstressed ones lasted 24-65 ms.
 REDUCED_VOWELS = set("əɐᵻɚ")
 SHORT_LAX_VOWELS = {"ɪ"}
 STRONG_BEAT_WEIGHT = 3             # downbeat or beat three (see _metric_weight)
 EXPOSED_NOTE_S = 0.5               # a reduced or tiny vowel held this long is heard dying; shorter notes pass as in speech
 WEAK_RUN = 3                       # weak function words in a row
-# Function words that speech swallows (ported from synth-ventriloquist's lyric lint, same author); the last row opens on a reduced syllable.
+# Function words that speech swallows; the last row opens on a reduced syllable.
 WEAK_WORDS = {"a", "an", "the", "of", "in", "to", "at", "on", "for", "and", "or", "but", "is", "it", "its", "as", "by",
               "be", "am", "are", "was", "were", "that", "this", "with", "from", "so", "if", "than", "then", "some",
               "someone", "what", "when", "where", "will", "would", "could", "should", "can", "do", "does", "has", "have",
@@ -573,15 +575,15 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
             short = [g for g in groups if g[1] - g[0] < 0.11]
             if short:
                 issue("warn", "lyrics.short_notes", where, f"{len(short)} notes shorter than 110 ms; syllables there will smear")
-            weights = [_bright_weight(plist, s) for s in syllables]
-            bright = [w > 0 for w in weights]
+            bright_weights = [_bright_weight(plist, s) for s in syllables]     # not weights: the beat rules below read the metric ones
+            bright = [w > 0 for w in bright_weights]
             longest, run = 0, 0
             for flag in bright:
                 run = run + 1 if flag else 0
                 longest = max(longest, run)
-            crowded = len(bright) >= BRIGHT_MIN_SYLLABLES and sum(weights) >= BRIGHT_SHARE * len(bright)
+            crowded = len(bright) >= BRIGHT_MIN_SYLLABLES and sum(bright_weights) >= BRIGHT_SHARE * len(bright)
             if crowded or longest >= BRIGHT_RUN:
-                count = f"{sum(weights)} bright sounds over {len(bright)} syllables (st, sk, ts clusters count twice)" if crowded else f"{longest} syllables in a row"
+                count = f"{sum(bright_weights)} bright sounds over {len(bright)} syllables (st, sk, ts clusters count twice)" if crowded else f"{longest} syllables in a row"
                 issue("warn", "lyrics.bright_consonants", where,
                       f"{count} on t, k, p, s, z or sh; the speech voices spit, hiss and peak there. Carry the line on "
                       f"voiced consonants (m, n, l, d, b, g, w, r) and keep those sounds to about one per word")
@@ -603,10 +605,11 @@ def lint_lyrics(project: dict, models: str | None = None) -> list:
                 exposed = lengths[index] >= EXPOSED_NOTE_S or (weights[index] >= STRONG_BEAT_WEIGHT and beats_held >= 0.5)
                 nucleus = plist[syllable.nucleus[0]].symbol.replace("ː", "") if len(syllable.nucleus) == 1 else ""
                 spot = "a strong beat" if weights[index] >= STRONG_BEAT_WEIGHT else f"{lengths[index]:.2f} s"
-                if exposed and nucleus in REDUCED_VOWELS and not (weak[index] and beats_held >= 2):
+                if exposed and nucleus in REDUCED_VOWELS and plist[syllable.nucleus[0]].stress != 2 and not (weak[index] and beats_held >= 2):
+                    strong_form = ", or spell the strong form for the voice (too, thee, ay)" if phonetics.language_key(language) in ("", "en") else ""   # English spellings
                     issue("warn", "lyrics.reduced_vowel_on_beat", where,
                           f"/{phonetics.syllable_text(plist, syllable)}/ puts a reduced vowel (the a of about, the e of the) on {spot}; the speech "
-                          f"voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat, or spell the strong form for the voice (too, thee, ay)")
+                          f"voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat{strong_form}")
                 if exposed and nucleus in SHORT_LAX_VOWELS and syllable.coda and plist[syllable.coda[-1]].symbol[0] in BRIGHT_CONSONANTS:
                     issue("warn", "lyrics.short_vowel_on_beat", where,
                           f"/{phonetics.syllable_text(plist, syllable)}/ (it, its, sit) sits on {spot}; its vowel lasts a few tens of milliseconds, so the "

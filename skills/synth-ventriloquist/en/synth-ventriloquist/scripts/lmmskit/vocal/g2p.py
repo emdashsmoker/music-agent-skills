@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 Em Dash Smoker
 """Written words to DiffSinger phonemes in German, French, Spanish, Italian, Portuguese and Russian.
-The same module as Spectro Maestro's foundry/g2p.py (same author, AGPL-3.0-or-later).
 
 Voicebanks for these languages ship dictionaries with almost no words: they rely on OpenUtau's built-in G2P, which
 looks a word up in a pronouncing dictionary and otherwise spells it out with a small ONNX model. This module ports

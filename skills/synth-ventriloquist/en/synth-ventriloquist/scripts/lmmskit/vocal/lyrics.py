@@ -15,18 +15,17 @@ import numpy as np
 from ..findings import finding
 from . import asr, lines, tts
 from .phones import (AFFRICATES, IPA_TO_ARPABET, LENGTH_MARK, NASALS, PLOSIVES, UNSTABLE_WORDS, VOWELS, WEAK_WORDS, Phone, Syllable,
-                     fold_weak_syllables, merge_tokens, syllabify)
+                     fold_weak_syllables, language_key, merge_tokens, syllabify)
 from .singing import OUTPUT_SR, Style
 
 MIN_NOTE_S = 0.110                 # shorter notes smear consonants (a 16th at 140 bpm is 107 ms)
 # Under about 200 ms a syllable starts to blur even on a singing voicebank (an eighth at 150 bpm is 200 ms), and a run of
-# them reads as a rushed line. Same rule as spectro-maestro's lyrics.fast_syllables, counted per sung syllable here so a
-# syllable bent over several short notes counts once.
+# them reads as a rushed line. Counted per sung syllable, so a syllable bent over several short notes counts once.
 FAST_SYLLABLE_S = 0.200
 FAST_SYLLABLE_COUNT = 3
 LONG_NOTE_BEATS = 2.0
 # A line that builds up on a held note and then ends on a last syllable this fraction of it or shorter: the last word,
-# usually the rhyme and the point of the line, is over before it is heard. Same rule as spectro-maestro's lyrics.clipped_line_end.
+# usually the rhyme and the point of the line, is over before it is heard.
 CLIP_RATIO = 0.25
 STRONG_NOTE_BEATS = 1.0
 SHORT_NOTE_BEATS = 0.5
@@ -44,6 +43,8 @@ EE_SYMBOLS = {"i"}                 # the ee vowel: thin and sharp when held (the
 # Reduced vowels (the schwa of the, to, a, the first syllable of upon) and the tiny ɪ of it, its, sit: a spoken schwa lasts
 # a few tens of milliseconds, so a note has almost nothing to hold. In a probe line a schwa held for half a second came out
 # 18-22 dB under the line and 'the' sang as breath (periodicity 0.4); 'it' on a beat becomes the burst of its t.
+# A stressed one is a full vowel: the ɚ of adversity (121-148 ms against 44-73 ms for the line's other vowels) and a
+# stressed Romanian ă (96 ms against 92) were held as long as any vowel, while unstressed ones lasted 24-65 ms.
 REDUCED_VOWELS = set("əɐᵻɚ")
 SHORT_LAX_VOWELS = {"ɪ"}
 STRONG_BEAT_WEIGHT = 3             # downbeat or beat three (see METRIC_WEIGHTS)
@@ -103,8 +104,7 @@ def _metric_weight(beat_in_bar: float) -> int:
 
 def _stress_findings(label: str, words: list[str], syllables: list, weights: list[int], durations: list[float]) -> list[dict]:
     """A word whose stressed syllable sits on a weaker beat than one of its unstressed syllables (and on no longer note)
-    is heard mis-accented; the stress comes from the engine's own pronunciation dictionary.
-    Ported from Spectro Maestro's vocal.lint_lyrics stress rule (same author, AGPL-3.0-or-later)."""
+    is heard mis-accented; the stress comes from the engine's own pronunciation dictionary."""
     found = []
     by_word: dict[int, list[int]] = {}
     for index, syllable in enumerate(syllables):
@@ -204,8 +204,10 @@ def lint_line(voice: str, line: lines.Line, bpm: float, natural_pitch: float | N
             continue
         nucleus = syllable.nucleus[0].symbol.replace(LENGTH_MARK, "")
         where = "a strong beat" if weights[index] >= STRONG_BEAT_WEIGHT else f"{durations[index]:.2f} s"
-        if nucleus in REDUCED_VOWELS and not syllable.diphthong and not (weak[index] and beats[index] >= LONG_NOTE_BEATS):
-            found.append(finding("warn", "reduced_vowel_on_beat", f"{label}: '{syllable.text}' puts a reduced vowel (the a of about, the e of the) on {where}; the speech voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat, or spell the strong form for the voice (too, thee, ay)"))
+        reduced = nucleus in REDUCED_VOWELS and not syllable.diphthong and not syllable.nucleus[0].stressed
+        if reduced and not (weak[index] and beats[index] >= LONG_NOTE_BEATS):
+            strong_form = ", or spell the strong form for the voice (too, thee, ay)" if language_key(lang) == "en" else ""   # English spellings
+            found.append(finding("warn", "reduced_vowel_on_beat", f"{label}: '{syllable.text}' puts a reduced vowel (the a of about, the e of the) on {where}; the speech voices have almost no vowel there, so it sings as breath or a gap. Give it a short off-beat note and let a content word take the beat{strong_form}"))
         if nucleus in SHORT_LAX_VOWELS and syllable.coda and syllable.coda[-1].symbol[0] in BRIGHT_CONSONANTS:
             found.append(finding("warn", "short_vowel_on_beat", f"{label}: '{syllable.text}' (it, its, sit) sits on {where}; its vowel lasts a few tens of milliseconds, so the note becomes the burst of its consonant. Give it a short off-beat note or a word with a long vowel"))
     if weak and weak[0]:

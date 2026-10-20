@@ -101,6 +101,7 @@ song.duck_for_vocals(4.0, presence_db=6.0)                               # optio
 - Lines are sung when the song is saved, cached in `.vocal_cache/` beside the project, and placed so that each vowel starts on its beat. Changing one line re-sings only that line.
 - Each part becomes one audio file under `samples/<project>/` and one track with a vocal channel strip (EQ, compression, reverb send).
 - `song.vocal(..., level_db=, pan=, sends=, effects=, method=, lang=, speed=, style=, fix_ending=)`.
+- `speed=` is the reading speed of a speech voice. Left out, each line is read at the pace of its melody: 0.21 s (a syllable at speed 1) divided by the line's typical note, kept between 0.7 and 1.15. A number reads every line of the part at that speed (1.0 is the voice's own pace). The `held` method reads at 1.0 unless a number is given; voicebanks have no reading speed.
 
 ## Melody notation
 

@@ -145,7 +145,6 @@ def spectrogram(wav_path: str, out_path: str, start: float = 0.0, end: float | N
 def vocal_line(audio_data: np.ndarray, rate: int, out_path: str, origin: float = 0.0, notes: list[tuple[float, float, float]] | None = None,
                labels: list[tuple[float, str]] | None = None, top_hz: float = VOCAL_TOP_HZ, title: str = "") -> str:
     """Is this line really sung: harmonic stripes through every vowel, pitch on the notes, words in place?
-    Ported from Spectro Maestro's plots.vocal_line (same author, AGPL-3.0-or-later).
 
     Top: linear-frequency spectrogram to top_hz with a syllable mark at every label. Bottom: the sung pitch
     (Harvest) as a line over the written notes as bars. `notes` are (start_s, duration_s, midi) and `labels`

@@ -51,23 +51,27 @@ def _load(path: str) -> tuple[SungLine, dict]:
     return SungLine(data["audio"].astype(np.float64), float(data["lead_in"]), json.loads(str(data["layout"])), None, notes), json.loads(str(data["report"]))
 
 
-def render_line(voice: str, line: line_tools.Line, bpm: float, *, key: str | None = None, style: Style | None = None, speed: float = 1.0,
+def render_line(voice: str, line: line_tools.Line, bpm: float, *, key: str | None = None, style: Style | None = None, speed: float | None = None,
                 cache: str | None = None, method: str = "auto", lang: str = "en", **options) -> tuple[SungLine, dict]:
     """Sing one line. options go to the engine.
 
+    speed is the reading speed of a speech voice; None reads at the melody's pace (lines.matched_speed) for a
+    stretched line and at 1.0 for a held one.
     Speech voices: fix_ending=False switches the line-ending repair off.
     DiffSinger: steps, gender, velocity, tension, breathiness, expressiveness, own_pitch.
     """
     style = style or Style()
     if method not in METHODS:
         raise ValueError(f"method must be one of {METHODS}")
+    melody = line_tools.harmonize(line.melody, key, line.harmony) if line.harmony and key else line.melody
+    groups, lead_beats, _ = line_tools.note_groups(melody, bpm)
+    engine = engine_of(voice)
+    if speed is None:
+        speed = line_tools.matched_speed(groups) if engine in ("kokoro", "piper") and method != "held" else 1.0
     all_options = {"method": method, "lang": lang, **options}
     path = os.path.join(cache, "line_" + _cache_key(voice, line, bpm, key, style, speed, all_options) + ".npz") if cache else None
     if path and os.path.exists(path):
         return _load(path)
-    melody = line_tools.harmonize(line.melody, key, line.harmony) if line.harmony and key else line.melody
-    groups, lead_beats, _ = line_tools.note_groups(melody, bpm)
-    engine = engine_of(voice)
     if engine == "diffsinger":
         from . import diffsinger
         folder, _, colour = voice.split(":", 1)[1].partition("#")
