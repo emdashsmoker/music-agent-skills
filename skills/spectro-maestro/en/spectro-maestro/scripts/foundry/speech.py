@@ -25,6 +25,7 @@ from .phonetics import Phone
 ENGINE_SEED = 20240229          # fixed seed for every stochastic model op: same text, same audio
 KOKORO_REPO = "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX-timestamped/resolve/main"
 KOKORO_SR, KOKORO_FRAME = 24000, 600
+DOWNLOAD_TRIES = 3
 PIPER_REPO = "https://huggingface.co/rhasspy/piper-voices/resolve/main"
 ANALYSIS_FRAME_S = 0.005
 LAG_SEARCH_MS = (-160, 60)
@@ -88,7 +89,8 @@ def models_dir() -> str:
 
 
 def fetch(url: str, path: str) -> str:
-    """Download once. Partial downloads never leave a file with the final name.
+    """Download once (three tries). Partial downloads never leave a file with the final name: a dropped connection
+    ends the stream early without an error, so the length is checked against the server's.
     Without network access the error names the file, so it can be put in place by hand."""
     from .singing import VocalError
     if os.path.exists(path) and os.path.getsize(path) > 0:
@@ -99,17 +101,25 @@ def fetch(url: str, path: str) -> str:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     print(f"[models] downloading {url} -> {path}", flush=True)
     request = urllib.request.Request(url, headers={"User-Agent": settings.APP})
-    try:
-        with urllib.request.urlopen(request, timeout=settings.get("download_timeout_s")) as response, open(path + ".part", "wb") as handle:
-            while True:
-                block = response.read(1 << 20)
-                if not block:
-                    break
-                handle.write(block)
-    except OSError as error:                             # no network, blocked host, proxy refusal, time-out
-        if os.path.exists(path + ".part"):
-            os.remove(path + ".part")
-        raise VocalError(f"download failed ({error}). {by_hand}") from error
+    for attempt in range(DOWNLOAD_TRIES):
+        try:
+            with urllib.request.urlopen(request, timeout=settings.get("download_timeout_s")) as response, open(path + ".part", "wb") as handle:
+                expected = int(response.headers.get("Content-Length") or 0)
+                written = 0
+                while True:
+                    block = response.read(1 << 20)
+                    if not block:
+                        break
+                    handle.write(block)
+                    written += len(block)
+            if expected and written != expected:
+                raise OSError(f"incomplete download: {written} of {expected} bytes")
+            break
+        except OSError as error:                         # no network, blocked host, proxy refusal, time-out, cut transfer
+            if os.path.exists(path + ".part"):
+                os.remove(path + ".part")
+            if attempt == DOWNLOAD_TRIES - 1:
+                raise VocalError(f"download failed ({error}). {by_hand}") from error
     os.replace(path + ".part", path)
     return path
 
