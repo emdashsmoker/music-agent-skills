@@ -20,7 +20,7 @@ from scipy import signal
 
 from ..audio import bandpass, shelf
 from . import world
-from .phones import (AFFRICATES, DIPHTHONGS, LENGTH_MARK, SINGLE_SYMBOL_DIPHTHONGS, VOICELESS, Phone, Syllable, fold_weak_syllables, syllabify,
+from .phones import (AFFRICATES, DIPHTHONGS, LENGTH_MARK, SINGLE_SYMBOL_DIPHTHONGS, VOICELESS, Phone, Syllable, fit_syllables, fold_weak_syllables, syllabify,
                      voicing)
 from .tts import Unit
 
@@ -135,7 +135,7 @@ def _duration(phones: list[Phone]) -> float:
 
 def assign(unit: Unit, groups: list[list[SungNote]], lang: str | None = None) -> list[Syllable]:
     """Syllables of the spoken line, folded to one per note group. Raises with a per-word table if counts differ."""
-    syllables = fold_weak_syllables(syllabify(unit.phones, lang), len(groups))
+    syllables = fold_weak_syllables(fit_syllables(syllabify(unit.phones, lang), len(groups), lang), len(groups))
     if len(syllables) != len(groups):
         spoken = " | ".join(s.text for s in syllabify(unit.phones, lang))
         raise ValueError(f"'{unit.text}' is spoken as {len(syllabify(unit.phones, lang))} syllables ({spoken}) but the melody has "

@@ -674,12 +674,13 @@ class SongVocal:
         self.song, self.part, self.level_db, self.pan, self.sends, self.effects = song, part, level_db, pan, sends, effects or []
         self.deesser = deesser
 
-    def line(self, at, text: str, melody: str, kind: str | None = None, beats: float = 0.0) -> "SongVocal":
-        """Add a line whose melody starts at `at` (+ `beats`; negative for a pickup). kind defaults from the section name."""
+    def line(self, at, text: str, melody: str, kind: str | None = None, beats: float = 0.0, phonemes: str | None = None) -> "SongVocal":
+        """Add a line whose melody starts at `at` (+ `beats`; negative for a pickup). kind defaults from the section name.
+        phonemes, in the voice's own symbols, are sung instead of reading the text (see references/vocals.md)."""
         bar = self.song.bar(at)
         section = next((s.name for s in self.song.sections if s.start_bar <= bar < s.end_bar), "")
         guessed = "chorus" if any(word in section.lower() for word in ("chorus", "hook", "drop")) else "verse"
-        self.part.line(self.song.beat(at) + beats, text, melody, section=section, kind=kind or guessed)
+        self.part.line(self.song.beat(at) + beats, text, melody, section=section, kind=kind or guessed, phonemes=phonemes)
         return self
 
     def harmony(self, name: str, steps: int = 2, only_kind: str | None = "chorus", level_db: float = 0.0, pan: float = 0.0,

@@ -134,8 +134,8 @@ def espeak_phonemes(tokenizer, text: str, lang: str) -> str:
     foreign = [word for word in text.split() if not any(c.isascii() and c.isalpha() for c in word)
                and LANGUAGE_SWITCH.search(_vocab_phonemes(tokenizer, word, lang))]
     if foreign:
-        raise ValueError(f"the speech voice reads {lang} and cannot read {' '.join(foreign)}; write them in a script {lang} reads "
-                         "(Japanese: kana), leave out symbols such as ~, set lang to the lyrics' language, or choose a voice that reads them")
+        raise ValueError(f"the speech voice reads {lang} and cannot read {' '.join(foreign)}; write them in a script the voice reads, "
+                         "leave out symbols such as ~, set lang to the lyrics' language, or choose a voice that reads them")
     return re.sub(" {2,}", " ", LANGUAGE_SWITCH.sub(" ", phonemes)).strip()     # a mark stands where the word's space was
 
 
@@ -368,8 +368,9 @@ class KokoroBackend:
     def phonemize(self, text: str) -> str:
         return espeak_phonemes(self._tokenizer, text, self.lang)
 
-    def synthesize(self, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED) -> Unit:
-        phonemes = self.phonemize(text)
+    def synthesize(self, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED, phonemes: str | None = None) -> Unit:
+        if phonemes is None:
+            phonemes = self.phonemize(text)
         ids = self._tokenizer.tokenize(phonemes)
         _seed_everything(seed)
         waveform, durations = self._session.run(None, {
@@ -407,15 +408,18 @@ class PiperBackend:
     def phonemize(self, text: str) -> str:
         return " ".join("".join(sentence) for sentence in self._voice.phonemize(text)).strip()
 
-    def synthesize(self, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED) -> Unit:
+    def synthesize(self, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED, phonemes: str | None = None) -> Unit:
         from piper import PiperVoice, SynthesisConfig
         # onnxruntime fixes the random stream of a graph when the session is created, and every run advances
         # it. A fresh session per line is the only way the same line always gets the same sampling noise.
         _seed_everything(seed)
         voice = PiperVoice.load(self._model, include_alignments=True)
+        if phonemes is not None:      # this line's own voice reads the given phonemes as one sentence, with its usual alignment
+            voice.phonemize = lambda _text: [list(phonemes)]
         config = SynthesisConfig(length_scale=1.0 / speed)
-        pieces, symbols, starts, ends, cursor = [], [], [], [], 0.0
+        pieces, symbols, starts, ends, cursor, read = [], [], [], [], 0.0, []
         for chunk in voice.synthesize(text, syn_config=config, include_alignments=True):
+            read += chunk.phonemes
             pieces.append(chunk.audio_float_array.astype(np.float64))
             if not chunk.phoneme_alignments:
                 raise RuntimeError(f"Piper voice {self.voice} returned no alignments; install the 'onnx' package")
@@ -426,6 +430,9 @@ class PiperBackend:
                     starts.append(cursor)
                     ends.append(cursor + length)
                 cursor += length
+        if phonemes is not None and read != list(phonemes):
+            raise RuntimeError(f"Piper voice {self.voice} did not read the line's phonemes (this piper-tts version takes them another "
+                               "way); leave the phonemes out or sing the line with a Kokoro voice")
         audio = np.concatenate(pieces)
         starts, ends = share_word_gaps(symbols, starts, ends, self.word_gap_to_previous)
         return _finish_unit(audio, self.sr, merge_tokens(symbols, starts, ends), text)
@@ -462,8 +469,9 @@ def backend(voice: str, lang: str | None = None):
 
 
 # -- unit cache -------------------------------------------------------------------------------------------
-def unit_key(identity: str, text: str, speed: float, seed: int) -> str:
-    return hashlib.sha1(json.dumps([identity, text, round(speed, 4), seed, TIMING_VERSION]).encode("utf-8")).hexdigest()[:20]
+def unit_key(identity: str, text: str, speed: float, seed: int, phonemes: str | None = None) -> str:
+    given = [phonemes] if phonemes is not None else []          # lines read from their text keep the keys they always had
+    return hashlib.sha1(json.dumps([identity, text, round(speed, 4), seed, TIMING_VERSION] + given).encode("utf-8")).hexdigest()[:20]
 
 
 def save_unit(path: str, unit: Unit) -> None:
@@ -486,15 +494,16 @@ def load_unit(path: str) -> Unit:
                 int(data["snapped"]) if "snapped" in data else 0)
 
 
-def speak(voice: str, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED, cache: str | None = None, lang: str | None = None) -> Unit:
-    """Synthesize a line in `lang` (or read it from the cache folder)."""
+def speak(voice: str, text: str, speed: float = 1.0, seed: int = DEFAULT_SEED, cache: str | None = None, lang: str | None = None,
+          phonemes: str | None = None) -> Unit:
+    """Synthesize a line in `lang` (or read it from the cache folder). Given `phonemes` are read instead of the text."""
     engine = backend(voice, lang)
     if cache is None:
-        return engine.synthesize(text, speed, seed)
+        return engine.synthesize(text, speed, seed, phonemes)
     os.makedirs(cache, exist_ok=True)
-    path = os.path.join(cache, unit_key(engine.identity, text, speed, seed) + ".npz")
+    path = os.path.join(cache, unit_key(engine.identity, text, speed, seed, phonemes) + ".npz")
     if os.path.exists(path):
         return load_unit(path)
-    unit = engine.synthesize(text, speed, seed)
+    unit = engine.synthesize(text, speed, seed, phonemes)
     save_unit(path, unit)
     return unit
