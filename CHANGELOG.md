@@ -41,8 +41,10 @@ Changelog rules
 * pyworld 불러오기가 No module named 'pkg_resources'로 실패하는 환경의 setuptools 82 미만 설치 필요
 
 ### synth-ventriloquist
+- Changed doctor to show the import error of each missing package so that a broken install and an absent one read differently
 - Action needed: install setuptools below 82 where pyworld fails to import with No module named 'pkg_resources'
 
+* 누락 패키지마다 불러오기 오류 문구를 함께 표시하도록 doctor 출력 변경
 * pyworld 불러오기가 No module named 'pkg_resources'로 실패하는 환경의 setuptools 82 미만 설치 필요
 
 ## 2026-10-20
