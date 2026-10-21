@@ -34,11 +34,24 @@ def _vocal_tracks(project: dict, wanted: str | None) -> list:
     return tracks
 
 
+def _sung_language(track: dict) -> str:
+    """The language the track was sung in, which the recogniser listens for: its lang, else the speech voice's own
+    (a Kokoro or Piper voice without lang sings in its language), else a voicebank's default."""
+    from . import diffsinger, speech, vocal
+    config = vocal._config(track)
+    if config.get("lang"):
+        return config["lang"]
+    if config["engine"] == "diffsinger":
+        return diffsinger.DEFAULTS["lang"]
+    return speech.backend_for(config["engine"], config["voice"]).lang     # the render loaded it unless the stem came from the cache
+
+
 def _pitch_error_cents(audio, notes: list, origin: float) -> float | None:
     """Median distance between the sung pitch and the written notes, away from note edges."""
     import numpy as np
-    import pyworld
+    from . import world
     from .dsp import SR
+    pyworld = world.pyworld()
     f0, times = pyworld.harvest(audio.astype(np.float64), SR, f0_floor=60.0, f0_ceil=900.0, frame_period=5.0)
     times = times + origin
     errors = []
@@ -118,7 +131,7 @@ def check_track(project: dict, track: dict, build: str, out_dir: str, plots_for:
             following = track["lines"][index + 1]["start"] * spb - float(report[index + 1].get("pre_roll_s", 0.1)) - 0.03
             b = max(a + SR // 10, min(b, int(following * SR)))
         piece = audio[a:b]
-        heard = asr.transcribe(piece, SR, model, asr.language_code(language) if not model.endswith(".en") else None)
+        heard = asr.transcribe(piece, SR, model, asr.language_code(_sung_language(track)) if not model.endswith(".en") else None)
         row = {"line": index + 1, "section": line["section"], "text": line["text"], "heard": heard,
                "score": asr.similarity(line["text"], heard),
                "pitch_error_cents": _pitch_error_cents(piece, notes, a / SR - start),
@@ -218,7 +231,7 @@ def cmd_vocal_try(args) -> int:
         except vocal.VocalError as error:
             print(f"  {number}: {text!r}: {error}")
             continue
-        heard = asr.transcribe(audio, SR, model, asr.language_code(language) if not model.endswith(".en") else None)
+        heard = asr.transcribe(audio, SR, model, asr.language_code(_sung_language(track)) if not model.endswith(".en") else None)
         path = export.write_audio(os.path.join(out_dir, "vocals", f"try_line{args.line}_{number}.wav"), audio)
         label = "current" if number == 0 else f"option {number}"
         print(f"  {label}: {asr.similarity(text, heard):.2f}  {text!r} -> {heard!r}  [{path}]")

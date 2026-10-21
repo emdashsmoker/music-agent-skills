@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from . import phonetics, settings
+from . import phonetics, settings, world
 from .phonetics import Phone
 
 ENGINE_SEED = 20240229          # fixed seed for every stochastic model op: same text, same audio
@@ -314,8 +314,8 @@ def backend_for(engine: str, voice: str, lang: str | None = None):
 
 def acoustic_frames(audio: np.ndarray, sr: int) -> dict:
     """Frame-wise evidence at 5 ms: f0 (0 = unvoiced), sibilance flag, level in dB."""
-    import pyworld
     from scipy import signal
+    pyworld = world.pyworld()
     x = audio.astype(np.float64)
     f0, _ = pyworld.harvest(x, sr, f0_floor=60.0, f0_ceil=700.0, frame_period=ANALYSIS_FRAME_S * 1000)
     hop = int(sr * ANALYSIS_FRAME_S)
