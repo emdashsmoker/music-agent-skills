@@ -14,7 +14,7 @@ import shutil
 import sys
 import sysconfig
 
-from . import settings, world
+from . import settings
 
 # (import name, package to install, what stops working without it)
 CORE = [
@@ -44,9 +44,9 @@ MODEL_SPACE_NOTE_GB = 1.0       # speech voice plus recognition model, roughly
 
 def _status(module: str) -> tuple:
     try:
-        found = world.pyworld() if module == "pyworld" else importlib.import_module(module)   # pyworld needs a pkg_resources stand-in
+        found = importlib.import_module(module)
         return True, getattr(found, "__version__", "")
-    except Exception as error:                          # a broken install is reported like a missing one
+    except Exception as error:                          # a broken install counts as missing; its error tells the two apart
         return False, f"{type(error).__name__}: {error}"
 
 
@@ -99,7 +99,7 @@ def run() -> int:
         print(f"\n{title}")
         for module, package, purpose in group:
             ok, detail = _status(module)
-            print(f"  {'ok     ' if ok else 'MISSING'} {package:16s} {detail if ok else '-> needed for ' + purpose}")
+            print(f"  {'ok     ' if ok else 'MISSING'} {package:16s} {detail if ok else f'-> needed for {purpose} ({detail})'}")
             if not ok and key:
                 missing[key].append(package)
 
