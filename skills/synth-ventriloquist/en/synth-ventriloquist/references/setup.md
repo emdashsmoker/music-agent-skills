@@ -186,7 +186,7 @@ Tell the user before the first vocal render that these downloads will happen. If
 - A render takes very long: check the song length and part count, and try `render --bars 1:16` first. LMMS renders about five times faster than real time per pass, and `produce` needs one short pass per part plus three or four full passes.
 - The machine becomes sluggish while rendering: set `stem_workers` to 1 or 2.
 - Figures show boxes instead of text: none of the `figure_fonts` is installed. Add a font family that exists on the machine to the setting.
-- `pyworld` fails to import with a `pkg_resources` error: the toolkit works around it. If it still fails, install `setuptools` into the environment.
+- `pyworld` fails to import with `No module named 'pkg_resources'`: the environment has no setuptools or setuptools 82 or later, which no longer ships that module (pyworld 0.3.5 reads its version through it; a Python 3.12+ venv has no setuptools by default). Install `setuptools<82` into that environment. A `setuptools` install without a version brings a release without the module, so the import keeps failing.
 
 ## Self-test
 

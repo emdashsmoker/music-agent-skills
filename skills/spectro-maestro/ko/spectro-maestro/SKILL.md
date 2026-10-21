@@ -63,6 +63,7 @@ description: 전자음악 중심의 완성곡을 코드로 작곡, 편곡, 합�
     + 개인 컴퓨터에서는 격리된 환경에 설치 (venv, conda, uv 등 사용자가 이미 쓰는 방식을 따름)
     + 운영체제가 관리하는 파이썬에 강제로 설치하지 않음 (`--break-system-packages`, `sudo pip`), 일회용 환경만 예외
     + 관리자 권한이 필요한 작업은 직접 실행하지 않고 사용자에게 명령을 안내
+    + setuptools가 없거나 82 이상인 환경에서는 pyworld 불러오기가 `No module named 'pkg_resources'`로 실패하므로 같은 환경에 `setuptools<82` 설치 (doctor에 오류 표시)
     + 설치가 끝나기 전에는 작곡 단계로 넘어가지 않음
 - 설정은 스크립트를 고치지 않고 바깥에서 지정
     + 우선순위 : 명령 옵션, 환경 변수 `SPECTRO_MAESTRO_<이름>`, JSON 설정 파일, 운영체제별 기본값

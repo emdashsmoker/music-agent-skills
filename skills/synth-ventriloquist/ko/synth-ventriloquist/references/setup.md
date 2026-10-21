@@ -186,7 +186,7 @@ TTS 모델과 인식 모델은 처음 쓸 때 `cache_dir`와 Hugging Face 캐시
 - 렌더가 매우 오래 걸린다: 곡 길이와 파트 수를 확인하고 먼저 `render --bars 1:16`을 시도한다. LMMS는 한 번에 실시간의 약 5배 속도로 렌더하고, `produce`는 파트마다 짧은 렌더 1회와 전체 렌더 3-4회가 필요하다.
 - 렌더 중 컴퓨터가 느려진다: `stem_workers`를 1이나 2로 둔다.
 - 그림의 글자가 네모로 나온다: `figure_fonts`의 글꼴이 하나도 설치되어 있지 않다. 컴퓨터에 있는 글꼴 이름을 설정에 추가한다.
-- `pyworld`가 `pkg_resources` 오류로 import에 실패한다: 툴킷이 우회한다. 그래도 실패하면 환경에 `setuptools`를 설치한다.
+- `pyworld`가 `No module named 'pkg_resources'` 오류로 import에 실패한다: 환경에 setuptools가 없거나 이 모듈이 빠진 82 이상이 설치되어 있다(pyworld 0.3.5는 버전을 읽을 때 이 모듈을 쓰고, Python 3.12 이상의 venv에는 setuptools가 기본으로 없다). 그 환경에 `setuptools<82`를 설치한다. 버전을 정하지 않고 `setuptools`를 설치하면 이 모듈이 없는 판이 설치되어 계속 실패한다.
 
 ## 자가 시험
 

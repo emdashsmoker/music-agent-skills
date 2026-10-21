@@ -3,9 +3,6 @@
 """WORLD vocoder access (pyworld) with the analysis settings shared by the singing code."""
 from __future__ import annotations
 
-import sys
-import types
-
 import numpy as np
 
 FRAME_S = 0.005                                  # 5 ms analysis and synthesis grid
@@ -17,15 +14,7 @@ LOUD_PERCENTILE = 90
 
 
 def pyworld():
-    """Import pyworld. Its __init__ needs pkg_resources only to read a version string; newer setuptools
-    no longer ship that module, so a stand-in is provided when it is missing."""
-    if "pkg_resources" not in sys.modules:
-        try:
-            import pkg_resources                 # noqa: F401
-        except ModuleNotFoundError:
-            stub = types.ModuleType("pkg_resources")
-            stub.get_distribution = lambda name: types.SimpleNamespace(version="unknown")
-            sys.modules["pkg_resources"] = stub
+    """Import pyworld. An import error naming pkg_resources is covered under Troubleshooting in references/setup.md."""
     import pyworld as module
     return module
 

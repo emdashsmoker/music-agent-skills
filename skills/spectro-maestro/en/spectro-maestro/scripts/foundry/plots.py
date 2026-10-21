@@ -19,7 +19,7 @@ import numpy as np
 from matplotlib import font_manager
 from scipy import signal
 
-from . import dsp, qa, theory, world
+from . import dsp, qa, theory
 from .dsp import SR
 
 BLUE, ACCENT, GREY, DARK = "#6B8EC2", "#F5A962", "#B8C4D6", "#2F4468"
@@ -299,7 +299,7 @@ def vocal_line(audio: np.ndarray, sr: int, path: str, origin: float = 0.0, notes
     """Is this line really sung: harmonic stripes through every vowel, pitch on the notes, words in place?
     `notes` are (start_s, dur_s, midi, ...) on the same clock as `origin` (time of the first sample);
     `labels` are (time_s, text) marks such as syllables."""
-    pyworld = world.pyworld()
+    import pyworld
     mono = dsp.to_mono(audio).astype(np.float64)
     fig, axes = plt.subplots(2, 1, figsize=(15, 8.5), sharex=True, gridspec_kw={"height_ratios": [1.5, 1]})
     f, t, spec = signal.stft(mono, sr, nperseg=1024, noverlap=1024 - 128)
