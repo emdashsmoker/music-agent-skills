@@ -40,6 +40,17 @@ PACKAGES = {  # import name: (name to install, what is missing without it)
 }
 
 
+def _package_status(name: str, purpose: str) -> str:
+    """Return "ok", or what is lost without the package and why it did not load. The import is tried because an
+    installed package can still fail to load."""
+    import importlib
+    try:
+        importlib.import_module(name)
+    except Exception as error:                  # a broken install counts as missing; its error tells the two apart
+        return f"missing: {purpose} ({type(error).__name__}: {error})"
+    return "ok"
+
+
 def cmd_doctor(args) -> None:
     """Report what this machine has and what each missing piece disables. Changes nothing."""
     import importlib.util
@@ -62,8 +73,7 @@ def cmd_doctor(args) -> None:
         status["ffmpeg"] = "missing: not needed here, soundfile writes ogg, mp3 and flac itself"
     else:
         status["ffmpeg"] = "missing: mp3 output needs it or libsndfile 1.1 or later (ogg, flac and WAV work)"
-    status["python_packages"] = {install: ("ok" if importlib.util.find_spec(name) else f"missing: {purpose}")
-                                 for name, (install, purpose) in PACKAGES.items()}
+    status["python_packages"] = {install: _package_status(name, purpose) for name, (install, purpose) in PACKAGES.items()}
     try:
         from lmmskit import kit  # kit needs the core packages, and the doctor must still report on a machine without them
     except ImportError as error:

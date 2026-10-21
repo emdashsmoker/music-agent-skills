@@ -20,8 +20,6 @@ from __future__ import annotations
 import numpy as np
 from scipy import signal
 
-from . import world
-
 
 class VocalError(ValueError):
     """A lyric line, a voice or a voicebank the composer must fix; reported without a traceback."""
@@ -112,7 +110,7 @@ def audible_cut(audio: np.ndarray, samples: int, sr: int) -> float:
 
 def analyse(audio: np.ndarray, sr: int, f0: np.ndarray | None = None) -> dict:
     """WORLD analysis at 5 ms frames."""
-    pyworld = world.pyworld()
+    import pyworld
     x = audio.astype(np.float64)
     if f0 is None:
         f0, times = pyworld.harvest(x, sr, f0_floor=F0_FLOOR, f0_ceil=F0_CEIL, frame_period=FRAME_S * 1000)
@@ -478,7 +476,7 @@ def _soften_consonants(audio: np.ndarray, unit, segments: list, origin: float, c
 def sing(unit, analysis: dict, syllables: list, notes: list, style: dict | None = None, seed: int = 1) -> tuple:
     """Sung audio for one line. Returns (audio at unit.sr, pre_roll_seconds, info).
     `notes` are (start_s, dur_s, midi, tie) relative to the line start; the audio begins `pre_roll` before it."""
-    pyworld = world.pyworld()
+    import pyworld
     style = {**DEFAULT_STYLE, **(style or {})}
     rng = np.random.default_rng(seed)
     groups = note_groups(notes)
