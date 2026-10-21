@@ -49,9 +49,8 @@ def _sung_language(track: dict) -> str:
 def _pitch_error_cents(audio, notes: list, origin: float) -> float | None:
     """Median distance between the sung pitch and the written notes, away from note edges."""
     import numpy as np
-    from . import world
+    import pyworld
     from .dsp import SR
-    pyworld = world.pyworld()
     f0, times = pyworld.harvest(audio.astype(np.float64), SR, f0_floor=60.0, f0_ceil=900.0, frame_period=5.0)
     times = times + origin
     errors = []
