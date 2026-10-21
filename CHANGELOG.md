@@ -30,11 +30,20 @@ Changelog rules
 ## 2026-10-21
 
 ### spectro-maestro
-- Fixed the pyworld import that failed without pkg_resources (setuptools 81 or later, or none) and stopped vocal rendering (#76)
+- Fixed the pyworld import that failed without pkg_resources (setuptools 82 or later, or none) and stopped vocal rendering (#76)
 - Fixed vocal-check and vocal-try letting a multilingual recognition model guess the language of a track without lang (#76)
+- Changed doctor to show the import error of each missing package so that a broken install and an absent one read differently
+- Action needed: install setuptools below 82 where pyworld fails to import with No module named 'pkg_resources'
 
-* pkg_resources가 없는 환경(setuptools 81 이상 또는 미설치)의 pyworld 불러오기 실패로 보컬 렌더가 중단되는 오류 수정 (#76)
+* pkg_resources가 없는 환경(setuptools 82 이상 또는 미설치)의 pyworld 불러오기 실패로 보컬 렌더가 중단되는 오류 수정 (#76)
 * lang이 없는 트랙의 vocal-check와 vocal-try에서 다국어 인식 모델이 언어를 추정하는 오류 수정 (#76)
+* 누락 패키지마다 불러오기 오류 문구를 함께 표시하도록 doctor 출력 변경
+* pyworld 불러오기가 No module named 'pkg_resources'로 실패하는 환경의 setuptools 82 미만 설치 필요
+
+### synth-ventriloquist
+- Action needed: install setuptools below 82 where pyworld fails to import with No module named 'pkg_resources'
+
+* pyworld 불러오기가 No module named 'pkg_resources'로 실패하는 환경의 setuptools 82 미만 설치 필요
 
 ## 2026-10-20
 
