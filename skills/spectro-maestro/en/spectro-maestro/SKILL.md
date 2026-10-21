@@ -71,7 +71,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + On a personal computer install into an isolated environment (venv, conda, uv or whatever the user already uses)
     + Do not force packages into a Python that the operating system manages (`--break-system-packages`, `sudo pip`); disposable environments are the only exception
     + Do not run anything that needs administrator rights yourself; give the user the command instead
-    + Where setuptools is missing or 82 or later, pyworld fails to import with `No module named 'pkg_resources'` (doctor shows the error); install `setuptools<82` into the same environment
+    + If pyworld fails to import with `No module named 'pkg_resources'` (doctor shows the error), install `setuptools<82` into the same environment. With pyworld 0.3.5 this happens where setuptools is missing or 82 or later
     + Do not move on to composing until installation is finished
 - Settings are given from outside, without editing the scripts
     + Priority : command option, environment variable `SPECTRO_MAESTRO_<NAME>`, JSON config file, default for the operating system
