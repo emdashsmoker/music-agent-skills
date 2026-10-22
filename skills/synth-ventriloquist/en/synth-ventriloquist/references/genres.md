@@ -4,7 +4,7 @@ Each recipe gives the idiom of a style in the notation of this toolkit: tempo, d
 
 A recipe is where a track starts. What makes a track good is the one idea that departs from the recipe, so follow the user's references and wishes first and this page second.
 
-For a style without a profile (the family of electronic genres is far larger than this list), work from knowledge of the style: take the nearest profile as a base, state the tempo, drum pattern, bass style and form you intend in the plan, and let the user correct it.
+For a style without a profile (there are far more styles than this list covers), work from knowledge of the style: take the nearest profile as a base, state the tempo, drum pattern, bass style and form you intend in the plan, and let the user correct it.
 
 ## Contents
 
