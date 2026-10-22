@@ -27,6 +27,13 @@ Changelog rules
 - (Push) Commit on top of the latest main and push directly to main.
 -->
 
+## 2026-10-22
+
+### Common
+- Changed the description of each skill to state its purpose without limiting it to electronic music (#80)
+
+* 전자음악 한정 없이 각 스킬의 용도를 설명하도록 description 문구 변경 (#80)
+
 ## 2026-10-21
 
 ### spectro-maestro
