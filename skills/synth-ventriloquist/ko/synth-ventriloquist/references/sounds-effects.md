@@ -112,7 +112,7 @@ hoover = {"plugin": "tripleoscillator", "role": "lead",
 | `fx.reverb(chain, decay_s, room, damp_hz, predelay_ms)` | 공간. 센드 버스용으로 기본값은 완전 웻 |
 | `fx.delay(chain, bpm, left_16ths, right_16ths, feedback)` | 템포에 동기된 에코 |
 | `fx.chorus`, `fx.phaser`, `fx.flanger` | 폭과 움직임 |
-| `fx.deesser`, `fx.exciter`, `fx.bass_boost` | 보컬 치찰음, 합성 고역, 저역 보강. LMMS 1.2의 디에서는 임계값과 무관하게 분할 주파수 위를 고정으로 깎으므로 기본 보컬 스트립에 없다. 사용자가 명시적으로 요청할 때만 `song.vocal(..., deesser={})`로 켜고 스템 스펙트럼을 확인한다 |
+| `fx.deesser`, `fx.exciter`, `fx.bass_boost` | 보컬 치찰음, 합성 고역, 저역 보강. LMMS 1.2의 디에서(de-esser)는 임계값과 무관하게 분할 주파수 위를 고정으로 깎으므로 기본 보컬 스트립에 없다. 사용자가 명시적으로 요청할 때만 `song.vocal(..., deesser={})`로 켜고 스템 스펙트럼을 확인한다 |
 | `fx.stereo_width`, `fx.mono` | 넓히기, 또는 모노로 모으기(킥과 서브) |
 | `fx.filter_sweep(chain, cutoff, resonance, kind)` | 오토메이션용 필터 |
 | `fx.ladspa(chain, "file:Label", {"포트 이름": 값})` | 내장 LADSPA 플러그인 225개 중 아무것이나. `fx.catalog()`가 포트 이름, 범위, 기본값과 함께 나열한다 |
@@ -137,7 +137,7 @@ hoover = {"plugin": "tripleoscillator", "role": "lead",
 - 피크 컨트롤러 사이드체인은 어떤 시스템에서든 렌더마다 다르다. `song.sidechain()`은 같은 더킹을 오토메이션으로 쓴다.
 - 악기 자체 노브의 오토메이션은 여러 코어에서 렌더마다 달랐다. 코어 1개에서는 대부분의 렌더가 동일했지만, 완성곡 하나가 두 번째 렌더에서 다르게 나온 적이 있다. 재현 불가능한 것으로 취급한다.
 - 타이밍 의존: Kicker 트랙 여러 개가 연주될 때의 Kicker 노이즈 노브.
-- 일부 LADSPA 플러그인은 실행마다 다르게 시작한다. Calf Saturator와 TAP TubeWarmth는 부하가 걸린 컴퓨터에서 그랬고, Chebyshev 디스토션은 매번 그랬다. `fx`의 빌더는 부하 상태의 반복 렌더 시험을 통과한 플러그인만 쓴다. `fx.ladspa`로 더한 플러그인은 시험되지 않은 것이다. `produce`의 반복 점검으로 판정한다.
+- 일부 LADSPA 플러그인은 실행마다 다르게 시작한다. Calf Saturator와 TAP TubeWarmth는 부하가 걸린 컴퓨터에서 그랬고, Chebyshev 디스토션은 매번 그랬다. `fx`의 빌더는 부하 상태의 반복 렌더 시험을 통과한 플러그인만 쓴다. `fx.ladspa`로 더한 플러그인은 이 시험을 거치지 않았으므로 `produce`의 반복 점검으로 판정한다.
 - 303 계열 신스 LB302는 가끔 조금 다른 내부 상태로 렌더를 시작한다. 그 신스를 쓰는 곡의 두 렌더는 믹스보다 65-72 dB 낮은 저역 잔차만큼 차이가 난다. 들리지 않는 수준이며 `produce`는 `nearly_repeatable`로 보고한다.
 - 스크립트 안의 무작위 요소에는 모두 고정 시드가 필요하다.
 

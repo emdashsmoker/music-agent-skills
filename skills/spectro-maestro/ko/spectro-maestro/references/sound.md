@@ -8,6 +8,7 @@
 - 패치 수정 시청 : `--patch '{filter: {cutoff: 900, res: 0.6}}'`
 
 ## 드럼 악기
+
 | 분류 | 이름 |
 |---|---|
 | 킥 | kick_909, kick_808, kick_house, kick_techno, kick_trance, kick_psy, kick_gabber, kick_hardstyle, kick_dnb, kick_linn, kick_lofi, kick_industrial, kick_break |
@@ -16,6 +17,7 @@
 | 하이햇 | hat_closed_909, hat_open_909, hat_closed_808, hat_open_808, hat_closed_lofi, hat_pedal |
 | 심벌 | ride_909, crash_909, splash |
 | 퍼커션 | tom_low, tom_mid, tom_high, conga, timpani, rim_808, clave, cowbell_808, shaker, tambourine, metal_hit, anvil |
+
 - 닫힌 하이햇이 울리면 같은 계열의 열린 하이햇이 자동으로 끊김
 - 드럼 파라미터 수정 예시 : `inst: {base: kick_909, decay: 0.6, drive: 0.4}`
     + 킥 : `tune_hz`(몸통 음높이), `start_hz`, `sweep`(음높이 하강 시간), `decay`, `click`, `drive`
@@ -28,6 +30,7 @@
     + 타격 : impact, crash, downlifter, sub_drop
 
 ## 신스 악기
+
 | 분류 | 이름 | 성격 |
 |---|---|---|
 | 베이스 | bass_303, bass_303_square | 슬라이드와 악센트에 반응하는 애시드 베이스 |
@@ -44,11 +47,12 @@
 | 코드 | chord_stab, chord_supersaw, chord_rave | 짧은 화음 타격 |
 | 건반 | keys_piano, keys_ep, keys_organ | FM 피아노, 일렉트릭 피아노, 오르간 |
 | 기타 | brass_synth, strings_orch, bell_tubular | 관현악 보조 음색 (합성음) |
+
 - 관현악 음색은 신스로 흉내 낸 보조 수단
     + 실제 악기 수준의 사실감은 기대하지 않음
 
 ## 패치 구조
-- 엔진 5종
+- 엔진은 다섯 가지
     + `sub` : 오실레이터 여러 개와 필터 (대부분의 음색)
     + `mono` : 단음, 슬라이드와 악센트 지원 (303 계열, 리스 베이스)
     + `fm` : 주파수 변조 (벨, 피아노, 금속성 베이스)
@@ -79,9 +83,10 @@
     + `decay`, `damp`, `pick`, `body`(기음 보강)
 
 ## 이펙트
+
 | 이름 | 주요 파라미터 | 용도 |
 |---|---|---|
-| `eq` | `bands: [[peak, 3000, 2.5, 1.0], [highshelf, 9000, 3]]` | 밴드마다 [종류, 주파수(Hz), 이득(dB), Q], 이득을 생략하면 0, Q를 생략하면 0.707, 종류 : peak, lowshelf, highshelf, hp, lp, notch |
+| `eq` | `bands: [[peak, 3000, 2.5, 1.0], [highshelf, 9000, 3]]` | 밴드마다 [종류, 주파수(Hz), 이득(dB), Q] 형식 (이득 생략 시 0, Q 생략 시 0.707, 종류는 peak, lowshelf, highshelf, hp, lp, notch) |
 | `hpf`, `lpf` | `freq`, `poles` | 대역 정리 |
 | `tilt` | `db_per_octave`, `pivot` | 전체 밝기 |
 | `comp` | `threshold`, `ratio`, `attack`, `release`, `makeup`, `mix` | 음량 고르기 |
@@ -95,6 +100,7 @@
 | `lofi` | `wow`, `noise_db`, `top` | 테이프 질감 |
 | `delay` | `time`, `feedback`, `mix`, `pingpong` | 트랙 전용 딜레이 |
 | `reverb`, `gated_reverb` | `decay`, `mix` | 트랙 전용 리버브 |
+
 - 공간계는 트랙의 `reverb`와 `delay` 센드 사용이 기본
     + 인서트 리버브는 게이트 스네어처럼 그 트랙만의 효과가 필요할 때 사용
 - 이펙트 체인의 주파수 응답 그림 : `python scripts/studio.py plot song.yaml --chain <트랙>`

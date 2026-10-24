@@ -9,7 +9,8 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 ## Licence and notices
 - Spectro Maestro, Copyright (C) 2026 Em Dash Smoker
 - This skill is free software distributed under the GNU Affero General Public License, version 3 or any later version (AGPL-3.0-or-later)
-    + The full text is in `LICENSE`; there is no warranty of any kind
+    + The full text is in `LICENSE`
+    + There is no warranty of any kind
     + A modified or redistributed copy of the skill keeps the same licence and the copyright notice
 - The licence does not apply to what is made with this skill
     + Song files, audio, MIDI, stems, project JSON, LMMS projects, DAWproject files, pictures and reports belong to whoever made them
@@ -32,7 +33,8 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 
 ## What this skill is
 - A production environment in which one song is written as a YAML song file and rendered with a command-line tool
-    + The composer writes the song file; the tool does synthesis, mixing, mastering and produces the review material
+    + The composer writes the song file
+    + The tool handles synthesis, mixing, mastering and the review material
     + It is designed for a worker who cannot hear: every judgement is backed by numbers and pictures
 - The result is a song that is complete from start to finish
     + Pop and vocal songs 3-4 minutes, club genres 5-8 minutes, uplifting trance 7-15 minutes
@@ -44,7 +46,8 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 ## Where the tool is
 - Every command runs through `scripts/studio.py` in this skill folder
     + Below, `studio` means `python <skill folder>/scripts/studio.py`
-    + `python` may be `python3` or `py` depending on the system; quote paths that contain spaces
+    + `python` may be `python3` or `py` depending on the system
+    + Quote paths that contain spaces
 - Commands in brief
     + `doctor` : report on this machine (packages, outside tools, settings, what is missing)
     + `genres [id]` : genre list, conventions of one genre
@@ -60,7 +63,8 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 
 ## Before starting
 - Run `studio doctor` first
-    + It works with no package installed, and it installs, downloads and changes nothing
+    + It works with no package installed
+    + It installs, downloads and changes nothing
     + It reports the operating system, the kind of Python, missing packages, outside tools, and every setting with its source
 - Decide first what kind of environment this is
     + Disposable environment (container, sandbox, CI) : install right away without asking
@@ -71,7 +75,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + On a personal computer install into an isolated environment (venv, conda, uv or whatever the user already uses)
     + Do not force packages into a Python that the operating system manages (`--break-system-packages`, `sudo pip`); disposable environments are the only exception
     + Do not run anything that needs administrator rights yourself; give the user the command instead
-    + If pyworld fails to import with `No module named 'pkg_resources'` (doctor shows the error), install `setuptools<82` into the same environment. With pyworld 0.3.5 this happens where setuptools is missing or 82 or later
+    + If pyworld fails to import with `No module named 'pkg_resources'` (doctor shows the error), install `setuptools<82` into the same environment (with pyworld 0.3.5 this happens where setuptools is missing or is version 82 or later)
     + Do not move on to composing until installation is finished
 - Settings are given from outside, without editing the scripts
     + Priority : command option, environment variable `SPECTRO_MAESTRO_<NAME>`, JSON config file, default for the operating system
@@ -83,8 +87,11 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + The default location is under the operating system's per-user cache folder; change it with `--models` or a setting
     + When a download fails, the error message gives the file's address and the path to put it at, so the user can place it by hand
     + With `offline` switched on no download is attempted
-    + Kokoro is fetched at the revision the skill was tested with. `kokoro_revision` picks another: a commit id for renders that repeat, or `main` for the newest. Another revision is kept in its own folder and sings its own cache; `main` is fetched once, so delete `kokoro/main` under `models_dir` to fetch a newer one
-    + LMMS (an optional tool here) is whatever the `lmms` setting names, so a newer version can be used
+    + Kokoro is fetched at the revision the skill was tested with
+    + `kokoro_revision` picks another revision (a commit id for renders that repeat, or `main` for the newest)
+    + Another revision is kept in its own folder and uses its own singing cache
+    + `main` is fetched only once, so delete `kokoro/main` under `models_dir` to fetch a newer one
+    + LMMS (an optional tool here) is the program the `lmms` setting names, so a newer version can be used
     + If the models cannot be obtained, tell the user and either continue with an instrumental or ask for the model files
 - Outside tools are all optional
     + C compiler : when present, a fast filter kernel is built once into `cache_dir`; without one a slower path gives identical results (`native: off` disables it)
@@ -116,7 +123,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 - Respect lyrics, melodies and references the user provides as they are
     + When something looks wrong, show where and offer alternatives, and let the user choose
     + Review lyrics against what the chosen voice can sing too (`references/vocals.md`)
-    + Do not change them on your own and carry on
+    + Do not proceed with changes made on your own
 - If the plan or the lyrics would badly hurt quality, say so before proceeding
     + In this order: explain the problem, offer alternatives, take the user's choice
     + If the user keeps the original, follow it and state clearly what loss of quality to expect
@@ -227,12 +234,14 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 
 ## Example songs
 - `examples/` holds four finished songs made with this skill
+
 | Folder | Song | Worth looking at |
 |---|---|---|
 | `examples/first_light/` | First Light, uplifting trance at 138 bpm, 7 min 16 s | Long structure, reuse of one theme, breaks and climaxes |
 | `examples/signal_fires/` | Signal Fires, futurepop at 128 bpm, 3 min 50 s | Vocal song (Kokoro `af_heart`), doubles and harmonies, `ending: hit` |
 | `examples/last_tram/` | Last Tram, doomer at 156 bpm, 3 min 4 s | Vocal song (Kokoro `am_michael`), lyrics at one syllable per beat, `ending: fade` |
 | `examples/silver_box/` | Silver Box, acid house at 124 bpm, 4 min 12 s | Instrumental that develops through filter automation |
+
 - Each folder has the song file (`.yaml`) and MIDI; vocal songs include the lyrics (`lyrics.txt`)
     + No audio is included; rendering the song file produces the same sound
 - What they are for
@@ -244,6 +253,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + A new song is composed afresh to its plan
 
 ## Reference files
+
 | File | When to read |
 |---|---|
 | `references/planning.md` | Planning questions, handling user input, responding to unworkable requests |

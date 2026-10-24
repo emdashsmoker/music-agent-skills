@@ -8,6 +8,7 @@
 - Audition a modified patch : `--patch '{filter: {cutoff: 900, res: 0.6}}'`
 
 ## Drum instruments
+
 | Class | Names |
 |---|---|
 | Kick | kick_909, kick_808, kick_house, kick_techno, kick_trance, kick_psy, kick_gabber, kick_hardstyle, kick_dnb, kick_linn, kick_lofi, kick_industrial, kick_break |
@@ -16,6 +17,7 @@
 | Hi-hat | hat_closed_909, hat_open_909, hat_closed_808, hat_open_808, hat_closed_lofi, hat_pedal |
 | Cymbal | ride_909, crash_909, splash |
 | Percussion | tom_low, tom_mid, tom_high, conga, timpani, rim_808, clave, cowbell_808, shaker, tambourine, metal_hit, anvil |
+
 - When a closed hi-hat sounds, the open hi-hat of the same family is cut off automatically
 - Example of changing drum parameters : `inst: {base: kick_909, decay: 0.6, drive: 0.4}`
     + Kick : `tune_hz` (pitch of the body), `start_hz`, `sweep` (time of the pitch fall), `decay`, `click`, `drive`
@@ -28,6 +30,7 @@
     + Hits : impact, crash, downlifter, sub_drop
 
 ## Synth instruments
+
 | Class | Names | Character |
 |---|---|---|
 | Bass | bass_303, bass_303_square | Acid bass that responds to slides and accents |
@@ -44,6 +47,7 @@
 | Chord | chord_stab, chord_supersaw, chord_rave | Short chord hits |
 | Keys | keys_piano, keys_ep, keys_organ | FM piano, electric piano, organ |
 | Other | brass_synth, strings_orch, bell_tubular | Orchestral support timbres (synthesised) |
+
 - Orchestral timbres are synth imitations and a secondary resource
     + Do not expect the realism of real instruments
 
@@ -79,9 +83,10 @@
     + `decay`, `damp`, `pick`, `body` (reinforces the fundamental)
 
 ## Effects
+
 | Name | Main parameters | Use |
 |---|---|---|
-| `eq` | `bands: [[peak, 3000, 2.5, 1.0], [highshelf, 9000, 3]]` | Each band is [kind, frequency (Hz), gain (dB), Q]; gain defaults to 0 and Q to 0.707. Kinds : peak, lowshelf, highshelf, hp, lp, notch |
+| `eq` | `bands: [[peak, 3000, 2.5, 1.0], [highshelf, 9000, 3]]` | Each band is [kind, frequency (Hz), gain (dB), Q]; gain defaults to 0 and Q to 0.707; kinds : peak, lowshelf, highshelf, hp, lp, notch |
 | `hpf`, `lpf` | `freq`, `poles` | Tidying a band |
 | `tilt` | `db_per_octave`, `pivot` | Overall brightness |
 | `comp` | `threshold`, `ratio`, `attack`, `release`, `makeup`, `mix` | Evening out level |
@@ -95,6 +100,7 @@
 | `lofi` | `wow`, `noise_db`, `top` | Tape texture |
 | `delay` | `time`, `feedback`, `mix`, `pingpong` | Delay belonging to one track |
 | `reverb`, `gated_reverb` | `decay`, `mix` | Reverb belonging to one track |
+
 - For space, the track's `reverb` and `delay` sends are the default
     + Use an insert reverb when a track needs an effect of its own, such as a gated snare
 - Picture of an effect chain's frequency response : `python scripts/studio.py plot song.yaml --chain <track>`

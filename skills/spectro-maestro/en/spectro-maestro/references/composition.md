@@ -53,6 +53,7 @@
     + Lower than that is inaudible on most playback devices
 
 ## Registers
+
 | Role | Recommended centre | Range allowed by lint |
 |---|---|---|
 | sub | E1 - E2 | C1 - D3 |
@@ -63,6 +64,7 @@
 | arp, pluck | C3 - C6 | C3 - D7 |
 | lead | C4 - C6 | E3 - D7 |
 | vocal | Within one octave above the voice's speaking pitch | Check per engine |
+
 - Below C3 do not stack intervals narrower than a fifth
 - Three or more melodic parts crowded into one octave (G3-C5) mask each other
     + Spread them over octaves or drop one
@@ -98,7 +100,7 @@
     + A reverb tail that ends closed is kept, so use it together with a last hit or a fade
 
 ## Groove
-- `swing` : delays the second sixteenth of each pair; house 0.04-0.1, hip hop 0.15-0.3
+- `swing` : delays the second sixteenth of each pair (house 0.04-0.1, hip hop 0.15-0.3)
 - `humanize: {timing_ms: 5}` : leave it at 0 when machine precision is a trait of the genre
 - Velocity variation is half of the groove
     + Mix `x` and `o` in the hi-hat pattern
@@ -112,6 +114,7 @@
 - Use harmonies and doubles only in the chorus
 
 ## Notes on the lint items
+
 | Code | Meaning | Response |
 |---|---|---|
 | `key.outside` | A note that belongs to neither the key nor the chord | Check whether the chromaticism is intended; a warning when the share exceeds 15% |
@@ -131,6 +134,7 @@
 | `chords.missing` | No chords defined | Give `chords` to get the harmony checks |
 | `vocal.overlap` | Lyric lines overlap each other | Adjust line length or start position |
 | `lyrics.*` | Lyric matters | See `vocals.md` |
+
 - Errors (ERROR) must be fixed before rendering
 - Warnings (WARN) are judged one by one
     + Keep them when they are intended dissonance or genre convention

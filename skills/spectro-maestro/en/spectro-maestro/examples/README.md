@@ -1,12 +1,14 @@
 # Example songs
 
 ## Songs
+
 | Folder | Song | Genre | Vocal | Length |
 |---|---|---|---|---|
 | `first_light/` | First Light | Uplifting trance, 138 bpm, F# minor | none | 7:16 |
 | `signal_fires/` | Signal Fires | Futurepop, 128 bpm, A minor | Kokoro `af_heart` | 3:50 |
 | `last_tram/` | Last Tram | Doomer, 156 bpm, E minor | Kokoro `am_michael` | 3:04 |
 | `silver_box/` | Silver Box | Acid house, 124 bpm, G minor | none | 4:12 |
+
 - Each folder has the song file (`.yaml`) and MIDI
     + Vocal songs include the lyrics (`lyrics.txt`)
 - No audio is included; rendering a song file produces the same sound

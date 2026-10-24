@@ -19,6 +19,7 @@
     + Master EQ is used last, after the bus balance is right
 
 ## Defaults per role
+
 | Role | Level (dB) | Bus | Reverb | Delay | Sidechain (dB) |
 |---|---|---|---|---|---|
 | kick | -4 | drums | 0 | 0 | 0 |
@@ -36,6 +37,7 @@
 | fx | -8 | fx | 0.25 | 0 | 0 |
 | vocal | 0 | vocals | 0.16 | 0.08 | 0 |
 | backing | -8 | vocals | 0.24 | 0.06 | 0 |
+
 - The genre profile overrides this table
     + It applies automatically when the song file names a `genre`
     + The profile is the `profile` entry of `assets/genres/<id>.yaml`
@@ -44,6 +46,7 @@
     + Deeper settings turn it into the audible pumping of some genres (trance, electro house, etc.)
 
 ## Master settings
+
 | Key | Default | Meaning |
 |---|---|---|
 | `lufs` | -10 | Target integrated loudness |
@@ -51,10 +54,11 @@
 | `glue` | true | Light compressor that binds the buses |
 | `clip` | true | Soft clip that shaves only the highest momentary peaks |
 | `eq` | none | Master EQ bands (same format as `eq` in `sound.md`) |
-| `vocal_carve` | -2.5 | How much of the music bus's 1.3-5 kHz is taken out while the vocal sounds (dB). The mix style shifts it |
+| `vocal_carve` | -2.5 | How much of the music bus's 1.3-5 kHz is taken out while the vocal sounds (dB); the mix style shifts it |
 | `mono_below` | 110 | Everything below this frequency is summed to mono |
 | `sidechain_release` | 0.5 | Sidechain recovery time (beats) |
 | `fade_out` | 0 | Fade at the end of the song (beats) |
+
 - Starting points for target loudness by genre
     + Quiet and dynamic genres (ambient, lo-fi, doomer, etc.) : -17 to -12
     + Pop and the house family : -11 to -9
@@ -66,7 +70,9 @@
 - Where the foreground (the backbeat, the lead, the lead vocal) sits in the track is taste, so it is asked in the plan and recorded as `mix.style` in the song file
     + An instrumental moves only the backbeat and the lead; a vocal song moves the vocal level, `vocal_carve` and the judging window with them
     + Brightness, space and the other values of the genre profile stay as they are
-    + Vocal and backbeat are the two halves of forward. In an instrumental vocal only lifts the lead by 1 dB, so it is not offered for instrumentals. Backbeat acts on the snare role only, so it is not offered for a song that runs on kick and hats alone
+    + Vocal and backbeat are the two halves of forward
+    + In an instrumental, vocal only lifts the lead by 1 dB, so it is not offered for instrumentals
+    + Backbeat acts on the snare role only, so it is not offered for a song that runs on kick and hats alone
 - The offsets of the styles
 
 | Style | What it sounds like | Role `gain_db` offsets | `vocal_carve` shift | Vocal windows |
@@ -84,11 +90,21 @@
     + Use it to render the same song in each style and compare
 - The values of the styles were set by rendering test songs in each style
     + The measurements are at the end of this page, under "Measurements behind the mix styles"
-- Adherence is flexible, flexible-HITL (Human in the Loop) or fixed. It is asked in the plan next to the style, and the default is flexible
-    + (Flexible) The style is a starting point. To fix what the review finds, move the foreground parts' `gain_db` and `vocal_carve` in steps of 1 to 2 dB, keeping the style's windows. When the findings or the character of the song suit another style better, change `mix.style` without asking; the windows then follow the new style. Record each moved part and the amount, and any change of style with its reason, in the report and in `notes`
-    + (Flexible-HITL) Adjust as in flexible, but ask the user before changing the style itself
-    + (Fixed) The foreground parts (snare, lead, vocal) keep the style's `gain_db` and `vocal_carve`. Fix with the arrangement, the other parts, the sounds and EQ only; a finding that only a foreground move would clear is reported as it is
-    + A named style reads like a target and invites the mixer to stop adjusting, so adherence is asked apart from the style. The default, flexible, leaves even a change of style to the agent so the work does not stop for a question, and what changed goes back to the user in the report
+- Adherence is flexible, flexible-HITL (Human in the Loop) or fixed
+    + It is asked in the plan next to the style, and the default is flexible
+    + A named style reads like a target and invites the mixer to stop adjusting, so adherence is asked apart from the style
+    + The default, flexible, leaves even a change of style to the agent so the work does not stop for a question
+    + What changed goes back to the user in the report
+- Flexible adherence
+    + The style is a starting point
+    + To fix what the review finds, move the foreground parts' `gain_db` and `vocal_carve` in steps of 1 to 2 dB, keeping the style's windows
+    + When the findings or the character of the song suit another style better, change `mix.style` without asking; the windows then follow the new style
+    + Record each moved part and the amount, and any change of style with its reason, in the report and in `notes`
+- Flexible-HITL adherence adjusts as in flexible, but asks the user before changing the style itself
+- Fixed adherence
+    + The foreground parts (snare, lead, vocal) keep the style's `gain_db` and `vocal_carve`
+    + Fix with the arrangement, the other parts, the sounds and EQ only
+    + A finding that only a foreground move would clear is reported as it is
 
 ## Review procedure
 - When `render` finishes, check three things in turn
@@ -105,6 +121,7 @@
     + Compare to see that the fixed item did not make another one worse
 
 ## What the numbers mean
+
 | Item | Normal range | Meaning when outside it |
 |---|---|---|
 | `lufs` | target ±0.5 | The master did not reach the target |
@@ -124,6 +141,7 @@
 | `energy_rank_correlation` | 0.5 or higher | Section loudness does not follow the planned energy curve |
 | `ending_drop_db` | 18 or lower | The song stops dead with the last bar still full |
 | `silences_s` | empty list | Unexpected silence inside the song |
+
 - Thresholds are starting points taken from usual ranges
     + The `qa` entry of a genre profile adjusts them to the genre (example : ambient relaxes the drum-related thresholds)
     + If it is an intended effect, leave the finding and record the reason in the report
@@ -158,6 +176,7 @@
     + The low end must stay in the centre
 
 ## Common problems and remedies
+
 | Symptom | Where to look | Remedy |
 |---|---|---|
 | The beat is buried | `drums_vs_rest_db` low, the drums curve in overview | Lower `gain_db` of pads and chords, deepen the sidechain, raise the kick's `gain_db` |
@@ -175,6 +194,7 @@
 | The limiter is overworked | `limiter_p95_db` high | Lower the target `lufs`, lower the loudest bus |
 | Sound vanishes in mono | `correlation` low | Lower `width` of wide pads, weaken chorus effects |
 | The song stops dead | `ending_drop_db` high, the overview waveform ends in a cliff | `ending: hit` or `ending: fade`, a level decay on the last chord |
+
 - Change one thing at a time and render again
     + With several changes at once there is no telling which one worked
 - Cut iteration time with partial renders
@@ -199,7 +219,8 @@
 
 ## Measurements behind the mix styles
 - Four vocal test songs (two futurepop, one coldwave, one doomer, all with Kokoro voices) and six instrumentals (the examples First Light and Silver Box, and the four vocal songs with their vocal tracks removed) were rendered in each style
-    + Loudness, limiter work and crest factor agree within 0.1 LU across the three styles: a style moves only level targets and the carve, so the master does not change
+    + Loudness, limiter work and crest factor agree within 0.1 LU across the three styles
+    + A style moves only level targets and the carve, so the master does not change
     + In the instrumentals the snare and lead targets move by exactly the offsets (forward +1.5 and +1, blended lead -1), and `drums_vs_rest_db` agrees within 0.5 dB
 - `vocal_body_db` and `vocal_consonant_db` of the vocal songs (whole song; in brackets the section with the lowest consonant margin)
 
@@ -210,9 +231,16 @@
 | Futurepop B | 2.3 / 5.0 (3.9) | 3.5 / 5.7 (4.5) | 3.7 / 6.5 (5.4) | 1.0 / 3.4 (2.1) |
 | Doomer | 3.4 / 3.8 (2.5) | 4.3 / 4.7 (3.4) | 4.7 / 5.3 (4.0) | 2.0 / 2.3 (0.9) |
 
-- Forward lifts the body by 1.0 to 1.2 dB and the consonants by 0.7 to 1.3 dB; blended lowers the body by 1.3 to 2.5 dB and the consonants by 1.5 to 2.2 dB
-- Vocal lifts the body by 1.3 to 1.4 dB and the consonants by 1.5 to 1.6 dB: with the snare in place it leaves 0.4 to 0.9 dB more consonant margin than forward. The coldwave song, a mix whose drums already sit low, crosses -5 in `drums_vs_rest_db` in this style and reports a buried beat; under flexible adherence, lifting the drums 1 dB is the kind of move that answers it
-- Backbeat was not rendered on its own. Its effect on the vocal margins is the difference between forward and vocal (consonants -0.4 to -0.9 dB), and in an instrumental it moves by the snare offset alone
+- Shifts of forward and blended
+    + Forward lifts the body by 1.0 to 1.2 dB and the consonants by 0.7 to 1.3 dB
+    + Blended lowers the body by 1.3 to 2.5 dB and the consonants by 1.5 to 2.2 dB
     + With the forward window moved up by 2 dB, the lowest section's consonants fell short in three of the four songs, so the window moves by 1 dB
     + With the blended window moved down by 2 dB, all four songs sit inside it without a finding
+- Vocal lifts the body by 1.3 to 1.4 dB and the consonants by 1.5 to 1.6 dB
+    + With the snare in place it leaves 0.4 to 0.9 dB more consonant margin than forward
+    + The coldwave song, a mix whose drums already sit low, drops below -5 in `drums_vs_rest_db` in this style and reports a buried beat
+    + Under flexible adherence, lifting the drums 1 dB is the kind of move that answers it
+- Backbeat was not rendered on its own
+    + Its effect on the vocal margins is the difference between forward and vocal (consonants -0.4 to -0.9 dB)
+    + In an instrumental it moves by the snare offset alone
 

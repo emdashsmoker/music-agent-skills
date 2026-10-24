@@ -74,7 +74,7 @@ python scripts/lmms_tool.py configure --set 'lmms_command=["flatpak", "run", "--
 
 ## ffmpeg 구하기
 
-ffmpeg는 선택 사항이다. ogg, mp3, flac은 soundfile이 직접 쓴다. ffmpeg는 soundfile에 든 libsndfile이 1.1보다 오래되어 mp3를 쓰지 못할 때만 mp3 인코딩에 쓰인다. 둘 다 없으면 `produce`는 mp3를 건너뛰고 ogg와 WAV를 전달하며 그 사실을 알린다. 이때는 soundfile을 새 판으로 올리는 것이 가장 간단하다. ffmpeg를 구하는 방법은 위와 같은 논리를 따른다. 시스템 패키지 관리자, 홈 폴더에 둔 정적 빌드와 그 경로를 가리키는 `ffmpeg` 설정, 또는 Python 패키지 `imageio-ffmpeg`가 있다. `imageio-ffmpeg`는 관리자 권한 없이 Python 환경 안에 ffmpeg 실행 파일을 가져오며 자동으로 인식된다.
+ffmpeg는 선택 사항이다. ogg, mp3, flac은 soundfile이 직접 쓴다. ffmpeg는 soundfile에 든 libsndfile이 1.1보다 오래되어 mp3를 쓰지 못할 때만 mp3 인코딩에 쓰인다. 둘 다 없으면 `produce`는 mp3를 건너뛰고 ogg와 WAV를 전달하며 그 사실을 알린다. 이때는 soundfile을 새 판으로 올리는 방법이 가장 간단하다. ffmpeg를 구하는 방법은 위와 같은 논리를 따른다. 시스템 패키지 관리자, 홈 폴더에 둔 정적 빌드와 그 경로를 가리키는 `ffmpeg` 설정, 또는 Python 패키지 `imageio-ffmpeg`가 있다. `imageio-ffmpeg`는 관리자 권한 없이 Python 환경 안에 ffmpeg 실행 파일을 가져오며 자동으로 인식된다.
 
 ## 드럼 킷
 
@@ -94,7 +94,8 @@ python scripts/lmms_tool.py kit --build    # 지금 만들기
 드럼머신 타격은 LMMS 1.2.x에 들어 있는 DrumSynth 프리셋에서 녹음한다. 이후 버전의 LMMS는 이 프리셋을 옮기거나, 이름을 바꾸거나, 뺄 수 있다. 프리셋 없이 나온 빌드도 있을 수 있다. 이때 킷 생성은 "LMMS rendered no sound for ... DrumSynth presets" 오류로 멈추고, 드럼이 있는 곡을 저장할 수 없다. 해결 방법은 사용자의 LMMS 옆에 LMMS 1.2.2를 따로 두고 킷을 한 번만 녹음하는 것이다. LMMS 1.2.2는 킷 녹음에만 쓴다. 곡 렌더는 사용자가 원래 쓰던 LMMS로 계속하며, 그 LMMS는 그대로 둔다.
 
 - 이 문서의 다른 설치와 달리 일회성 컨테이너를 포함한 모든 환경에서 사용자에게 먼저 묻는다. 사용자가 고른 LMMS 옆에 LMMS를 하나 더 두는 일이기 때문이다. 이유(설치된 LMMS로 드럼머신 타격을 녹음할 수 없음), 받을 대상(https://github.com/LMMS/lmms/releases/tag/v1.2.2 의 LMMS 1.2.2), 사용자의 LMMS는 건드리지 않는다는 점을 함께 말한다. 사용자가 거절하면 문제 해결에 있는 다른 방법을 제안한다.
-- Linux: 사용자가 동의하면 위 페이지의 AppImage를 툴킷 전용 폴더(예를 들어 캐시 폴더)에 내려받아 실행 권한을 준다. 그다음 이 명령 한 번에만 그 AppImage를 지정해 킷을 녹음한다. AppImage가 실행되지 않으면 문제 해결을 본다. 내려받기 전에 세션에 GitHub 저장소를 연결하는 도구가 실행 환경에 있으면 호출한다. 인자는 소유자 `LMMS`, 저장소 이름 `lmms`를 각각 따로 전달한다. 도구 응답이 안내하는 접근 경로를 따른다. 도구가 없거나 호출이 거부되면 이 단계를 건너뛴다.
+- Linux에서 내려받기 전: 세션에 GitHub 저장소를 연결하는 도구가 실행 환경에 있으면 호출한다. 인자는 소유자 `LMMS`, 저장소 이름 `lmms`를 각각 따로 전달한다. 도구 응답이 안내하는 접근 경로를 따른다. 도구가 없거나 호출이 거부되면 이 단계를 건너뛴다.
+- Linux: 사용자가 동의하면 위 페이지의 AppImage를 툴킷 전용 폴더(예를 들어 캐시 폴더)에 내려받아 실행 권한을 준다. 그다음 이 명령 한 번에만 그 AppImage를 지정해 킷을 녹음한다. AppImage가 실행되지 않으면 문제 해결을 본다.
 
 ```bash
 LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py kit --build
@@ -134,7 +135,7 @@ LMMS_BIN=/path/to/lmms-1.2.2-linux-x86_64.AppImage python scripts/lmms_tool.py k
 | `stem_workers` | `LMMSKIT_STEM_WORKERS` | 스템을 병렬로 렌더하는 LMMS 수. 0은 CPU 코어당 1개. 사용자가 작업 중인 컴퓨터에서는 낮춘다 |
 | `render_timeout_s` | `LMMSKIT_RENDER_TIMEOUT` | 렌더 한 번의 최대 허용 시간 |
 | `qt_platform` | `QT_QPA_PLATFORM` | 렌더용 Qt 플랫폼 플러그인. 기본값 `offscreen` |
-| `kokoro_revision` | `LMMSKIT_KOKORO_REVISION` | Kokoro 모델과 목소리의 Hugging Face 리비전. 기본값은 검증한 커밋. 커밋 id는 렌더를 그대로 되풀이하게 하고 `main`은 최신본을 받음. 다른 리비전은 `kokoro` 아래 별도 폴더에 두고 노래 캐시도 따로 씀. `main`은 한 번만 내려받으므로 더 새것을 받으려면 `kokoro/main`을 지움 |
+| `kokoro_revision` | `LMMSKIT_KOKORO_REVISION` | Kokoro 모델과 목소리의 Hugging Face 리비전. 기본값은 검증한 커밋. 커밋 id는 렌더를 그대로 되풀이하게 하고 `main`은 최신본을 받음. 다른 리비전은 `kokoro` 아래 별도 폴더에 두고 노래 캐시도 따로 씀. `main`은 한 번만 내려받으므로 더 새로운 버전을 받으려면 `kokoro/main`을 지움 |
 | `asr_model` | `LMMSKIT_ASR_MODEL` | 노래 점검용 faster-whisper 모델. 기본값 `base.en`. 영어 전용 모델(`.en`)은 다른 언어 가사에서 같은 크기의 다국어 모델로 바뀜(`base.en`은 `base`로). `sing`, `compare`, `check`, `produce`는 한 번만 바꾸는 `--asr-model`도 받음 |
 | `figure_fonts` | `LMMSKIT_FONTS` | 그림에 순서대로 시도할 글꼴 |
 

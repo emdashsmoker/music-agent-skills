@@ -1,7 +1,9 @@
 # Third-party notices
 
 Spectro Maestro
+
 Copyright (C) 2026 Em Dash Smoker
+
 Licensed under the GNU Affero General Public License, version 3 or (at your option) any later version. See `LICENSE`.
 
 This file lists the third-party material this skill contains, the software and models it uses at run time without containing them, and the terms that apply to what you make with it.
@@ -11,6 +13,7 @@ This file lists the third-party material this skill contains, the software and m
 - Not covered: the material listed in section 2, which keeps its own licence
 
 ## 2. Third-party material contained in this skill
+
 | Files | Origin | Licence |
 |---|---|---|
 | `assets/dawproject/Project.xsd`, `assets/dawproject/MetaData.xsd` | DAWproject exchange format, Copyright (c) 2020 Bitwig | MIT, text in `assets/dawproject/LICENSE.dawproject.txt` |

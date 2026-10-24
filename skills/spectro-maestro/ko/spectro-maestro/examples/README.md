@@ -1,12 +1,14 @@
 # 예제 곡
 
 ## 수록곡
+
 | 폴더 | 곡 | 장르 | 보컬 | 길이 |
 |---|---|---|---|---|
 | `first_light/` | First Light | 업리프팅 트랜스, 138 bpm, F# minor | 없음 | 7:16 |
 | `signal_fires/` | Signal Fires | 퓨처팝, 128 bpm, A minor | Kokoro `af_heart` | 3:50 |
 | `last_tram/` | Last Tram | 두머, 156 bpm, E minor | Kokoro `am_michael` | 3:04 |
 | `silver_box/` | Silver Box | 애시드 하우스, 124 bpm, G minor | 없음 | 4:12 |
+
 - 폴더마다 곡 파일(`.yaml`)과 MIDI 수록
     + 보컬곡은 가사(`lyrics.txt`) 포함
 - 음원은 싣지 않았으며 곡 파일을 렌더하면 같은 소리가 나옴
