@@ -136,8 +136,8 @@
 | `mono_loss_db` | -3 or higher | Loss of level in mono playback |
 | `drums_vs_rest_db` | -5 - 7 | Low: the beat is buried. High: the beat swallows the mix |
 | `kick_vs_bass_db` | -3 or higher | The bass covers the kick where the kick hits |
-| `vocal_body_db` | 0 - 12 (balanced; forward +1, blended -2) | Low: the vocal is buried. High: the vocal sits apart from the backing |
-| `vocal_consonant_db` | 2 - 14 (balanced; forward +1, blended -2) | Low: the words are masked |
+| `vocal_body_db` | 0 - 12 (balanced; forward and vocal +1, blended -2) | Low: the vocal is buried. High: the vocal sits apart from the backing |
+| `vocal_consonant_db` | 2 - 14 (balanced; forward and vocal +1, blended -2) | Low: the words are masked |
 | `energy_rank_correlation` | 0.5 or higher | Section loudness does not follow the planned energy curve |
 | `ending_drop_db` | 18 or lower | The song stops dead with the last bar still full |
 | `silences_s` | empty list | Unexpected silence inside the song |
@@ -218,8 +218,8 @@
 - Intermediate results are cached in `build/` of the output folder, so only changed tracks are recomputed
 
 ## Measurements behind the mix styles
-- Four vocal test songs (two futurepop, one coldwave, one doomer, all with Kokoro voices) and six instrumentals (the examples First Light and Silver Box, and the four vocal songs with their vocal tracks removed) were rendered in each style
-    + Loudness, limiter work and crest factor agree within 0.1 LU across the three styles
+- Four vocal test songs (two futurepop, one coldwave, one doomer, all with Kokoro voices) and six instrumentals (the examples First Light and Silver Box, and the four vocal songs with their vocal tracks removed) were rendered in balanced, forward and blended, and the four vocal songs also in vocal
+    + Loudness, limiter work and crest factor agree within 0.1 LU across balanced, forward and blended
     + A style moves only level targets and the carve, so the master does not change
     + In the instrumentals the snare and lead targets move by exactly the offsets (forward +1.5 and +1, blended lead -1), and `drums_vs_rest_db` agrees within 0.5 dB
 - `vocal_body_db` and `vocal_consonant_db` of the vocal songs (whole song; in brackets the section with the lowest consonant margin)
@@ -232,15 +232,15 @@
 | Doomer | 3.4 / 3.8 (2.5) | 4.3 / 4.7 (3.4) | 4.7 / 5.3 (4.0) | 2.0 / 2.3 (0.9) |
 
 - Shifts of forward and blended
-    + Forward lifts the body by 1.0 to 1.2 dB and the consonants by 0.7 to 1.3 dB
-    + Blended lowers the body by 1.3 to 2.5 dB and the consonants by 1.5 to 2.2 dB
+    + Forward lifts the body by 0.9 to 1.2 dB and the consonants by 0.7 to 1.2 dB (0.6 to 1.4 dB in the lowest section)
+    + Blended lowers the body by 1.3 to 1.4 dB and the consonants by 1.5 to 1.6 dB (1.6 to 1.8 dB in the lowest section)
     + With the forward window moved up by 2 dB, the lowest section's consonants fell short in three of the four songs, so the window moves by 1 dB
     + With the blended window moved down by 2 dB, all four songs sit inside it without a finding
 - Vocal lifts the body by 1.3 to 1.4 dB and the consonants by 1.5 to 1.6 dB
-    + With the snare in place it leaves 0.4 to 0.9 dB more consonant margin than forward
+    + With the snare in place it leaves 0.3 to 0.8 dB more consonant margin than forward (0.3 to 0.9 dB in the lowest section)
     + The coldwave song, a mix whose drums already sit low, drops below -5 in `drums_vs_rest_db` in this style and reports a buried beat
     + Under flexible adherence, lifting the drums 1 dB is the kind of move that answers it
 - Backbeat was not rendered on its own
-    + Its effect on the vocal margins is the difference between forward and vocal (consonants -0.4 to -0.9 dB)
+    + Its effect on the vocal margins is the difference between forward and vocal (consonants -0.3 to -0.8 dB)
     + In an instrumental it moves by the snare offset alone
 

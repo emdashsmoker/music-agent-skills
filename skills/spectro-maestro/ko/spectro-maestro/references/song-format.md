@@ -200,7 +200,7 @@ sections:
 ## 곡 전체 믹스 설정
 ```yaml
 mix:
-  style: balanced             # 기획에서 고른 전경 배치: forward, balanced(기본), blended (mixing-qa.md의 믹스 스타일 절)
+  style: balanced             # 기획에서 고른 전경 배치: forward, vocal, backbeat, balanced(기본), blended (mixing-qa.md의 믹스 스타일 절)
   returns:
     reverb: {decay: 2.6, damp: 5000}
     delay: {time: 1/8d, feedback: 0.4}
