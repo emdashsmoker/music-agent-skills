@@ -190,7 +190,7 @@
 | 자음이 따가움 (t, s, z: 피크, 쇳소리) | 보컬 줄마다 먼저 청취, 수치로는 `limiter_p95_db` 상승 정도만 보임 | `style: {consonant_ceiling: -6}` 후 `vocal-check`로 일치율 확인 |
 | ee 단어가 이웃보다 작게 들리거나 쇳소리로 울림 (TTS 목소리) | 보컬 줄마다 청취, `ROUGH`가 놓칠 수 있음 | 가사를 바꾸거나 음을 짧게 조정, 크기를 올리면 쉿 소리도 같이 올라감 |
 | 보컬이 반주와 분리됨 | `vocal_body_db` 높음 | 보컬 `gain_db` 인하, 보컬 리버브 증가 |
-| 드롭이 약함 | `energy_rank_correlation` 낮음 | 드롭 직전 섹션을 비우고 드롭에 성부 추가 |
+| 드롭이 약함 | `energy_rank_correlation` 낮음 | 기획 `energy` 순서와 섹션 표의 측정 음량 순서를 대조, 기획한 장치 안에서 조용해야 할 섹션의 밀도를 줄이거나 드롭에 성부 추가 |
 | 리미터 과다 작동 | `limiter_p95_db` 높음 | 목표 `lufs` 인하, 가장 큰 버스 인하 |
 | 모노에서 사라짐 | `correlation` 낮음 | 넓은 패드의 `width` 인하, 코러스 이펙트 약화 |
 | 곡이 뚝 끊김 | `ending_drop_db` 높음, overview 파형의 끝이 절벽 모양 | `ending: hit` 또는 `ending: fade`, 마지막 화음에 음량 감쇠 |

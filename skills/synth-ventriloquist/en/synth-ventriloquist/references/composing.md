@@ -83,8 +83,11 @@ Drum one-shots are held for the full length of the sample automatically.
 - Roman numerals work with a key: `theory.progression("i VI III VII", "A minor")` gives `["Am", "F", "C", "G"]`. Upper case is a major triad, lower case a minor one.
 - Chord symbols: major, `m`, `7`, `maj7`, `m7`, `dim`, `aug`, `sus2`, `sus4`, `add9`, `m9`, `9`, slash bass (`C/E`).
 - Modes are accepted as keys: `"A phrygian"`, `"D dorian"`, `"E harmonic minor"`.
+- Choose the harmonic rhythm per section. Declare one chord per two bars with `bars_each=2` and two chords per bar with `bars_each=0.5` in `song.chords`, and pass the same value to `riff` and `chords` on the parts. For placement by the beat, give one symbol per beat and declare `bars_each=0.25` (`"Am Am Am G"` is three beats of Am and one of G).
+- Under chords shorter than a bar, fit the `riff` pattern to the chord length and use `chords` without `rhythm`, because both methods play at least one bar of their pattern or rhythm grid per chord. `chords` strikes every symbol anew even when the same one repeats, so write a pad over a beat-level progression as chords in `seq` (`[A3 C4 E4] _ _`).
+- One colour chord may go at the end of a bridge or pre-chorus: a seventh chord, `sus4`, `add9`, or a borrowed chord (in A minor, the `D` of the parallel major). When `out_of_scale` reports it, judge whether it is intended and say so in the report to the user.
 
-Write the melody against the chords: long notes and notes on strong beats should be chord tones, and passing notes belong on weak beats. The lint reports the exceptions with bar numbers.
+Write the melody against the chords: long notes and notes on strong beats should be chord tones, and passing notes belong on weak beats. The lint reports the exceptions with bar numbers. Land on the root at the end of a section's last phrase, and end the other phrases mostly on the third or fifth so they lead on to the next. Phrase lengths may be asymmetric (2+2+4 bars, 3+5 bars), and a vocal song follows the length of its lyric lines.
 
 ## Movement: sidechain, sweeps, fades, risers, impacts
 
@@ -101,11 +104,22 @@ These habits separate a finished track from a loop. They are defaults to reason 
 
 - Think in 8 and 16 bar phrases. Something should change at every phrase boundary: a part enters or leaves, a filter opens, a fill plays.
 - One or two parts own the foreground at any moment. The others support. When the vocal sings, the lead rests or answers in the gaps.
-- Energy has a shape. The loudest and densest section comes late (final chorus, climax). A breakdown removes the kick and bass so their return has weight.
+- Energy has a shape. The loudest and densest section comes late (final chorus, climax). Low-energy sections such as a bridge, a break or a breakdown are handled with the devices listed below.
 - Mark transitions: a fill or roll in the last bar, a riser into the new section, an impact on its first beat, and a short silence just before a drop when the genre likes drama.
 - Give the low end one owner per moment. Kick and bass share it through sidechain or through rhythm (bass notes between the kicks).
 - Repetition needs variation every four or eight bars: an extra ghost note, an octave jump, an open hat, a changed last bar. The lint reports parts that repeat unchanged for long stretches.
+- Off-beats go to the instrument parts: the bass, stabs, hat accents, a lead answering where the vocal rests. An instrumental may also syncopate the lead hook (a 3-3-2 rhythm, anticipations that arrive ahead of the beat). Vocal syllables are placed by the rules in `vocals.md`.
 - Intros and outros in club genres are drum-led and 16 to 32 bars long so that DJs can mix them. Songs for listening can start with the hook in 4 to 8 bars.
+
+Choose the device for a low-energy section on grounds in this order: the user's instruction, the genre recipe in `genres.md`, then what is particular to the song (turning points in the lyrics, mood, references, tempo, length). Write the chosen device and a one-line reason in the plan summary and the delivery notes. The same choice as an example is fine when there is a reason for it. Keep a bridge below the chorus in the planned energy curve. Song form has these devices for a bridge or an instrumental break:
+
+- Half-time: keep the drums and move the snare to beat 3 (`--------x-------`) for a slowed-down feel. The bass plays long notes.
+- Drums only: take out the harmonic parts and keep mostly drums and percussion.
+- Kick out: keep the bass, hats and pad.
+- Harmonic shift: keep the drums and use a progression other than the verse's, or a modulation.
+- Kick and bass out: keep only the pad and the theme.
+
+A breakdown in club form stays without the kick, as the genre convention has it. Where a recipe gives another shape, follow the recipe. Vary it through what it carries (a preview of the theme, a new progression, a vocal, percussion), its length (8, 16 or 32 bars within the genre's convention), and one thing added to the second drop (a part, a harmony, a fill, an octave).
 
 ## Vocal parts
 

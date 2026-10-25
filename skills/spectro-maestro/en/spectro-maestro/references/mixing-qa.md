@@ -190,7 +190,7 @@
 | Consonants sting (t, s, z: peaks, a metallic edge) | Listen to each vocal line first; at most `limiter_p95_db` rises | `style: {consonant_ceiling: -6}`, then confirm the match with `vocal-check` |
 | An ee word drops under its neighbours or rings metallic (speech voices) | Listen to each vocal line; `ROUGH` can miss it | Change the lyric or shorten the note; a level boost raises the hiss too |
 | The vocal sits apart from the backing | `vocal_body_db` high | Lower the vocal's `gain_db`, add vocal reverb |
-| The drop is weak | `energy_rank_correlation` low | Empty the section before the drop and add parts to the drop |
+| The drop is weak | `energy_rank_correlation` low | Compare the planned `energy` order with the measured loudness order in the section table, then thin the section that should be quieter within its planned device, or add parts to the drop |
 | The limiter is overworked | `limiter_p95_db` high | Lower the target `lufs`, lower the loudest bus |
 | Sound vanishes in mono | `correlation` low | Lower `width` of wide pads, weaken chorus effects |
 | The song stops dead | `ending_drop_db` high, the overview waveform ends in a cliff | `ending: hit` or `ending: fade`, a level decay on the last chord |

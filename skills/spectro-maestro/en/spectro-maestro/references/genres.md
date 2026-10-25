@@ -9,7 +9,8 @@
     + A complete song file with the genre's standard instruments, patterns and structure
     + Chords and melodies are written in Roman numerals and scale degrees, so it works in any key
 - A starter is a starting point
-    + Delivered as it is, every song would be the same, so rewrite melody, progression, structure and fills to fit the plan
+    + Delivered as it is, every song would be the same, so rewrite melody, progression, structure, fills and the parts playing in low-energy sections to fit the plan
+    + For low-energy sections, read the Arrangement text of `genres <id>` first (low-energy devices in `composition.md`)
     + Extend the length to the plan by adding sections
 - The `genre` value of the song file decides the mix profile and the QA thresholds
     + Set `genre` even when writing from scratch without a starter

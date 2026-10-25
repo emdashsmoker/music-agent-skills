@@ -131,6 +131,7 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
     + 섹션 목록과 마디 수를 기획의 길이에 맞춤
     + 코드 진행을 곡의 성격에 맞게 교체
     + 드럼과 베이스 패턴에 변주와 필인 추가
+    + 저에너지 구간(bridge, break)의 장치를 `references/composition.md` 목록에서 선택, 근거와 함께 `notes`에 기록
     + 곡의 끝 처리를 정함 (`ending: hit` 또는 `ending: fade`, 또는 끝맺음 섹션)
 - 곡 파일 문법은 `references/song-format.md`
     + 처음 쓰기 전에 끝까지 한 번 읽음
@@ -241,7 +242,7 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
     + 설치 확인용 렌더 대상
 - 다시 렌더할 때는 출력 폴더를 스킬 밖으로 지정
     + `studio render <스킬 폴더>/examples/silver_box/silver_box.yaml -o <작업 폴더>/silver_box_out`
-- 예제의 선율, 가사, 코드 진행을 새 곡에 그대로 옮기지 않음
+- 예제의 선율, 가사, 코드 진행, 구성, 저에너지 구간 처리를 새 곡에 그대로 옮기지 않음
     + 새 곡은 기획에 맞춰 새로 작곡
 
 ## 참조 문서

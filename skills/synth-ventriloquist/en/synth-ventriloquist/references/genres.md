@@ -222,6 +222,6 @@ Vaporwave: slow, major 7th chords, soft 80s sounds, heavy reverb, everything sli
 
 Club form (house, techno, trance, DnB, etc.): intro 16 to 32, build, drop 16 to 32, breakdown 16 to 32, build, second drop or climax (longer and fuller than the first), outro 16 to 32. Total 4 to 8 minutes. Uplifting trance runs 7 to 15 minutes with two breakdowns (three in the longest forms).
 
-Song form (synthpop, futurepop, doomer, synthwave with vocals, etc.): intro 4 to 8, verse 16, pre-chorus 4 to 8, chorus 8, verse 2, pre-chorus, chorus, bridge or instrumental 8 to 16, final chorus doubled, outro 8. Total 3 to 4 minutes. The final chorus carries something new: a harmony, a lead doubling the melody, an extra percussion layer.
+Song form (synthpop, futurepop, doomer, synthwave with vocals, etc.): intro 4 to 8, verse 16, pre-chorus 4 to 8, chorus 8, verse 2, pre-chorus, chorus, bridge or instrumental 8 to 16 (its handling chosen from the low-energy devices in `composing.md`), final chorus doubled, outro 8. Total 3 to 4 minutes. The final chorus carries something new: a harmony, a lead doubling the melody, an extra percussion layer.
 
 Bars to minutes: minutes = bars × 4 ÷ BPM (in 4/4). 112 bars at 132 BPM is 3:24. 256 bars at 138 BPM is 7:25.
