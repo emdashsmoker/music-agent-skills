@@ -31,13 +31,26 @@ Changelog rules
 
 ### Common
 - Fixed the mix style descriptions and measurement figures in the reference pages to match the five styles in the code and the measurement tables (#82)
+- Changed multi-sentence bullets and paragraphs of SKILL.md and the reference pages into sub-bullets with one instruction each (#82)
+- Fixed sentences that could be misread and terms that differed between pages in both editions of SKILL.md and the reference pages (#82)
 
 * 코드의 다섯 가지 스타일과 측정표에 맞게 참조 문서의 믹스 스타일 설명과 측정 수치 수정 (#82)
+* 여러 문장이 쌓인 SKILL.md와 참조 문서의 불렛과 문단을 지시 하나씩 담은 하위 불렛으로 변경 (#82)
+* 두 판의 SKILL.md와 참조 문서에서 달리 읽힐 수 있는 문장과 문서마다 다른 용어 수정 (#82)
 
 ### spectro-maestro
 - Fixed two tables in SKILL.md and references/export.md that were shown as plain text (#82)
+- Fixed the measurement notes of references/mixing-qa.md that listed the forward and blended window checks under the backbeat style (#82)
 
 * SKILL.md와 references/export.md에서 일반 텍스트로 표시되던 표 2개 수정 (#82)
+* references/mixing-qa.md에서 백비트 전면 아래에 잘못 놓였던 전면과 융합의 판정 창 검증 기록 수정 (#82)
+
+### synth-ventriloquist
+- Changed the stage 1 planning list of SKILL.md to ask mix style and adherence as separate questions, each with its own default (#82)
+- Fixed the GitHub repository step of references/setup.md, which came after the LMMS 1.2.2 download it precedes (#82)
+
+* SKILL.md 1단계 기획 목록의 믹스 스타일과 준수를 기본값이 따로 있는 별도 질문으로 변경 (#82)
+* references/setup.md에서 LMMS 1.2.2 내려받기 뒤에 놓였던 GitHub 저장소 연결 단계의 순서 수정 (#82)
 
 ## 2026-10-22
 
