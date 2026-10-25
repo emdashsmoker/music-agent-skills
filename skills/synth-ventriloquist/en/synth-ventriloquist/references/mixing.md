@@ -93,7 +93,7 @@ Clean comes before loud. A limiter asked for 8 or 10 dB pumps the whole mix and 
 - `tone_fit`: the high shelf the balance step added to a dull mix, and to how many parts.
 - `limiter`: how many dB the master limiter cuts from the loudest moments, and the loudness reached against the genre target.
 - `part_levels`: each part's loudness against its target, and its peak. No drum except the kick should peak above the kick.
-- `section_energy`: loudness and brightness per section. Compare it with the intended energy curve: the chorus or drop should be the loudest, a breakdown clearly lower.
+- `section_energy`: loudness and brightness per section. Compare it with the intended energy curve: the chorus or drop should be the loudest, with a bridge or breakdown below it.
 - `band_owners`: the two strongest parts in each frequency band. Two parts at nearly the same level in one band mask each other.
 - `kick_presence`, `drums_vs_rest`, `vocal_body`, `vocal_consonants`: how the foreground elements sit against everything else. The two vocal findings measure only the moments a lead line is sung (the line times of the vocals file, else the frames where the voice is heard). Next to the whole-song value they carry a table of per-section values and mark the section whose backing is densest (usually a chorus). Floor and ceiling are both judged on that section, because a sparse verse lifts the whole-song value.
 

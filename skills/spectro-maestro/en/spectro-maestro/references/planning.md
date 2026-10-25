@@ -15,7 +15,7 @@
 | Tempo | The genre's default bpm | Suggest within the range shown by `genres <id>` |
 | Key | The genre's first key | With vocals, adjust to the voice's range |
 | Length | Genre standard (pop 3-4 min, club 5-8 min) | Present it converted to bars |
-| Structure | The genre's standard structure | Present the section list and bar counts as a table (low-energy sections with their device and reason) |
+| Structure | The genre's standard structure | Present the section list and bar counts as a table (low-energy sections with the device chosen from the list in `composition.md`, its reason and the device compared) |
 | Vocals | None | If wanted, ask the vocal questions below |
 | Delivery formats | ogg, mp3, MIDI, the song file and the project JSON | wav, flac, stems, LMMS and DAWproject on request |
 | Mix style | Balanced, flexible | Where the foreground (the backbeat, the lead, the lead vocal) sits in the track (choices below the table) |
@@ -61,7 +61,7 @@
 ```
 Title / genre / tempo / key / length
 Structure : intro 8 - verse 16 - chorus 16 - ... (N bars in total, M min S s)
-Low-energy sections : (section, device, one-line reason)
+Low-energy sections : (section, chosen device, one-line reason, one other device compared)
 Chords : (progression and harmonic rhythm per section)
 Core idea : (one or two lines on the hook, the timbre, the development)
 Vocals : engine, voice, range, lyric theme, recognition model, reading speed
