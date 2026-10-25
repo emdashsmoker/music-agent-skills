@@ -36,7 +36,8 @@
     + Automation (filter movement, level changes, the fade at the end of the song) is not included, so draw it again in LMMS
     + All track volumes are exported 6 dB lower to prevent clipping
 - Sample paths are written relative to the LMMS samples folder (`<song>/<file>.wav`)
-    + To open the project, copy `samples/<song>/` into the LMMS samples folder; `HOW_TO_OPEN.txt` says the same
+    + To open the project, copy `samples/<song>/` into the LMMS samples folder
+    + `HOW_TO_OPEN.txt` gives the same instructions
     + The project then opens on any computer
 - The project file is in the LMMS 1.2 format
 
@@ -58,15 +59,23 @@
 - When there is no LMMS but the user wants the check
     + Look at the operating system and environment with `doctor`, then pick the form of distribution that suits it
     + Check the available forms, the current version and the download address directly on the official LMMS download page and in the releases of the official repository
-    + The official repository is GitHub `LMMS/lmms`. If the execution environment has a tool that attaches a GitHub repository to the session, call it before checking the releases. Pass the owner `LMMS` and the repository name `lmms` as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused
     + Do not state an address or a version from memory
     + On a personal computer get the user's consent before installing
+- Checking the official repository
+    + The official repository is GitHub `LMMS/lmms`
+    + If the execution environment has a tool that attaches a GitHub repository to the session, call it before checking the releases
+    + Pass the owner `LMMS` and the repository name `lmms` as separate values
+    + Follow any access route the tool's reply names
+    + Skip this step when no such tool exists or the call is refused
+- Forms of distribution to consider first by environment
+
 | Environment | Forms to consider first | Notes |
 |---|---|---|
 | Linux desktop | Flatpak (per-user install), AppImage, distribution package | A distribution package needs administrator rights, so give the user the command |
 | Linux container, no privileges | AppImage | No administrator rights needed; found automatically when placed in `tools/` under `cache_dir` |
 | macOS | Official disk image, Homebrew | Found automatically in the Applications folder |
 | Windows | Official installer, a package manager such as winget | Found automatically at the default install location |
+
 - If the user already has a way of managing packages, follow it
 - If LMMS was installed somewhere else, give the path in the setting `lmms`
 - If it cannot be installed or the user does not want it, skip the check

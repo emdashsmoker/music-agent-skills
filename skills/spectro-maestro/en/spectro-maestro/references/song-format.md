@@ -10,6 +10,7 @@
     + Example message : `tracks.vox.parts.v1.lyrics[1]: bar line reached at beat 4.5`
 
 ## Top-level keys
+
 | Key | Required | Meaning |
 |---|---|---|
 | `title`, `artist`, `notes` | optional | Metadata; record the intent of the plan in `notes` |
@@ -71,7 +72,7 @@ tracks:
 - One character is one step
     + `x` normal, `X` strong, `o` soft, `.` rest
     + `r` two quick hits, `t` three quick hits
-- Splitting bars with `|` makes the step count get checked
+- Splitting bars with `|` has the step count checked
 ```yaml
 kick:  {hits: "x...x...x...x..."}
 snare: {hits: "....x.......x...|....x.......x.xx"}   # two-bar pattern with a fill at the end of the second bar
@@ -136,7 +137,7 @@ vox:
     + `bar`, `beat` : where the line starts inside the section
     + `text` : the lyric
     + `notes` : melody notation, one note per syllable
-    + `phonemes` : give the engine's phonetic symbols directly (optional). A voicebank ignores an entry that is not in its own symbols and sings the words
+    + `phonemes` : give the engine's phonetic symbols directly (optional; a voicebank ignores an entry that is not in its own symbols and sings the words)
 - When the number of syllables and the number of notes differ, `lint` reports it with the syllable count of each word
 - To sing one syllable on several notes, join the notes with `~`
 - Vocal settings and lyric writing rules are in `vocals.md`
@@ -182,6 +183,7 @@ sections:
 - The reverb after the last bar dies away over `master.tail` seconds, and the file ends 0.4 seconds after the sound has gone
 
 ## Mix settings per track
+
 | Key | Meaning |
 |---|---|
 | `gain_db` | Add to or subtract from the role's default level (the knob used most) |
@@ -198,7 +200,7 @@ sections:
 ## Mix settings for the whole song
 ```yaml
 mix:
-  style: balanced             # the foreground placement chosen in the plan: forward, balanced (default), blended (Mix styles in mixing-qa.md)
+  style: balanced             # the foreground placement chosen in the plan: forward, vocal, backbeat, balanced (default), blended (Mix styles in mixing-qa.md)
   returns:
     reverb: {decay: 2.6, damp: 5000}
     delay: {time: 1/8d, feedback: 0.4}

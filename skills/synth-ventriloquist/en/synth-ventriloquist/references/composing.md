@@ -37,7 +37,7 @@ bass.riff("drop", chords, ". . R . . . R . . . R . . R . 8", octave=1)
 pad.chords("drop", chords, octave=3)
 
 song.sidechain("kick", ["bass", "music"], depth_db=6)
-song.mix_style("balanced")                                   # the foreground placement chosen in the plan: forward, balanced, blended (mixing.md)
+song.mix_style("balanced")                                   # the foreground placement chosen in the plan: forward, vocal, backbeat, balanced, blended (mixing.md)
 song.master()                                                # call once, last
 print(song.save(os.path.join(os.getcwd(), "night_drive.mmp")))
 ```

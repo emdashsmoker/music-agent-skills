@@ -13,19 +13,28 @@
     + When the engine version, the voice or the tempo changes, measure again with `vocal-check`
 
 ## Choosing an engine
+
 | Engine | Method | Strengths | Weaknesses |
 |---|---|---|---|
 | `kokoro` | A speech voice converted to singing | Light to install, clear diction, the same result every time | Timbre stays close to reading aloud, 24 kHz sample rate |
 | `piper` | A speech voice converted to singing | Wide choice of voices and languages | Quality varies a lot between voices, 22 kHz sample rate for most voices |
 | `diffsinger` | A dedicated singing voicebank | The most natural singing, 44.1 kHz sample rate | The user has to supply the voicebank, rendering is slow |
+
 - See the list of voices with the `voices` command
     + Default female voice : `kokoro` / `af_heart`
     + Default male voice : `kokoro` / `am_michael`
     + Piper voices have different usage terms per dataset, so check the model card of a voice before choosing it and tell the user
 - For other languages, name a Kokoro or Piper voice of that language; it sings through the same conversion path
-    + When the track's `lang` is not English, `vocal-check` and `vocal-try` switch the English-only recognition model to the multilingual one of the same size (base.en becomes base). Pass `--asr-model small` for a larger one, or set `asr_model` so every check uses it. Measured on a 4-core CPU checking one 5-second line: base 402 MB of memory and 5.7 s, small 869 MB and 8.7 s, medium 2.1 GB and 23 s; the first use downloads 142 MB, 464 MB and 1.5 GB
-    + Set `lang` in the track's `vocal` settings to the lyrics' language code (ko, ja, zh, ru ...). The voice reads the text with that pronunciation, and `vocal-check` listens for that language. A Kokoro voice of that language keeps its own variant: `pt` with a Brazilian voice (pf_dora) reads Brazilian Portuguese
-    + `lint` reports a line with characters the voice cannot read as `lyrics.unreadable`, naming the words, so write them in a script the voice reads or choose another voice that reads them. A Piper Japanese voice needs the `pyopenjtalk` package
+    + Set `lang` in the track's `vocal` settings to the lyrics' language code (ko, ja, zh, ru ...)
+    + The voice reads the text with that pronunciation, and `vocal-check` listens for that language
+    + A Kokoro voice of that language keeps its own variant (for example, `pt` with the Brazilian voice pf_dora reads Brazilian Portuguese)
+    + `lint` reports a line with characters the voice cannot read as `lyrics.unreadable`, naming the words, so write them in a script the voice reads or choose another voice that reads them
+    + A Piper Japanese voice needs the `pyopenjtalk` package
+- Recognition model for other languages
+    + When the track's `lang` is not English, `vocal-check` and `vocal-try` switch the English-only recognition model to the multilingual one of the same size (base.en becomes base)
+    + Pass `--asr-model small` for a larger one, or set `asr_model` so every check uses it
+    + Measured on a 4-core CPU checking one 5-second line: base 402 MB of memory and 5.7 s, small 869 MB and 8.7 s, medium 2.1 GB and 23 s
+    + The first use downloads 142 MB, 464 MB and 1.5 GB
 - Outside English, syllables are counted by the melody's notes
     + Give one note per syllable as the language counts them
     + When the pronunciation has more vowels than notes, vowels that meet inside a word are joined into one syllable, and `lint` reports the join as `lyrics.folded_syllable`
@@ -51,6 +60,7 @@ vox:
     - {type: harmony, steps: 2, sections: [chorus2]}
   mix: {gain_db: 0, reverb: 0.2}
 ```
+
 | `style` key | Default | Meaning |
 |---|---|---|
 | `vibrato_depth` | 28 | Vibrato depth on long notes (cents), 0 switches it off |
@@ -65,7 +75,8 @@ vox:
 | `consonant_ceiling` | -3 | Largest level of an unvoiced consonant (dB, against the vowel level of its line); only t, s, k above it are turned down, by at most 6 dB |
 | `formant` | 0 | Formant shift (semitones); positive gives a thinner, brighter timbre |
 | `breath` | 0 | Share of breath noise (0 to 1) |
-| `vowel_body` | 0 | Fills held ee vowels (he, she, we, see) with the 300-1300 Hz body of the line's other vowels (at most 10 dB) and thins their hiss; 1 is the full fill. The vowel colour moves a little toward ih, so listen |
+| `vowel_body` | 0 | Fills held ee vowels (he, she, we, see) with the 300-1300 Hz body of the line's other vowels (at most 10 dB) and thins their hiss; 1 is the full fill (the vowel colour moves a little toward ih, so listen) |
+
 - Layers
     + `double` : the same melody sung once more on each side (separate takes with slight pitch and timing differences)
     + `harmony` : a harmony `steps` scale steps above or below; notes that clash with the chord are moved to chord tones
@@ -76,7 +87,13 @@ vox:
 - Before writing, check the strengths and weaknesses of the chosen engine and voice
     + The kind of engine (speech voice or singing voicebank) and the language decide which rules in the table below apply
     + Choose the words and the sentence structure to fit those rules from the start (changing words after the lyrics are finished means fitting meaning and rhyme again)
-- Where the rules are silent, review the lines from several seats as well, such as a lyricist (e.g. meaning, imagery, rhyme), a singer (e.g. where to breathe, notes that follow the natural rhythm of the words), a listener (e.g. whether the words come through and stick on first hearing), a sound engineer (e.g. bands shared with the backing, places where the lead collides) and an agent operator (e.g. whether the limits of the tools the skill relies on, such as speech voices, singing voicebanks, speech recognition and the mixer, were taken into account); note the reason in `notes` for any choice that departs from the rules
+- Where the rules are silent, review the lines from several seats as well
+    + Lyricist : meaning, imagery, rhyme and the like
+    + Singer : where to breathe, notes that follow the natural rhythm of the words and the like
+    + Listener : whether the words come through and stick on first hearing
+    + Sound engineer : bands shared with the backing, places where the lead collides and the like
+    + Agent operator : whether the limits of the tools the skill relies on, such as speech voices, singing voicebanks, speech recognition and the mixer, were taken into account
+    + Note the reason in `notes` for any choice that departs from the rules
 - Sentence structure
     + Pick a word order that keeps weak function words (to, the, a) off beats and long notes
     + Recast a sentence that opens with function words or stacks them in a row so that a content word leads
@@ -86,16 +103,19 @@ vox:
     + A singing voicebank sings a word missing from its dictionary with a guessed pronunciation in English, German, French, Spanish, Italian, Portuguese and Russian, and stops at such a word in other languages
     + Write numbers and symbols out as the words to be sung
     + For a word the song needs, write the line containing it first and listen with `vocal-try`; if it is misread, give that line a `phonemes` entry
-    + A `phonemes` entry is written in the symbols of the engine used at the time. After a change of engine, a voicebank ignores an entry that is not in its own symbols, leaves a note and sings the words, so listen again with the new engine and, if needed, write the entry in its symbols
+    + A `phonemes` entry is written in the symbols of the engine used at the time
+    + After a change of engine, a voicebank ignores an entry that is not in its own symbols, leaves a note and sings the words, so listen again with the new engine and, if needed, write the entry in its symbols
 - Lyrics from the user
     + Review them by the measures above before they are sung, and present the problem lines with suggested changes
-    + Apply only approved changes; if the user keeps the original, follow 'Handling unworkable plans' in `planning.md`: state the expected loss of quality once, then go on with the original
+    + Apply only approved changes
+    + If the user keeps the original, follow 'Handling unworkable plans' in `planning.md` (state the expected loss of quality once, then go on with the original)
 
 | Rules | For | What they cover |
 |---|---|---|
 | Singing craft | Any voice, a human singer included | Stress on the strong beats, note lengths that follow the spoken stress, 110 ms or more per syllable, open vowels or nasals on held notes, reduced vowels and weak function words off the beats |
 | Model-voice habits | Speech voices and singing voicebanks alike | Consonants blur under about 200 ms, consonant clusters need room, bright consonants spit and peak |
 | Speech-voice repairs | Speech voices only | The thin held ee and `vowel_body`, `consonant_ceiling` for stinging consonants, the line-ending repair, the strong-form spelling |
+
 - Rules for a voicebank
     + Write by the singing craft and the model-voice habits, and read the speech-voice repairs as background
     + `lint` runs the first two groups on DiffSinger tracks as well
@@ -151,7 +171,8 @@ vox:
 - Bright consonants
     + Carry a line on voiced consonants (m, n, l, d, b, g, w, r) and open vowels
     + Use t, k, p, s, z and sh as seasoning, about one per word and none right before a held note
-    + On the speech voices those sounds spit and hiss, and their bursts peak up to 13 dB above the vowel body with a metallic edge
+    + On the speech voices those sounds spit and hiss
+    + Their bursts peak up to 13 dB above the vowel body with a metallic edge
     + A line built on them pokes out of the mix and reaches the limiter first
     + `lyrics.bright_consonants` warns at three bright sounds in five syllables (a cluster such as st or sk counts twice) or at three bright syllables in a row
 - Held ee vowels (speech voices only)
@@ -172,10 +193,12 @@ vox:
 - Function words on short off-beats (any voice)
     + A function word on a short off-beat note can still blur (on a Kokoro `am_michael` song at 134 bpm, listening found the to of "to every" and the could of "could ever" blurred)
     + The match score and `ROUGH` rarely catch this fault, so reduce it while writing the lyrics (see 'Known limits' below)
-    + Rewrite a line flagged `lyrics.weak_words_in_a_row` only when a content-word phrasing keeps the meaning and the rhyme; for the user's lyrics, propose the rewrite
+    + Rewrite a line flagged `lyrics.weak_words_in_a_row` only when a content-word phrasing keeps the meaning and the rhyme
+    + For the user's lyrics, propose the rewrite
     + If no such phrasing exists, keep the warning and judge the line by ear (see 'Checking procedure' below)
 
 ## Patterns that weaken intelligibility
+
 | Pattern | Observed example | Remedy |
 |---|---|---|
 | Consonants crowded onto short notes | "fields of snow" on one-beat notes at 128 bpm, "only snow" on eighth notes at 156 bpm | Lengthen the notes or use a word with fewer consonants (hills of snow) |
@@ -187,6 +210,7 @@ vox:
 | A held ee word on a speech voice (thin, rings metallic) | we will see | Move it to a short note or use a word with an open vowel |
 | A word with an unstable syllable count | fire, hour | Change the note layout or use another word |
 | A melody outside the voice's range | A line where only breath is left on the low notes | Move the key or the octave |
+
 - This table is a list of risk factors
     + Lines of these patterns are often fine, depending on voice and melody
     + Whether a line is weak is established with `vocal-check`
@@ -204,7 +228,8 @@ vox:
     + `python scripts/studio.py vocal-check song.yaml`
     + Prints the recognised text, the match score and the pitch error (cents) for every line
     + Syllables whose vowel was sung as noise or is barely audible are printed with a `ROUGH` mark (speech voice engines)
-    + A line whose opening consonants would sound before the song starts loses them; `render` and `vocal-check` print a `CUT` note with the lost length. Start the line later or give the song a bar before it
+    + A line whose opening consonants would sound before the song starts loses them, and `render` and `vocal-check` print a `CUT` note with the lost length
+    + In that case start the line later or give the song a bar before it
     + For lines with a match below 0.85 or a `ROUGH` mark, a picture and a solo clip are saved in the `vocals/` folder
 - The match score and `ROUGH` catch different faults
     + Match score : lines whose words are heard differently
@@ -297,18 +322,28 @@ vox:
 ## DiffSinger voicebanks
 - Only voicebanks the user provides are used
     + Give `voice` a folder path (the toolkit neither unpacks archives nor downloads links)
-    + Unpack an archive into a new empty folder outside the song project, then give `voice` that folder. Do not unpack an archive with entries that point outside that folder (absolute paths or `..`)
-    + Unpack with `python -m zipfile -e <archive> <folder>`, which keeps file names written in other scripts (a terms document named in Japanese or Russian). `unzip` garbles them where the system language is not UTF-8. When names still come out garbled (an archive made on Japanese Windows), add `--metadata-encoding cp932`
     + For a repository or download link the user hands over, fetch exactly that into a new empty folder outside the song project, then give `voice` that folder
     + Do not search for or download a voicebank the user did not hand over
+- Unpacking an archive
+    + Unpack an archive into a new empty folder outside the song project, then give `voice` that folder
+    + Do not unpack an archive with entries that point outside that folder (absolute paths or `..`)
+    + Unpack with `python -m zipfile -e <archive> <folder>`, which keeps file names written in other scripts (a terms document named in Japanese or Russian)
+    + `unzip` garbles such names where the system language is not UTF-8
+    + When names still come out garbled (an archive made on Japanese Windows), add `--metadata-encoding cp932`
+- Before fetching a GitHub repository
+    + If the execution environment has a tool that attaches a GitHub repository to the session, call it first
+    + Pass the owner and the repository name from the address as separate values
+    + Follow any access route the tool's reply names
+    + Skip this step when no such tool exists or the call is refused
 - Fetching a link
-    + If the execution environment has a tool that attaches a GitHub repository to the session, call it before fetching a GitHub repository. Pass the owner and the repository name from the address as separate values. Follow any access route the tool's reply names. Skip this step when no such tool exists or the call is refused
     + Clone with `GIT_LFS_SKIP_SMUDGE=1` so an unreachable LFS server cannot stop the clone
-    + Fetch the Git LFS pointer files left after the clone (small files that start with `version https://git-lfs.github.com/spec/v1`) from `https://media.githubusercontent.com/media/<owner>/<repo>/<commit>/<path>` on GitHub or from `<repository address>/resolve/<commit>/<path>` on Hugging Face, and check each against the sha256 in its pointer. Use `git lfs pull` for other hosts and for private repositories
+    + Fetch the Git LFS pointer files left after the clone (small files that start with `version https://git-lfs.github.com/spec/v1`) from `https://media.githubusercontent.com/media/<owner>/<repo>/<commit>/<path>` on GitHub or from `<repository address>/resolve/<commit>/<path>` on Hugging Face, and check each against the sha256 in its pointer
+    + Use `git lfs pull` for other hosts and for private repositories
     + Do not use a folder while any pointer remains
 - Check before use
     + Run `python scripts/studio.py diffsinger-inspect <folder>` to see the speakers, languages and models included
-    + Find the terms-of-use documents yourself by checking every file in the voicebank folder, subfolders included. File names differ in language and form from bank to bank (for example readme.txt, character.txt, 利用規約.txt)
+    + Find the terms-of-use documents yourself by checking every file in the voicebank folder, subfolders included
+    + File names differ in language and form from bank to bank (for example readme.txt, character.txt, 利用規約.txt)
     + Read those documents and the terms on the distribution page and give the user a summary (commercial use, required credit, prohibited content, limits on use of the output)
     + If the lyrics or the purpose conflict with the terms, discuss it with the user before proceeding
 - Settings
@@ -335,19 +370,28 @@ vocal:
 - Pitch
     + The voicebank's pitch model sings each note with slides and swings of its own, so the start of a note can sit well off the written pitch
     + When notes sound slightly off, lower `expr` from its default 1.0 (try 0.5)
-    + Measured on two voicebanks over 27 lines of two songs: in the first 90 ms of a note the pitch sat a median 21 cents from the written note (105 cents at the 90th percentile) and 14 cents across the held part. With `expr: 0.5` the three figures were 4.2, 9.3 and 4.2 cents and the recognition match rose from 0.94 to 0.95. `pitch: curve` gave 13, 53 and 8.7 cents
+- Pitch measurements (two voicebanks, 27 lines of two songs)
+    + Default settings : in the first 90 ms of a note the pitch sat a median 21 cents from the written note (105 cents at the 90th percentile) and 14 cents across the held part
+    + `expr: 0.5` : the three figures were 4.2, 9.3 and 4.2 cents, and the recognition match rose from 0.94 to 0.95
+    + `pitch: curve` : the three figures were 13, 53 and 8.7 cents
 - Pronunciation
-    + Words missing from the voicebank's dictionary are filled in: English from a general pronouncing dictionary and a grapheme-to-phoneme converter, German, French, Spanish, Italian, Portuguese and Russian from OpenUtau's G2P (a pronouncing dictionary and a small model per language, downloaded once into `models_dir`, about 2 MB each)
+    + English words missing from the voicebank's dictionary are filled in from a general pronouncing dictionary and a grapheme-to-phoneme converter
+    + Missing German, French, Spanish, Italian, Portuguese and Russian words are filled in from OpenUtau's G2P (a pronouncing dictionary and a small model per language, downloaded once into `models_dir`, about 2 MB each)
     + A syllable group starts at its vowel, and the first consonant of the next syllable sits at the end of the previous note
 - Reproducibility
     + Every line starts from the same seed, so the same input gives the same sound
     + A double is a separate take with a different seed and timbre
 - Lyric spelling
     + The voicebank's dictionary decides the spelling of the lyrics, so open its dictionary file (`dsdict*.yaml`) and write the lyrics as its `grapheme` entries do
-    + A word the dictionary lacks stops the line (`lyrics.pronunciation`). Respell it or give the line a `phonemes` entry in the voicebank's own symbols
+    + A word the dictionary lacks stops the line (`lyrics.pronunciation`)
+    + Respell it or give the line a `phonemes` entry in the voicebank's own symbols
+- Languages without words in the dictionary
     + A bank whose dictionary holds no words of a language (its OpenUtau phonemizer converts them in code) sings German, French, Spanish, Italian, Portuguese and Russian through that G2P, and any other such language only through `phonemes`
-    + In those languages a word with a sound the bank lacks stops the line with an error naming the sound, and a bank that lists its languages refuses one it neither lists nor has a dictionary file for
-    + A dictionary or a G2P can also write a word wrong. When a word sounds like another language, or the recogniser hears a different word, check the symbols actually sung in `phones` and `syllables` of the render report `build/vocal_<track>.json`
+    + In those languages a word with a sound the bank lacks stops the line with an error naming the sound
+    + A bank that lists its languages refuses one it neither lists nor has a dictionary file for
+- Checking the symbols actually sung
+    + A dictionary or a G2P can also write a word wrong
+    + When a word sounds like another language, or the recogniser hears a different word, check the symbols actually sung in `phones` and `syllables` of the render report `build/vocal_<track>.json`
     + Where symbols do not match how the language says the word, give the line a `phonemes` entry in the voicebank's own symbols, taking a similar word as the model
 - Render time
     + About 10 seconds per line (on a 2-core CPU); results are cached and reused on re-render
@@ -359,7 +403,9 @@ vocal:
 - The recognition match is most trustworthy in English
     + For other languages trust it only as far as the multilingual recognition model is accurate
     + In languages that write the same words in several scripts (Japanese kana and kanji, Chinese simplified and traditional characters), the recogniser may write a line in a different script from the lyrics, so a line sung right can still match low
-    + Judge such a line from the heard text next to the score in the `vocal-check` output. The same words in another script (ありがとう and アリガトウ, 谢谢你 and 謝謝你) mean the line came through. Other words, or a kanji heard with another reading (君 as くん instead of きみ), mean it was misheard
+    + Judge such a line from the heard text next to the score in the `vocal-check` output
+    + The same words in another script (ありがとう and アリガトウ, 谢谢你 and 謝謝你) mean the line came through
+    + Other words, or a kanji heard with another reading (君 as くん instead of きみ), mean it was misheard
 - Fast rap and runs of sixteenth-note singing blur the syllables
 - The stress check runs only for speech voice engines
     + Voicebank dictionaries carry no stress marks, so DiffSinger tracks get the syllable count, pronunciation and the other checks of the singing craft and the model-voice habits

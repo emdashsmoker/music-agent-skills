@@ -53,7 +53,7 @@ The step moves each part's mixer fader. To change the balance, change `level_db`
 
 ## Mix styles
 
-Where the foreground sits in the track is taste, so it is asked in the planning stage (`SKILL.md`, Stage 1). The answer is one of the names in `compose.MIX_STYLES`; the script records it with `song.mix_style("forward")` and it lands in the plan file. The foreground is the backbeat (snare, clap), the lead, and the lead vocal. In an instrumental only the first two move; in a vocal song the vocal level, the ducking and the judging window move with them. A style changes nothing beyond these three things: brightness, space and the genre levels stay as they are. Vocal and backbeat are the two halves of forward. In an instrumental vocal only lifts the lead by 1 dB, so it is not offered for instrumentals. Backbeat acts on the snare and clap roles only, so it is not offered for a song that runs on kick and hats alone (a dark psytrance groove, for one).
+Where the foreground sits in the track is taste, so it is asked in the planning stage (`SKILL.md`, Stage 1). The answer is one of the names in `compose.MIX_STYLES`; the script records it with `song.mix_style("forward")` and it lands in the plan file. The foreground is the backbeat (snare, clap), the lead, and the lead vocal. In an instrumental only the first two move; in a vocal song the vocal level, the ducking and the judging window move with them. A style changes nothing beyond these three things: brightness, space and the genre levels stay as they are. Vocal and backbeat are the two halves of forward. In an instrumental, vocal only lifts the lead by 1 dB, so it is not offered for instrumentals. Backbeat acts on the snare and clap roles only, so it is not offered for a song that runs on kick and hats alone (a dark psytrance groove, for one).
 
 | Style | What it sounds like | Level offsets (LU) | Ducking shift (depth, presence dB) | Vocal window (densest section) |
 |---|---|---|---|---|
@@ -63,7 +63,7 @@ Where the foreground sits in the track is taste, so it is asked in the planning 
 | `balanced` (default) | The backbeat and the voice a little forward | clap +1.5, snare +1, vocal +1.5 | 0, 0 (2.5 and 6.0 by default) | body 0 to +9, consonants +2 or more |
 | `blended` | A club mix: the voice and the lead inside the track | lead -1, the rest at the plain role levels | -1, -2 (1.5 and 4.0 by default) | body -2 to +7, consonants 0 or more |
 
-The judging window moves with the style because a balance the user chose would otherwise come back as a warning on every render and turn the report into noise. The shift follows what the offsets did to the measured vocal margins: in the test songs forward moved them 1.3 to 2.0 dB up and blended 1.1 to 1.9 dB down (measurements at the end of this page). The presence lift (`vocal_presence`) also aims at the consonant floor of that window.
+The judging window moves with the style because a balance the user chose would otherwise come back as a warning on every render and turn the report into noise. The shift follows what the offsets did to the measured vocal margins: in the test songs forward moved them 1.0 to 1.6 dB up and blended 1.1 to 1.9 dB down (measurements at the end of this page). The presence lift (`vocal_presence`) also aims at the consonant floor of that window.
 
 `--mix-style` on `produce`, `check` and `balance` overrides the plan file's style for that run. The levels and the window change, but the ducking automation under sung lines is written when the script saves the project, so a vocal song changes style in the script and is saved again. For an existing project without a script, the option is the only way to set the style.
 
@@ -158,9 +158,9 @@ Render an excerpt while working on one section, and run the full `produce` when 
 
 ## Measurements behind the mix styles
 
-Four vocal test songs (two futurepop, one coldwave, one doomer, all with Kokoro voices) and four instrumentals (the examples First Light and Rubber Line, and the two test songs with their vocal parts removed) were rendered with `produce` in each style, with every check except the recognition score.
+Four vocal test songs (two futurepop, one coldwave, one doomer, all with Kokoro voices) and four instrumentals (the examples First Light and Rubber Line, and the two test songs with their vocal parts removed) were rendered with `produce` in balanced, forward and blended, and the four vocal songs also in vocal, with every check except the recognition score.
 
-- Loudness agrees within 0.3 LU across the three styles, and the limiter stops at its 3 dB cap in all eight songs. Forward gives up 0.1 to 0.3 LU to its bigger drum peaks, and one instrumental that already sat nearly 3 LU under its genre target in balanced crossed into the `limiter` warning in forward.
+- Loudness agrees within 0.3 LU across balanced, forward and blended, and the limiter stops at its 3 dB cap in all eight songs. Forward gives up 0.1 to 0.3 LU to its bigger drum peaks, and one instrumental that already sat nearly 3 LU under its genre target in balanced crossed into the `limiter` warning in forward.
 - In the instrumentals the measured snare, clap and lead levels move by exactly the offsets (forward +1, +1, +1; blended -1, -1.5, -1), and `drums_vs_rest` agrees within 0.5 LU.
 - Vocal margins in the densest section (body / consonants, dB):
 
@@ -172,7 +172,7 @@ Four vocal test songs (two futurepop, one coldwave, one doomer, all with Kokoro 
 | Doomer | +2.6 / +2.7 | +3.9 / +4.3 | +4.1 / +4.2 | +1.3 / +1.2 |
 
 - Forward lifts the body by 1.2 to 1.6 dB and the consonants by 1.0 to 1.6 dB; blended lowers the body by 1.1 to 1.7 dB and the consonants by 1.1 to 1.9 dB. The window therefore moves by +1.5 in forward and -2 in blended: a 2 dB forward shift would leave the chorus of futurepop B on the floor.
-- Vocal lifts the body by 1.2 to 1.7 dB and the consonants by 1.3 to 1.6 dB and uses the forward window. Its drum peaks do not grow, so the master comes out 0.2 to 0.3 LU louder than forward. Backbeat was not rendered on its own: its effect on the vocal margins is the difference between forward and vocal (within 0.3 dB), and in an instrumental it moves by the snare and clap offsets alone.
+- Vocal lifts the body by 1.3 to 1.7 dB and the consonants by 1.5 to 1.6 dB and uses the forward window. Its drum peaks do not grow, so the master comes out 0.2 to 0.3 LU louder than forward. Backbeat was not rendered on its own: its effect on the vocal margins is the difference between forward and vocal (body -0.2 to 0.0 dB, consonants -0.6 to +0.1 dB), and in an instrumental it moves by the snare and clap offsets alone.
 - Futurepop B sits at +0.5 dB of body in its chorus in balanced, on the floor of the window: a voice covered by a dense chorus, which forward moves into the middle of the window.
 - A dark voice turned up lowers the brightness reading of the densest passage: futurepop A crossed into the `brightness` warning in forward (-7.7 dB against a floor of -7.5). The remedies are those of the brightness row in the findings table.
-- The same songs were also rendered with singer voicebanks. A standard colour moved by the same amounts as the Kokoro voices; one soft colour had negative consonant margins in all three styles, which the 6 dB presence lift could not close. That is the voice, not the style, and is handled per voice with EQ and level as `vocals.md` says.
+- The same songs were also rendered with singer voicebanks. A standard colour moved by the same amounts as the Kokoro voices; one soft colour had negative consonant margins in balanced, forward and blended, which the 6 dB presence lift could not close. That is the voice, not the style, and is handled per voice with EQ and level as `vocals.md` says.

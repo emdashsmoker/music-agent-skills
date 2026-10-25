@@ -47,15 +47,47 @@ Collect the plan in one round of questions. Skip what the user already stated, a
 - Style or genre, and any reference artists or tracks (for feel, never for copying melodies or lyrics)
 - Mood and energy
 - Tempo [the genre profile's default], key [a minor key that suits the genre]
-- Length and form [3 to 4 minutes in song or club form. Uplifting trance runs 7 to 15 minutes, default about 7 and a half]
-- Vocals: none, sung by a built-in speech voice, or sung by a singer voicebank the user supplies. Offer the voice options from `references/vocals.md`. Language [English]
-- Recognition model for the vocal check [base]: offer small when the machine has room (4 or more CPU cores, 2 GB or more of free memory), above all for lyrics in another language, where base flags clearly sung lines more often. Medium or larger only when the user asks. Store the choice with `configure --set asr_model=<model>`; the costs per model are in `references/vocals.md`
-- Reading speed of a speech voice [the agent decides]: offer three choices. The agent decides: you pick one of the other two for each part and say which, and why, in the delivery notes. Matched to the melody: the voice reads slower under long notes and faster under short ones (speed 0.7 to 1.15), so less has to be stretched and two nasals across words stay apart (read at 1.0 and stretched, "Come, my love" was heard as "Come, I love"). Fixed: every line at one pace, 1.0 being the voice's own. When the choice is yours, start from matched, which left fewer weak lines in measurements, and fix the speed for a part meant to sound spoken or a part whose lines the vocal check finds weaker matched than fixed. Pass a fixed speed as `song.vocal(..., speed=1.0)`; leaving `speed` out matches the melody (the `held` method then reads at 1.0). Voicebanks have no reading speed
-- Lyrics: the user's own, or written here from a theme they give. Read the lyric craft in `references/vocals.md` before drafting a line, because a draft written first tends to keep its faults. Review the user's own lyrics by the same craft once the voice is chosen, offer revised lines, and follow the user's choice
+- Length and form [3 to 4 minutes in song or club form; uplifting trance runs 7 to 15 minutes, default about 7 and a half]
+- Vocals: none, sung by a built-in speech voice, or sung by a singer voicebank the user supplies
+    - Offer the voice options from `references/vocals.md`
+    - Language [English]
+- Recognition model for the vocal check [base]
+    - Offer small when the machine has room (4 or more CPU cores, 2 GB or more of free memory)
+    - Above all for lyrics in another language, base flags clearly sung lines as weak more often
+    - Medium or larger only when the user asks
+    - Store the choice with `configure --set asr_model=<model>`; the costs per model are in `references/vocals.md`
+- Reading speed of a speech voice [the agent decides]: offer three choices
+    - Matched to the melody: the voice reads slower under long notes and faster under short ones (speed 0.7 to 1.15), so less has to be stretched and two nasals across words stay apart (read at 1.0 and stretched, "Come, my love" was heard as "Come, I love")
+    - Fixed: every line at one pace, 1.0 being the voice's own
+    - The agent decides: you pick one of the other two for each part and say which, and why, in the delivery notes
+    - When the choice is yours, start from matched, which left fewer weak lines in measurements, and fix the speed for a part meant to sound spoken or a part whose lines the vocal check finds weaker matched than fixed
+    - Pass a fixed speed as `song.vocal(..., speed=1.0)`; leaving `speed` out matches the melody (the `held` method then reads at 1.0)
+    - Voicebanks have no reading speed
+- Lyrics: the user's own, or written here from a theme they give
+    - Read the lyric craft in `references/vocals.md` before drafting a line, because a draft written first tends to keep its faults
+    - Review the user's own lyrics by the same craft once the voice is chosen, offer revised lines, and follow the user's choice
 - Sound preferences [the genre's usual kit: 909, 808, 606, Linn or CR-78 style drums, 303-style acid bass, and so on]
-- Mix style [balanced, flexible]: where the foreground (the backbeat, the lead, the lead vocal) sits in the track. Balanced is the default, with the backbeat and the lead vocal a little forward. Forward is a pop or radio mix: the voice and the backbeat stand on top of the track. Vocal puts only the voice and the lead forward and keeps the backbeat at balanced; backbeat is the reverse. Blended is a club mix: the voice and the lead sit inside the track. Offer instrumentals the list without vocal; their foreground is the backbeat and the lead. Adherence is flexible, flexible-HITL (Human in the Loop) or fixed. Flexible means the style is a starting point: parts move 1 to 2 dB as the findings ask, the style itself changes without asking when another fits better, and each move and change is written in the delivery note. Flexible-HITL is the same, except that the user is asked before the style changes. Fixed keeps the foreground parts' levels and the ducking at the style's values and fixes everything else. The choice goes into the script as `song.mix_style()`; how far each style moves the levels, the ducking and the judging window, and the adherence rules, are in the Mix styles section of `references/mixing.md`. Brightness is matched to finished records by the tone fit, so mention it only when the user wants a dark mix
-- Master strength [the genre target, clean limiting]: the default is a clean master whose limiter cuts at most 3 dB from the loudest moments. A hot master raises the genre target by 1 to 2 LU and lets the limiter cut up to 5 dB, which the user accepts together with its pumping and a smeared kick (the loudness step and the Loudness targets sections of `references/mixing.md`). Streaming services turn loud masters down to about -14 LUFS, so a higher value only buys density
-- Render mode [repeatable]: always ask this one and say what each choice costs. Repeatable gives the same file on every render and is slower in the full-mix renders. Fast finishes those sooner, and some songs may then differ slightly between renders. Gentle uses fewer cores so the computer stays usable, and the longest stage takes longer. The table and settings are in `references/setup.md`, Render mode
+- Mix style [balanced]: where the foreground (the backbeat, the lead, the lead vocal) sits in the track
+    - Balanced is the default, with the backbeat and the lead vocal a little forward
+    - Forward is a pop or radio mix: the voice and the backbeat stand on top of the track
+    - Vocal puts only the voice and the lead forward and keeps the backbeat at balanced; backbeat is the reverse
+    - Blended is a club mix: the voice and the lead sit inside the track
+    - Offer instrumentals the list without vocal; their foreground is the backbeat and the lead
+    - The choice goes into the script as `song.mix_style()`
+    - Brightness is matched to finished records by the tone fit, so mention it only when the user wants a dark mix
+- Mix style adherence [flexible]: flexible, flexible-HITL (Human in the Loop) or fixed
+    - Flexible means the style is a starting point: parts move 1 to 2 dB as the findings ask, the style itself changes without asking when another fits better, and each move and change is written in the delivery note
+    - Flexible-HITL is the same, except that the user is asked before the style changes
+    - Fixed keeps the foreground parts' levels and the ducking at the style's values and fixes everything else
+    - How far each style moves the levels, the ducking and the judging window, and the adherence rules, are in the Mix styles section of `references/mixing.md`
+- Master strength [the genre target, clean limiting]: the default is a clean master whose limiter cuts at most 3 dB from the loudest moments
+    - A hot master raises the genre target by 1 to 2 LU and lets the limiter cut up to 5 dB, which the user accepts together with its pumping and a smeared kick (the loudness step and the Loudness targets sections of `references/mixing.md`)
+    - Streaming services turn loud masters down to about -14 LUFS, so a higher value only buys density
+- Render mode [repeatable]: always ask this one and say what each choice costs
+    - Repeatable gives the same file on every render and is slower in the full-mix renders
+    - Fast finishes those sooner, and some songs may then differ slightly between renders
+    - Gentle uses fewer cores so the computer stays usable, and the longest stage takes longer
+    - The table and settings are in `references/setup.md`, Render mode
 - Deliverables [ogg, mp3, MIDI, the LMMS project, a DAWproject file, lyrics]
 - Title [suggest one]
 
@@ -121,7 +153,17 @@ Hand over, with a short note:
 - The overview figure
 - The song script, when the user may want changes later
 
-The note states: title, genre, tempo, key, length, loudness, mix style and adherence (with the parts moved from the style and by how much, when flexible or flexible-HITL, and the planned style and the reason, when the style was changed), and the render mode used. What was checked and what the figures showed. Remaining warnings and why they were kept. Assumptions made. Credits and terms that apply (voices, voicebanks). Which parts are synthesized speech or a voicebank. Keep it to what the user needs to decide whether they are happy.
+The note states:
+
+- Title, genre, tempo, key, length, loudness and the render mode used
+- The mix style and its adherence (with the parts moved from the style and by how much, when flexible or flexible-HITL, and the planned style and the reason, when the style was changed)
+- What was checked and what the figures showed
+- Remaining warnings and why they were kept
+- Assumptions made
+- Credits and terms that apply (voices, voicebanks)
+- Which parts are synthesized speech or a voicebank
+
+Keep it to what the user needs to decide whether they are happy.
 
 ## Working on an existing LMMS project
 

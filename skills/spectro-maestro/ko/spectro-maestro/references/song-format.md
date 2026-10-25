@@ -10,6 +10,7 @@
     + 예시 메시지 : `tracks.vox.parts.v1.lyrics[1]: bar line reached at beat 4.5`
 
 ## 최상위 키
+
 | 키 | 필수 | 내용 |
 |---|---|---|
 | `title`, `artist`, `notes` | 선택 | 메타 정보, `notes`에 기획 의도 기록 |
@@ -136,7 +137,7 @@ vox:
     + `bar`, `beat` : 섹션 안에서 줄이 시작하는 위치
     + `text` : 가사
     + `notes` : 선율 표기, 음 하나가 음절 하나
-    + `phonemes` : 엔진의 발음 기호를 직접 지정 (선택). 보이스뱅크는 자기 기호가 아닌 지정을 무시하고 가사로 부름
+    + `phonemes` : 엔진의 발음 기호를 직접 지정 (선택, 보이스뱅크는 자기 기호가 아닌 지정을 무시하고 가사로 부름)
 - 음절 수와 음 수가 다르면 `lint`가 단어별 음절 수와 함께 보고
 - 한 음절을 여러 음으로 부르려면 음 사이를 `~`로 이음
 - 보컬 설정과 가사 작성 규칙은 `vocals.md` 참조
@@ -182,6 +183,7 @@ sections:
 - 마지막 마디 뒤의 잔향은 `master.tail` 초 동안 서서히 줄어들며 소리가 끝난 뒤 0.4초에서 파일이 끝남
 
 ## 트랙별 믹스 설정
+
 | 키 | 내용 |
 |---|---|
 | `gain_db` | 역할 기본 음량에서 가감 (가장 자주 쓰는 손잡이) |
@@ -198,7 +200,7 @@ sections:
 ## 곡 전체 믹스 설정
 ```yaml
 mix:
-  style: balanced             # 기획에서 고른 전경 배치: forward, balanced(기본), blended (mixing-qa.md의 믹스 스타일 절)
+  style: balanced             # 기획에서 고른 전경 배치: forward, vocal, backbeat, balanced(기본), blended (mixing-qa.md의 믹스 스타일 절)
   returns:
     reverb: {decay: 2.6, damp: 5000}
     delay: {time: 1/8d, feedback: 0.4}
@@ -228,4 +230,4 @@ tracks:
 ## 부분 렌더
 - `render --sections chorus1,verse2` : 지정 섹션만 렌더
 - `render --only kick,bass` : 지정 트랙만 렌더
-- 전체 렌더 전에 한 섹션으로 음색과 균형을 먼저 확인하면 반복 시간이 크게 감소
+- 전체 렌더 전에 한 섹션으로 음색과 균형을 먼저 확인하면 반복 작업 시간이 크게 감소

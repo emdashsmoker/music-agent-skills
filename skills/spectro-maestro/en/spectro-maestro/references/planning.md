@@ -7,6 +7,7 @@
     + It becomes the yardstick for later change requests
 
 ## Questions
+
 | Item | Default | Remarks |
 |---|---|---|
 | Genre | Inferred from the request | Offer the closest id from the `genres` list |
@@ -17,15 +18,39 @@
 | Structure | The genre's standard structure | Present the section list and bar counts as a table |
 | Vocals | None | If wanted, ask the vocal questions below |
 | Delivery formats | ogg, mp3, MIDI, the song file and the project JSON | wav, flac, stems, LMMS and DAWproject on request |
-| Mix style | Balanced, flexible | Where the foreground (the backbeat, the lead, the lead vocal) sits in the track. Forward is a pop or radio mix, vocal puts only the voice and the lead forward, backbeat only the backbeat, balanced is the default, blended a club mix. Offer instrumentals the list without vocal. Adherence is flexible (the style is a starting point, adjusted 1 to 2 dB at a time as the review asks, and changed when another style fits better, with the change reported afterwards), flexible-HITL (Human in the Loop: as flexible, but the user is asked before the style changes) or fixed (the foreground parts and the carve stay at the style's values). Record the choice as `mix.style` and in `notes` (Mix styles in `mixing-qa.md`) |
-| Loudness target | Genre profile | Reflect a stated purpose such as streaming or club play. For a hot master raise the target by 1 to 2 LU and watch `limiter_p95_db` for overwork |
+| Mix style | Balanced, flexible | Where the foreground (the backbeat, the lead, the lead vocal) sits in the track (choices below the table) |
+| Loudness target | Genre profile | Reflect a stated purpose such as streaming or club play (for a hot master raise the target by 1 to 2 LU and watch `limiter_p95_db` for overwork) |
+
+- Mix style choices
+    + Forward : a pop or radio mix
+    + Vocal : only the voice and the lead forward
+    + Backbeat : only the backbeat forward
+    + Balanced : the default
+    + Blended : a club mix
+    + For an instrumental, offer the list without vocal
+- Mix style adherence
+    + Flexible : the style is a starting point, adjusted 1 to 2 dB at a time as the review asks, and changed when another style fits better, with the change reported afterwards
+    + Flexible-HITL (Human in the Loop) : as flexible, but the user is asked before the style changes
+    + Fixed : the foreground parts and the carve stay at the style's values
+    + Record the choice as `mix.style` and in `notes` (Mix styles in `mixing-qa.md`)
 - Extra questions when there are vocals
     + Engine and voice (show the `voices` list, ask whether the user has a singing voicebank)
     + Language
     + Lyrics : provided by the user, or written from a theme the user gives
     + Preference for gender and range
-    + Recognition model for the vocal check (default base) : offer small when the machine has room (4 or more CPU cores, 2 GB or more of free memory), above all for lyrics in another language, where base flags clearly sung lines more often. Medium or larger only when the user asks. Record the choice as the setting `asr_model`; the costs per model are in `vocals.md`
-    + Reading speed of a speech voice (default: the agent decides) : three choices. The agent decides: pick one of the other two for each vocal track and record which, and why, in `notes`. Matched to the melody: the voice reads slower under long notes and faster under short ones (0.7 to 1.15), so less has to be stretched and two nasals across words stay apart. Fixed: every line at one pace, 1.0 being the voice's own, recorded as `vocal: {speed: 1.0}`. Deciding, start from matched, which left fewer weak lines in measurements, and fix the speed for a track meant to sound spoken or a track whose lines the vocal check finds weaker matched than fixed (Reading speed in `vocals.md`)
+    + Recognition model for the vocal check (default base)
+    + Reading speed of a speech voice (default: the agent decides)
+- Choosing the recognition model
+    + Offer small when the machine has room (4 or more CPU cores, 2 GB or more of free memory)
+    + Above all for lyrics in another language, base flags clearly sung lines as weak more often
+    + Medium or larger only when the user asks
+    + Record the choice as the setting `asr_model` (the costs per model are in `vocals.md`)
+- Reading speed choices for a speech voice
+    + Matched to the melody : the voice reads slower under long notes and faster under short ones (0.7 to 1.15), so less has to be stretched and two nasals across words stay apart
+    + Fixed : every line at one pace, 1.0 being the voice's own, recorded as `vocal: {speed: 1.0}`
+    + The agent decides : pick one of the other two for each vocal track and record which, and why, in `notes`
+    + When deciding, start from matched, which left fewer weak lines in measurements
+    + Fix the speed for a track meant to sound spoken, or for a track whose lines the vocal check finds weaker matched than fixed (Reading speed in `vocals.md`)
 - Ask everything in one batch
     + Offer a default with every item so the user only answers what should change
 - If the user leaves it to you, go ahead with the defaults
@@ -53,7 +78,8 @@ Deliverables : ogg, mp3, MIDI, song file, project JSON, ...
 - Lyrics from the user are kept as written in principle
     + Check syllable counts, stress, line-final vowels and rhyme
     + Once the engine and voice are chosen, also check what that voice can sing (sentence structure and words a pronunciation dictionary is unlikely to hold, at the top of the lyric writing rules in `vocals.md`)
-    + Present a list of problem lines with suggested changes; where it helps, play solo clips of the original and the change made with `vocal-try`
+    + Present a list of problem lines with suggested changes
+    + Where it helps, present solo clips of the original and the change made with `vocal-try`
     + Apply only the changes that are approved
     + If the user keeps the original, follow 'Handling unworkable plans' below
 - From a reference song take traits only
@@ -71,7 +97,7 @@ Deliverables : ogg, mp3, MIDI, song file, project JSON, ...
     + Step 1 : explain concretely what the problem is and how the result gets worse
     + Step 2 : offer one or two alternatives that keep the intent (example : lyrics revised only for rhyme)
     + Step 3 : take the user's choice
-- Do not fix it on your own and carry on
+- Do not proceed with a fix made on your own
     + The fixed result may differ from what the user meant
 - If the user keeps the original, follow the original
     + State once, clearly, what loss of quality to expect

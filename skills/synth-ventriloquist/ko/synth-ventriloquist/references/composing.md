@@ -37,7 +37,7 @@ bass.riff("drop", chords, ". . R . . . R . . . R . . R . 8", octave=1)
 pad.chords("drop", chords, octave=3)
 
 song.sidechain("kick", ["bass", "music"], depth_db=6)
-song.mix_style("balanced")                                   # 기획에서 고른 전경 배치: forward, balanced, blended (mixing.md)
+song.mix_style("balanced")                                   # 기획에서 고른 전경 배치: forward, vocal, backbeat, balanced, blended (mixing.md)
 song.master()                                                # 마지막에 한 번 호출
 print(song.save(os.path.join(os.getcwd(), "night_drive.mmp")))
 ```
