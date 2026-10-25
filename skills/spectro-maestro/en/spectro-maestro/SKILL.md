@@ -142,7 +142,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + Add variations and fills to the drum and bass patterns
     + Decide how the song ends (`ending: hit` or `ending: fade`, or a closing section of your own)
 - Rewrite each low-energy section (bridge, break) by emptying the starter's `play` and filling it again with the device chosen in step 1
-    + Write `energy` with a value that fits the chosen device (left out, the tool applies 0.35 for break and 0.5 for bridge)
+    + Write `energy` with a value that fits the chosen device (lint and QA compare against this value as the planned energy)
     + Keep `chords`, `rise`, `hit` and `auto`, or change them on purpose to fit the device
     + Add a pattern the starter lacks to that track's `parts` (syntax in `references/song-format.md`)
 - The song file syntax is in `references/song-format.md`
