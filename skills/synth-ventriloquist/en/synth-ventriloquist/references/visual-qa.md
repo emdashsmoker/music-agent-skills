@@ -26,7 +26,7 @@ After `produce`, in this order:
 6. For each remaining suspicion, make a close-up (below) of the exact bars or the exact vocal line.
 7. Decide: fix and run again, or accept and explain. Write down what was seen and what was changed.
 
-State in the report to the user which figures were examined and what they showed. "The overview shows the kick stripe disappearing in both breakdowns and the full spectrum returning at bar 177" is a review. "Looks good" is not.
+State in the report to the user which figures were examined and what they showed. "The overview shows the kick stripe disappearing in both breakdowns as planned and the full spectrum returning at bar 177" is a review. "Looks good" is not.
 
 ## Figure 1: overview
 

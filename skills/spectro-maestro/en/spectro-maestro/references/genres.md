@@ -11,6 +11,7 @@
 - A starter is a starting point
     + Delivered as it is, every song would be the same, so rewrite melody, progression, structure, fills and the parts playing in low-energy sections to fit the plan
     + For low-energy sections, read the Arrangement text of `genres <id>` first (low-energy devices in `composition.md`)
+    + In low-energy sections, clear the starter's values of `play` and `energy` and write them anew for the planned device
     + Extend the length to the plan by adding sections
 - The `genre` value of the song file decides the mix profile and the QA thresholds
     + Set `genre` even when writing from scratch without a starter

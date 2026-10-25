@@ -87,19 +87,24 @@
     + Widen the register (add a part an octave up)
     + Subdivide the rhythm (from eighth-note to sixteenth-note hi-hats)
 - Ways to lower energy
-    + Close a filter, leave only a pad with plenty of reverb
+    + Close a filter, reduce the number of parts, lower the rhythmic density
 - Choose the device for a low-energy section (bridge, break) on grounds in this order
     + First : the user's instruction
-    + Second : the Arrangement entry of `genres <id>` (the `half-time breakdown` of darksynth, the `break with beat only` of electro, etc.)
+    + Second : the Arrangement entry of `genres <id>` (how to read it is in the next item)
     + Third : what is particular to the song (turning points in the lyrics, mood, references, tempo, length)
-    + Record the chosen device and a one-line reason in the planning summary and in `notes`; the starter's device is fine too when there is a reason
-- Devices in song form (built around verse and chorus) (in brackets the `energy` starting point, adjusted to the actual density)
+    + Record the chosen device, a one-line reason and one other device compared in the planning summary and in `notes`; the starter's device is fine too when there is a reason
+    + The one-line reason holds whichever applies: the user's instruction, a quotation of the Arrangement text, or the input particular to the song
+- Use the Arrangement text of the second ground within the scope of what it states
+    + A device that takes out or changes parts rests on text that states that action (the `half-time breakdown` of darksynth, the `breakdown strips to bass and strings` of disco)
+    + Text that lists the parts that remain (the `with pads and vocal` of futurepop, etc.) is a ground to include those parts
+    + Text that gives only the name (`break`, `breakdown`, `bridge`) leaves the device open, so go on to the third ground
+- Devices in song form (a structure with a chorus) (in brackets the `energy` starting point, adjusted to the actual density)
     + Half-time : drums kept, snare moved to beat 3 for a slowed-down feel, long bass notes (0.5-0.6)
     + Drums only : harmonic parts removed, mostly drums and percussion (0.5)
     + Kick out : bass, hats and pad kept (0.5)
     + Harmonic shift : drums kept, `chords` other than the verse's or a modulation with `transpose` (0.6-0.7)
     + Kick and bass out : only the pad and the theme remain (0.3-0.4)
-- In club form (built around build and drop) the break keeps the kickless shape as a genre convention unless the Arrangement entry gives another
+- In club form (a structure built on build and drop without a chorus) the break keeps the kickless shape as a genre convention unless the Arrangement entry gives another
     + Vary what it carries : a preview of the theme, a new progression, a vocal, percussion
     + Vary its length : 8, 16 or 32 bars within the genre's convention
     + Vary the second drop : one change from 'When a section returns' below

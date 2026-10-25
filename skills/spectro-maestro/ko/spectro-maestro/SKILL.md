@@ -110,6 +110,7 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
 - 장르, 분위기, 템포, 조, 길이, 구성, 보컬 유무, 믹스 스타일, 음량 목표, 전달 형식을 사용자와 합의
     + 항목마다 기본값을 제시하고 사용자가 바꿀 항목만 답하게 함
     + 질의 항목과 기본값, 요약 양식은 `references/planning.md`
+    + 저에너지 구간(bridge, break)의 장치는 `references/composition.md`의 목록과 근거 순서로 선택
 - `studio genres <id>`로 장르 관습을 읽고 시작
     + 목록에 없는 장르의 처리는 `references/genres.md`
 - 사용자가 준 가사, 선율, 레퍼런스는 그대로 존중
@@ -131,8 +132,11 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
     + 섹션 목록과 마디 수를 기획의 길이에 맞춤
     + 코드 진행을 곡의 성격에 맞게 교체
     + 드럼과 베이스 패턴에 변주와 필인 추가
-    + 저에너지 구간(bridge, break)의 장치를 `references/composition.md` 목록에서 선택, 근거와 함께 `notes`에 기록
     + 곡의 끝 처리를 정함 (`ending: hit` 또는 `ending: fade`, 또는 끝맺음 섹션)
+- 저에너지 구간(bridge, break)은 스타터의 `play`를 비운 뒤 1단계에서 고른 장치대로 다시 작성
+    + `energy`는 고른 장치에 맞는 값을 직접 기입 (적지 않으면 도구가 break 0.35, bridge 0.5를 적용)
+    + `chords`, `rise`, `hit`, `auto`는 유지하거나 장치에 맞게 의도적으로 수정
+    + 스타터에 없는 패턴은 해당 트랙의 `parts`에 추가 (문법은 `references/song-format.md`)
 - 곡 파일 문법은 `references/song-format.md`
     + 처음 쓰기 전에 끝까지 한 번 읽음
 - `studio lint song.yaml`로 확인
@@ -144,7 +148,7 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
     + 강박에 코드음, 순차 진행 위주, 프레이즈 끝의 해결
 - 섹션마다 에너지를 설계
     + 성부 수, 필터, 음역, 리듬 밀도로 오르내림을 만듦
-    + 전환 장치(라이저, 스네어 롤, 임팩트, 킥 비우기)로 경계를 표시
+    + 전환 장치(라이저, 스네어 롤, 임팩트, 드롭 직전의 짧은 킥 비우기 `gap`)로 경계를 표시
 - 작곡과 편곡 지침, lint 항목 해설은 `references/composition.md`
 - 악기 선택과 패치 수정은 `references/sound.md`
     + 낯선 악기는 `studio audition <악기>`의 그림과 수치로 확인
@@ -251,7 +255,7 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
 |---|---|
 | `references/planning.md` | 기획 질의, 사용자 입력 처리, 무리한 요청 대응 |
 | `references/song-format.md` | 곡 파일을 쓰기 전 (필수) |
-| `references/composition.md` | 코드, 선율, 편곡을 짤 때와 lint 결과를 해석할 때 |
+| `references/composition.md` | 기획에서 저에너지 구간 장치를 정할 때, 코드와 선율을 짜거나 편곡할 때, lint 결과를 해석할 때 |
 | `references/genres.md` | 장르 선택, 목록에 없는 장르, 장르 파일 추가 |
 | `references/sound.md` | 악기 선택, 패치 수정, 이펙트 |
 | `references/mixing-qa.md` | 렌더 후 검수와 믹스 수정 (필수) |
