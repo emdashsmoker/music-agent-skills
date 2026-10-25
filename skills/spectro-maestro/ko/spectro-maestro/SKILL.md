@@ -134,7 +134,7 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
     + 드럼과 베이스 패턴에 변주와 필인 추가
     + 곡의 끝 처리를 정함 (`ending: hit` 또는 `ending: fade`, 또는 끝맺음 섹션)
 - 저에너지 구간(bridge, break)은 스타터의 `play`를 비운 뒤 1단계에서 고른 장치대로 다시 작성
-    + `energy`는 고른 장치에 맞는 값을 직접 기입 (적지 않으면 도구가 break 0.35, bridge 0.5를 적용)
+    + `energy`는 고른 장치에 맞는 값을 직접 기입 (lint와 QA가 이 값을 기획 에너지로 비교)
     + `chords`, `rise`, `hit`, `auto`는 유지하거나 장치에 맞게 의도적으로 수정
     + 스타터에 없는 패턴은 해당 트랙의 `parts`에 추가 (문법은 `references/song-format.md`)
 - 곡 파일 문법은 `references/song-format.md`
