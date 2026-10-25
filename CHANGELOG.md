@@ -27,6 +27,18 @@ Changelog rules
 - (Push) Commit on top of the latest main and push directly to main.
 -->
 
+## 2026-10-25
+
+### Common
+- Fixed the mix style descriptions and measurement figures in the reference pages to match the five styles in the code and the measurement tables (#82)
+
+* 코드의 다섯 가지 스타일과 측정표에 맞게 참조 문서의 믹스 스타일 설명과 측정 수치 수정 (#82)
+
+### spectro-maestro
+- Fixed two tables in SKILL.md and references/export.md that were shown as plain text (#82)
+
+* SKILL.md와 references/export.md에서 일반 텍스트로 표시되던 표 2개 수정 (#82)
+
 ## 2026-10-22
 
 ### Common
