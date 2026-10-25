@@ -93,7 +93,7 @@ Collect the plan in one round of questions. Skip what the user already stated, a
 
 `python scripts/lmms_tool.py genres <name>` prints the profile for a style, and `references/genres.md` describes the idiom. For a style without a profile, plan from your own knowledge of the genre and state your assumptions.
 
-Then write the plan back in a few lines: title, genre, tempo, key, sections with bar counts and total length, parts per section, the chord progression, the vocal approach, the mix style and its adherence, and what will be delivered. Wait for the user's confirmation or changes. If nobody is there to answer, proceed with the defaults and put the assumptions at the top of the delivery notes.
+Then write the plan back in a few lines: title, genre, tempo, key, sections with bar counts and total length, parts per section, the low-energy devices and their reasons, the chord progression, the vocal approach, the mix style and its adherence, and what will be delivered. Wait for the user's confirmation or changes. If nobody is there to answer, proceed with the defaults and put the assumptions at the top of the delivery notes.
 
 Pause and ask when a request is unclear or surprising for the stated goal, for example lyrics that contradict the mood, a tempo far outside the genre, or a length the form cannot fill. Say what seems off and offer two concrete alternatives. Do not change the plan on your own. If the user keeps the original plan, state once, clearly, what loss of quality to expect, then go ahead with the plan and record the measurements and limits of that part in the delivery notes. For lyrics: show the full text and get approval before any line is sung.
 
@@ -196,7 +196,7 @@ Each page holds what its stage needs and this file does not repeat. Read the pag
 
 ## Example songs
 
-`examples/` holds four finished songs as scripts, with their MIDI files and lyrics: an uplifting trance instrumental, an acid techno instrumental, a futurepop song with a sung vocal and two drum arrangements, and a doomer song with a low vocal. Read the one closest to the task before writing a new script: they show section planning, energy curves, vocal lines and mix moves in working form. `examples/README.md` says what each one demonstrates and how to run it. They write into the current folder, so run them from a work folder.
+`examples/` holds four finished songs as scripts, with their MIDI files and lyrics: an uplifting trance instrumental, an acid techno instrumental, a futurepop song with a sung vocal and two drum arrangements, and a doomer song with a low vocal. Read the one closest to the task before writing a new script: they show section planning, energy curves, vocal lines and mix moves in working form. The section planning and breakdown handling of a new song follow that song's plan. `examples/README.md` says what each one demonstrates and how to run it. They write into the current folder, so run them from a work folder.
 
 ## Commands
 

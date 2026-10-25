@@ -25,12 +25,18 @@
     + One for the verse, one for the chorus, one for the bridge
     + Electronic music often keeps one progression and develops through timbre and density
 - Basic progressions for minor-key genres
-    + `i | VI | III | VII` : the most general
+    + `i | VI | III | VII` : a loop in which the major chords VI and III brighten the minor key
     + `VI | VII | i | i` : lifting, for choruses and climaxes
     + `i | iv | VI | V` : tension (V is the major triad of the harmonic minor)
     + `i | i | bVII | bVII` : small movement for one-chord genres
 - A chorus that starts on a different chord from the verse stands apart clearly
 - Written in Roman numerals, the progression survives a change of key
+- Choose the harmonic rhythm to suit the section
+    + One chord per two bars : `Am | % | F | %`, slow harmonic change
+    + Two chords per bar : `Am F | C G`, fast harmonic change
+    + Beats given directly : `Am | Am:3 G:1`, a short passing chord at the end of the bar
+- One colour chord may go at the end of a bridge or prechorus
+    + A seventh chord, sus4, add9 or a borrowed chord (`Gsus4`, `Fadd9`, `IV` in a minor-key song)
 
 ## Melody
 - Put mostly chord tones on strong beats (first and third beat)
@@ -41,8 +47,11 @@
     + After a leap, continue by step in the opposite direction
 - End a phrase on the root, third or fifth of the chord
     + The root closes, the fifth leads on
+    + Keep the root ending for the last phrase of a section and end the other phrases mostly on the third or fifth
 - A hook repeats a motif of about two bars and changes only its ending
     + Moving the same motif onto a different chord is the easiest way to develop it
+- Asymmetric phrase lengths (2+2+4 bars, 3+5 bars) are allowed
+    + A vocal song follows the length of its lyric lines
 - Place the chorus melody a third to a fifth higher than the verse
 
 ## Bass
@@ -71,20 +80,34 @@
 
 ## Designing energy in the arrangement
 - Decide `energy` (0-1) for every section first
-    + Starting points: intro 0.3, verse 0.5, build 0.7, chorus 0.9, drop 1.0, break 0.35
+    + Starting points: intro 0.3, verse 0.5, build 0.7, chorus 0.9, drop 1.0, break 0.35 in club form
 - Ways to raise energy
     + Add tracks (especially hi-hat, ride, clap)
     + Open a filter (`lpf` in `auto`)
     + Widen the register (add a part an octave up)
     + Subdivide the rhythm (from eighth-note to sixteenth-note hi-hats)
 - Ways to lower energy
-    + Removing kick and bass has the largest effect
     + Close a filter, leave only a pad with plenty of reverb
+- Choose the device for a low-energy section (bridge, break) on grounds in this order
+    + First : the user's instruction
+    + Second : the Arrangement entry of `genres <id>` (the `half-time breakdown` of darksynth, the `break with beat only` of electro, etc.)
+    + Third : what is particular to the song (turning points in the lyrics, mood, references, tempo, length)
+    + Record the chosen device and a one-line reason in the planning summary and in `notes`; the starter's device is fine too when there is a reason
+- Devices in song form (built around verse and chorus) (in brackets the `energy` starting point, adjusted to the actual density)
+    + Half-time : drums kept, snare moved to beat 3 for a slowed-down feel, long bass notes (0.5-0.6)
+    + Drums only : harmonic parts removed, mostly drums and percussion (0.5)
+    + Kick out : bass, hats and pad kept (0.5)
+    + Harmonic shift : drums kept, `chords` other than the verse's or a modulation with `transpose` (0.6-0.7)
+    + Kick and bass out : only the pad and the theme remain (0.3-0.4)
+- In club form (built around build and drop) the break keeps the kickless shape as a genre convention unless the Arrangement entry gives another
+    + Vary what it carries : a preview of the theme, a new progression, a vocal, percussion
+    + Vary its length : 8, 16 or 32 bars within the genre's convention
+    + Vary the second drop : one change from 'When a section returns' below
 - Transition devices
     + End of a section : `rise` with riser, snare_roll, reverse_crash
     + Start of a section : `hit` with crash, impact
     + Leave the kick out for one bar or one beat right before a drop (`gap`)
-    + Start of a break : downlifter
+    + Start of a break : the downlifter of `hit`, a filter closing with `auto`, or no device
 - When a section returns, change one thing
     + One of: an added part, added harmony, a different fill, an octave shift
 - QA compares the measured loudness ranking of the sections with the `energy` ranking, so the gap between plan and result can be seen
@@ -105,6 +128,9 @@
 - Velocity variation is half of the groove
     + Mix `x` and `o` in the hi-hat pattern
     + Snare ghost notes are `o`
+- Off-beats go to the instrument parts (bass, stabs, hat accents, a lead answering the gaps in the vocal)
+    + An instrumental may also syncopate the lead hook (a 3-3-2 rhythm, anticipations)
+    + Vocal syllables are placed by the rules in `vocals.md`
 
 ## Arranging a vocal song
 - While the voice sings, a lead in the same register rests

@@ -139,6 +139,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + Match the section list and bar counts to the planned length
     + Replace the chord progression to suit the song's character
     + Add variations and fills to the drum and bass patterns
+    + Choose the device for low-energy sections (bridge, break) from the list in `references/composition.md` and record it with its reason in `notes`
     + Decide how the song ends (`ending: hit` or `ending: fade`, or a closing section of your own)
 - The song file syntax is in `references/song-format.md`
     + Read it through once before writing for the first time
@@ -249,7 +250,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + Something to render as a check of the installation
 - When rendering one again, put the output folder outside the skill
     + `studio render <skill folder>/examples/silver_box/silver_box.yaml -o <working folder>/silver_box_out`
-- Do not carry an example's melody, lyrics or chord progression over into a new song
+- Do not carry an example's melody, lyrics, chord progression, structure or handling of low-energy sections over into a new song
     + A new song is composed afresh to its plan
 
 ## Reference files

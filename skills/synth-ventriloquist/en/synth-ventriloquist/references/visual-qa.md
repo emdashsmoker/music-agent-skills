@@ -35,8 +35,8 @@ State in the report to the user which figures were examined and what they showed
 What a healthy electronic track shows:
 
 - The loudness curve steps with the sections: lower in intros and breakdowns, highest in drops, chorus and climax. A flat line from start to end means the limiter is flattening everything, or the arrangement has no contrast.
-- A dark stripe at the bottom (about 40 to 100 Hz) wherever kick and bass play, and a gap in that stripe during breakdowns.
-- Fine vertical lines through the whole height: drum hits. Their absence marks a breakdown.
+- A dark stripe at the bottom (about 40 to 100 Hz) wherever kick and bass play, and a gap in that stripe where the plan takes out both kick and bass.
+- Fine vertical lines through the whole height: drum hits. They are absent where the plan takes out the drums.
 - Rising diagonal smears before drops: risers and filter sweeps opening.
 - Horizontal lines in the middle: held notes of pads, leads and vocals. They should change with the chords.
 - Energy up to 10 kHz and beyond in full sections. A song that goes pale above 5 kHz everywhere is dull. A solid dark block from 2 to 8 kHz is harsh.
@@ -44,7 +44,7 @@ What a healthy electronic track shows:
 What to catch:
 
 - A section that looks the same as its neighbours although the plan says it differs: a part is probably missing (wrong position, silent patch).
-- The low stripe continuing through a breakdown: the bass or kick was not removed.
+- The stripe of a part the plan takes out continuing through that stretch: the part was not removed. Stripes of drums and bass the plan keeps are normal.
 - White columns (silence) in the middle of the song that the plan does not intend.
 - The end cut off while lines are still dark: raise `tail_bars`.
 - A loudness dip of several dB in a section meant to be the peak.
@@ -62,7 +62,7 @@ What to catch:
 `fig_arrangement.png`: one row per part, a block for every bar in which it plays, section lines on top.
 
 - Check it against the plan: entries, exits and breakdowns should be where the script put them. An empty row is a part that never plays.
-- Look for the staircase in intros and outros (parts entering and leaving one by one), the hole where the drums drop out, and the full wall in the climax.
+- Look for the staircase in intros and outros (parts entering and leaving one by one), the hole where the plan takes parts out, and the full wall in the climax.
 - Long unbroken rows for every part from start to end mean the arrangement never changes.
 
 ## Figure 4: stem spectra
