@@ -104,22 +104,24 @@ These habits separate a finished track from a loop. They are defaults to reason 
 
 - Think in 8 and 16 bar phrases. Something should change at every phrase boundary: a part enters or leaves, a filter opens, a fill plays.
 - One or two parts own the foreground at any moment. The others support. When the vocal sings, the lead rests or answers in the gaps.
-- Energy has a shape. The loudest and densest section comes late (final chorus, climax). Low-energy sections such as a bridge, a break or a breakdown are handled with the devices listed below.
+- Energy has a shape. The loudest and densest section comes late (final chorus, climax). Contrast sections such as a bridge, a break or a breakdown are handled with the devices listed below.
 - Mark transitions: a fill or roll in the last bar, a riser into the new section, an impact on its first beat, and a short silence just before a drop when the genre likes drama.
 - Give the low end one owner per moment. Kick and bass share it through sidechain or through rhythm (bass notes between the kicks).
 - Repetition needs variation every four or eight bars: an extra ghost note, an octave jump, an open hat, a changed last bar. The lint reports parts that repeat unchanged for long stretches.
 - Off-beats go to the instrument parts: the bass, stabs, hat accents, a lead answering where the vocal rests. An instrumental may also syncopate the lead hook (a 3-3-2 rhythm, anticipations that arrive ahead of the beat). Vocal syllables are placed by the rules in `vocals.md`.
 - Intros and outros in club genres are drum-led and 16 to 32 bars long so that DJs can mix them. Songs for listening can start with the hook in 4 to 8 bars.
 
-Choose the device for a low-energy section on grounds in this order: the user's instruction, the genre recipe in `genres.md`, then what is particular to the song (turning points in the lyrics, mood, references, tempo, length). Read a recipe for what it states: text that names an action of taking out or changing parts grounds that action, text that lists the parts that remain grounds including those parts, and text that gives only the section name leaves the device open, so move on to what is particular to the song. Write the chosen device, a one-line reason and one other device you compared in the plan summary and the delivery notes. The same choice as an example is fine when there is a reason for it. Keep a bridge below the chorus in the planned energy curve. Song form has these devices for a bridge or an instrumental break:
+A contrast section refreshes the ear with a feel unlike the sections before and after it. Contrast can be made by any means among rhythm, harmony, timbre and arrangement, and taking out parts is one way within the arrangement means. Choose the device for a contrast section on grounds in this order: the user's instruction, the genre recipe in `genres.md`, then what is particular to the song (turning points in the lyrics, mood, references, tempo, length). Read a recipe for what it states: text that names an action of taking out or changing parts grounds that action, text that lists the parts that remain grounds including those parts, and text that gives only the section name leaves the device open, so move on to what is particular to the song. Write the chosen device, a one-line reason and one device you compared in the plan summary and the delivery notes. Take the compared device from a means other than that of the chosen device. The same choice as an example is fine when there is a reason for it. Keep a bridge below the chorus in the planned energy curve; it need not sit below the verse. When what is particular to the song is the ground, turn that input into one effect this section is to carry (weight, a breather, a change of phase, unbroken drive, exposed rhythm, a floating feel, stillness, and so on), then link that effect to a device that gains it. Contrast sections in song form and club form have these devices, and every device gains one effect and gives up another:
 
-- Half-time: keep the drums and move the snare to beat 3 (`--------x-------`) for a slowed-down feel. The bass plays long notes.
-- Drums only: take out the harmonic parts and keep mostly drums and percussion.
-- Kick out: keep the bass, hats and pad.
-- Harmonic shift: keep the drums and use a progression other than the verse's, or a modulation.
-- Kick and bass out: keep only the pad and the theme.
+- [rhythm] Half-time: keep the drums and move the snare to beat 3 (`--------x-------`). The bass plays long notes. It gains weight and a slowed-down stride, and gives up the forward rush.
+- [rhythm] Sparse kick: put the kick only on the first beat of the bar or on beats 1 and 3, and keep the hats and percussion sparse too. It gains a breather that keeps the pulse, and gives up the density of the groove.
+- [harmony] Harmonic shift: keep the drums and use a progression other than the verse's, or a modulation. It gains a change of emotional phase, and gives up the fall in energy.
+- [timbre] Filtered drums: put a low-pass on the drum parts or the drum bus for a muffled sound. It gains unbroken drive, and gives up the size of the contrast.
+- [arrangement] Drums only: take out the harmonic parts and keep mostly drums and percussion. It gains exposed rhythm and the tension of a harmonic gap, and gives up the flow of melody and harmony.
+- [arrangement] Kick out: keep the bass, hats and pad. It gains a floating feel as the floor lifts and an exposed bass line, and gives up the weight of the beat.
+- [arrangement] Kick and bass out: keep only the pad and the theme. It gains the largest contrast and a melody exposed in stillness, and gives up the pulse.
 
-A breakdown in club form stays without the kick, as the genre convention has it. Where a recipe gives another shape, follow the recipe. Vary it through what it carries (a preview of the theme, a new progression, a vocal, percussion), its length (8, 16 or 32 bars within the genre's convention), and one thing added to the second drop (a part, a harmony, a fill, an octave).
+Choose the device for a breakdown in club form on grounds in the same order too. A kickless breakdown has its ground in genres whose recipe states the action of taking out the kick. Vary it through what it carries (a preview of the theme, a new progression, a vocal, percussion), its length (8, 16 or 32 bars within the genre's convention), and one thing added to the second drop (a part, a harmony, a fill, an octave).
 
 ## Vocal parts
 

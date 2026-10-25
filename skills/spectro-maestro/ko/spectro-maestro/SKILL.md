@@ -110,9 +110,10 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
 - 장르, 분위기, 템포, 조, 길이, 구성, 보컬 유무, 믹스 스타일, 음량 목표, 전달 형식을 사용자와 합의
     + 항목마다 기본값을 제시하고 사용자가 바꿀 항목만 답하게 함
     + 질의 항목과 기본값, 요약 양식은 `references/planning.md`
-    + 저에너지 구간(bridge, break)의 장치는 `references/composition.md`의 목록과 근거 순서로 선택
+    + 대비 구간(bridge, break)의 장치는 `references/composition.md`의 목록과 근거 순서로 선택
 - `studio genres <id>`로 장르 관습을 읽고 시작
     + 목록에 없는 장르의 처리는 `references/genres.md`
+    + 장르 파일의 `song` 스타터는 기획 근거로 쓰지 않음 (2단계 문법의 출발점)
 - 사용자가 준 가사, 선율, 레퍼런스는 그대로 존중
     + 문제가 보이면 위치와 대안을 제시하고 선택을 받음
     + 가사는 고른 목소리의 역량 기준으로도 검토 (`references/vocals.md`)
@@ -133,7 +134,7 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
     + 코드 진행을 곡의 성격에 맞게 교체
     + 드럼과 베이스 패턴에 변주와 필인 추가
     + 곡의 끝 처리를 정함 (`ending: hit` 또는 `ending: fade`, 또는 끝맺음 섹션)
-- 저에너지 구간(bridge, break)은 스타터의 `play`를 비운 뒤 1단계에서 고른 장치대로 다시 작성
+- 대비 구간(bridge, break)은 스타터의 `play`를 비운 뒤 1단계에서 고른 장치대로 다시 작성
     + `energy`는 고른 장치에 맞는 값을 직접 기입 (lint와 QA가 이 값을 기획 에너지로 비교)
     + `chords`, `rise`, `hit`, `auto`는 유지하거나 장치에 맞게 의도적으로 수정
     + 스타터에 없는 패턴은 해당 트랙의 `parts`에 추가 (문법은 `references/song-format.md`)
@@ -246,7 +247,7 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
     + 설치 확인용 렌더 대상
 - 다시 렌더할 때는 출력 폴더를 스킬 밖으로 지정
     + `studio render <스킬 폴더>/examples/silver_box/silver_box.yaml -o <작업 폴더>/silver_box_out`
-- 예제의 선율, 가사, 코드 진행, 구성, 저에너지 구간 처리를 새 곡에 그대로 옮기지 않음
+- 예제의 선율, 가사, 코드 진행, 구성, 대비 구간 처리를 새 곡에 그대로 옮기지 않음
     + 새 곡은 기획에 맞춰 새로 작곡
 
 ## 참조 문서
@@ -255,7 +256,7 @@ description: 완성곡을 코드로 작곡, 편곡, 합성, 믹싱, 마스터링
 |---|---|
 | `references/planning.md` | 기획 질의, 사용자 입력 처리, 무리한 요청 대응 |
 | `references/song-format.md` | 곡 파일을 쓰기 전 (필수) |
-| `references/composition.md` | 기획에서 저에너지 구간 장치를 정할 때, 코드와 선율을 짜거나 편곡할 때, lint 결과를 해석할 때 |
+| `references/composition.md` | 기획에서 대비 구간 장치를 정할 때, 코드와 선율을 짜거나 편곡할 때, lint 결과를 해석할 때 |
 | `references/genres.md` | 장르 선택, 목록에 없는 장르, 장르 파일 추가 |
 | `references/sound.md` | 악기 선택, 패치 수정, 이펙트 |
 | `references/mixing-qa.md` | 렌더 후 검수와 믹스 수정 (필수) |

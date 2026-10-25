@@ -118,9 +118,10 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 - Agree with the user on genre, mood, tempo, key, length, structure, vocals or not, mix style, loudness target, and delivery formats
     + Offer a default for each item so the user only answers what they want changed
     + The questions, defaults and summary form are in `references/planning.md`
-    + Choose the device for low-energy sections (bridge, break) from the list in `references/composition.md`, following its order of grounds
+    + Choose the device for contrast sections (bridge, break) from the list in `references/composition.md`, following its order of grounds
 - Start by reading the genre's conventions with `studio genres <id>`
     + For genres that are not in the list see `references/genres.md`
+    + Do not use the `song` starter of a genre file as a ground for planning (it is the starting point for the syntax of step 2)
 - Respect lyrics, melodies and references the user provides as they are
     + When something looks wrong, show where and offer alternatives, and let the user choose
     + Review lyrics against what the chosen voice can sing too (`references/vocals.md`)
@@ -141,7 +142,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + Replace the chord progression to suit the song's character
     + Add variations and fills to the drum and bass patterns
     + Decide how the song ends (`ending: hit` or `ending: fade`, or a closing section of your own)
-- Rewrite each low-energy section (bridge, break) by emptying the starter's `play` and filling it again with the device chosen in step 1
+- Rewrite each contrast section (bridge, break) by emptying the starter's `play` and filling it again with the device chosen in step 1
     + Write `energy` with a value that fits the chosen device (lint and QA compare against this value as the planned energy)
     + Keep `chords`, `rise`, `hit` and `auto`, or change them on purpose to fit the device
     + Add a pattern the starter lacks to that track's `parts` (syntax in `references/song-format.md`)
@@ -254,7 +255,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
     + Something to render as a check of the installation
 - When rendering one again, put the output folder outside the skill
     + `studio render <skill folder>/examples/silver_box/silver_box.yaml -o <working folder>/silver_box_out`
-- Do not carry an example's melody, lyrics, chord progression, structure or handling of low-energy sections over into a new song
+- Do not carry an example's melody, lyrics, chord progression, structure or handling of contrast sections over into a new song
     + A new song is composed afresh to its plan
 
 ## Reference files
@@ -263,7 +264,7 @@ description: Spectro Maestro (English edition) composes, arranges, synthesises, 
 |---|---|
 | `references/planning.md` | Planning questions, handling user input, responding to unworkable requests |
 | `references/song-format.md` | Before writing a song file (required) |
-| `references/composition.md` | When choosing the low-energy device in planning, when writing chords and melody or arranging, and when reading lint results |
+| `references/composition.md` | When choosing the contrast-section device in planning, when writing chords and melody or arranging, and when reading lint results |
 | `references/genres.md` | Choosing a genre, genres not in the list, adding a genre file |
 | `references/sound.md` | Choosing instruments, changing patches, effects |
 | `references/mixing-qa.md` | Review after rendering and fixing the mix (required) |

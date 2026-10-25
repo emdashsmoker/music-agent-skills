@@ -80,7 +80,8 @@
 
 ## Designing energy in the arrangement
 - Decide `energy` (0-1) for every section first
-    + Starting points: intro 0.3, verse 0.5, build 0.7, chorus 0.9, drop 1.0, break 0.35 in club form
+    + Starting points: intro 0.3, verse 0.5, build 0.7, chorus 0.9, drop 1.0
+    + A contrast section (bridge, break) only has to sit below the chorus and the drop; it need not sit below the verse
 - Ways to raise energy
     + Add tracks (especially hi-hat, ride, clap)
     + Open a filter (`lpf` in `auto`)
@@ -88,23 +89,34 @@
     + Subdivide the rhythm (from eighth-note to sixteenth-note hi-hats)
 - Ways to lower energy
     + Close a filter, reduce the number of parts, lower the rhythmic density
-- Choose the device for a low-energy section (bridge, break) on grounds in this order
+- A contrast section refreshes the ear with a feel unlike the sections before and after it
+    + Contrast can be made by any means among rhythm, harmony, timbre and arrangement
+    + Taking out parts is one way within the arrangement means
+- Choose the device for a contrast section on grounds in this order
     + First : the user's instruction
-    + Second : the Arrangement entry of `genres <id>` (how to read it is in the next item)
+    + Second : the Arrangement entry of `genres <id>` (how to read it is in the item below)
     + Third : what is particular to the song (turning points in the lyrics, mood, references, tempo, length)
-    + Record the chosen device, a one-line reason and one other device compared in the planning summary and in `notes`; the starter's device is fine too when there is a reason
+    + Record the chosen device, a one-line reason and one device compared in the planning summary and in `notes`
+    + Take the compared device from a means other than that of the chosen device
     + The one-line reason holds whichever applies: the user's instruction, a quotation of the Arrangement text, or the input particular to the song
+- The `song` starter of a genre file is the starting point for the syntax of step 2 and is not a ground for choosing the device
 - Use the Arrangement text of the second ground within the scope of what it states
     + A device that takes out or changes parts rests on text that states that action (the `half-time breakdown` of darksynth, the `breakdown strips to bass and strings` of disco)
     + Text that lists the parts that remain (the `with pads and vocal` of futurepop, etc.) is a ground to include those parts
     + Text that gives only the name (`break`, `breakdown`, `bridge`) leaves the device open, so go on to the third ground
-- Devices in song form (a structure with a chorus) (in brackets the `energy` starting point, adjusted to the actual density)
-    + Half-time : drums kept, snare moved to beat 3 for a slowed-down feel, long bass notes (0.5-0.6)
-    + Drums only : harmonic parts removed, mostly drums and percussion (0.5)
-    + Kick out : bass, hats and pad kept (0.5)
-    + Harmonic shift : drums kept, `chords` other than the verse's or a modulation with `transpose` (0.6-0.7)
-    + Kick and bass out : only the pad and the theme remain (0.3-0.4)
-- In club form (a structure built on build and drop without a chorus) the break keeps the kickless shape as a genre convention unless the Arrangement entry gives another
+- For the third ground, turn the input particular to the song into one effect this section is to carry, then link that effect to a device that gains it
+    + Examples of effects : weight, a breather, a change of phase, unbroken drive, exposed rhythm, a floating feel, stillness
+- Contrast-section devices (shared by song form and club form; set `energy` from the actual density)
+    + Every device gains one effect and gives up another
+    + [rhythm] Half-time : drums kept, snare moved to beat 3, long bass notes / gains weight and a slowed-down stride, gives up the forward rush
+    + [rhythm] Sparse kick : the kick only on the first beat of the bar or on beats 1 and 3, hats and percussion played sparsely too / gains a breather that keeps the pulse, gives up the density of the groove
+    + [harmony] Harmonic shift : drums kept, `chords` other than the verse's or a modulation with `transpose` / gains a change of emotional phase, gives up the fall in energy
+    + [timbre] Filtered drums : the `lpf` of the drum tracks lowered for a muffled sound / gains unbroken drive, gives up the size of the contrast
+    + [arrangement] Drums only : harmonic parts removed, mostly drums and percussion / gains exposed rhythm and the tension of a harmonic gap, gives up the flow of melody and harmony
+    + [arrangement] Kick out : bass, hats and pad kept / gains a floating feel as the floor lifts and an exposed bass line, gives up the weight of the beat
+    + [arrangement] Kick and bass out : only the pad and the theme remain / gains the largest contrast and a melody exposed in stillness, gives up the pulse
+- In club form (a structure built on build and drop without a chorus) choose the break's device on grounds in the same order too
+    + A kickless break has the second ground in genres whose Arrangement text states taking out the kick
     + Vary what it carries : a preview of the theme, a new progression, a vocal, percussion
     + Vary its length : 8, 16 or 32 bars within the genre's convention
     + Vary the second drop : one change from 'When a section returns' below
