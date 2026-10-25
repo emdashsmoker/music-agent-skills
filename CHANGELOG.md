@@ -37,6 +37,8 @@ Changelog rules
 - Added the low-energy device and its reason to the planning summary shown to the user (#84)
 - Added harmonic rhythm choices and a colour chord option to the harmony guidance (#84)
 - Added melody guidance on root endings, asymmetric phrase lengths and off-beats in instrument parts (#84)
+- Added one other device compared to the low-energy line of the planning summary (#86)
+- Added a rule for reading genre wording that tells apart text stating an action on parts, text listing the remaining parts and text giving only the section name (#86)
 
 * 코드의 다섯 가지 스타일과 측정표에 맞게 참조 문서의 믹스 스타일 설명과 측정 수치 수정 (#82)
 * 여러 문장이 쌓인 SKILL.md와 참조 문서의 불렛과 문단을 지시 하나씩 담은 하위 불렛으로 변경 (#82)
@@ -45,28 +47,38 @@ Changelog rules
 * 사용자에게 보여 주는 기획 요약에 저에너지 구간 장치와 근거 추가 (#84)
 * 화성 지침에 화성 리듬 선택지와 색채 코드 추가 (#84)
 * 근음 종결, 비대칭 프레이즈 길이, 악기 파트 엇박을 다루는 선율 지침 추가 (#84)
+* 기획 요약의 저에너지 구간 항목에 비교한 다른 장치 1개 추가 (#86)
+* 동작을 적은 문구, 남는 파트를 나열한 문구, 섹션 이름만 적은 문구를 구분하는 장르 문구 해석 기준 추가 (#86)
 
 ### spectro-maestro
 - Fixed two tables in SKILL.md and references/export.md that were shown as plain text (#82)
 - Fixed the measurement notes of references/mixing-qa.md that listed the forward and blended window checks under the backbeat style (#82)
 - Removed the "most general" label of the i VI III VII progression in references/composition.md (#84)
 - Changed the weak-drop remedy of references/mixing-qa.md to compare the planned energy order with the measured loudness order (#84)
+- Added the low-energy device list of references/composition.md to step 1 of SKILL.md and to references/planning.md (#86)
+- Changed step 2 of SKILL.md to rewrite the play and energy of the starter's low-energy sections for the planned device (#86)
+- Changed song form and club form in references/composition.md to be told apart by whether the structure has a chorus (#86)
 
 * SKILL.md와 references/export.md에서 일반 텍스트로 표시되던 표 2개 수정 (#82)
 * references/mixing-qa.md에서 백비트 전면 아래에 잘못 놓였던 전면과 융합의 판정 창 검증 기록 수정 (#82)
 * references/composition.md의 i VI III VII 진행에 붙어 있던 '가장 범용적' 표시 삭제 (#84)
 * 기획 energy 순서와 측정 음량 순서를 대조하도록 references/mixing-qa.md의 드롭 약화 처방 변경 (#84)
+* SKILL.md 1단계와 references/planning.md에 references/composition.md의 저에너지 구간 장치 목록 안내 추가 (#86)
+* 스타터 저에너지 구간의 play와 energy를 기획한 장치대로 다시 쓰도록 SKILL.md 2단계 변경 (#86)
+* chorus 유무로 구분하도록 references/composition.md의 노래 형식과 클럽 형식 정의 변경 (#86)
 
 ### synth-ventriloquist
 - Changed the stage 1 planning list of SKILL.md to ask mix style and adherence as separate questions, each with its own default (#82)
 - Fixed the GitHub repository step of references/setup.md, which came after the LMMS 1.2.2 download it precedes (#82)
 - Changed the visual review of references/visual-qa.md to judge low stripes and drum lines against the parts the plan takes out (#84)
 - Added a note to references/composing.md that keeps riff patterns and stab rhythms from overlapping under half-bar chords (#84)
+- Changed the section_energy expectation of references/mixing.md to a bridge or breakdown below the chorus or drop (#86)
 
 * SKILL.md 1단계 기획 목록의 믹스 스타일과 준수를 기본값이 따로 있는 별도 질문으로 변경 (#82)
 * references/setup.md에서 LMMS 1.2.2 내려받기 뒤에 놓였던 GitHub 저장소 연결 단계의 순서 수정 (#82)
 * 기획에서 뺀 파트를 기준으로 저역 줄무늬와 드럼 선을 판정하도록 references/visual-qa.md의 시각 검수 변경 (#84)
 * 반 마디 코드에서 riff 패턴과 스탭 리듬의 음 겹침을 막는 references/composing.md 주의 문장 추가 (#84)
+* 브리지와 브레이크다운이 코러스나 드롭보다 낮은 상태를 기대하도록 references/mixing.md의 section_energy 기준 변경 (#86)
 
 ## 2026-10-22
 
